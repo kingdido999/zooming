@@ -1,0 +1,12 @@
+{
+  "name": "zoom",
+  "version": "0.1.0",
+  "description": "Image Zoom by pure JavaScript",
+  "main": "src/zoom.js",
+  "dependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Desmond Ding",
+  "license": "MIT"
+}
