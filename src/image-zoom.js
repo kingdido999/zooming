@@ -199,7 +199,7 @@
    * Set css styles.
    */
   function setStyles(element, styles) {
-    for (let prop in styles) {
+    for (var prop in styles) {
       element.style[prop] = styles[prop]
     }
   }
