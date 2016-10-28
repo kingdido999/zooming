@@ -7,12 +7,59 @@
     this._window = window
     this._document = document
     this._body = document.body
+    this._last_known_scroll_position = 0
+    this._ticking = false
   }
 
   ImageZoomService.prototype = {
     init: function() {
       this._body.addEventListener('click', this._handleClick.bind(this))
       this._overlay = new Overlay()
+    },
+
+    _zoom: function() {
+      this._calculateZoom((function(translate, scale) {
+        this._image.zoomIn(translate, scale)
+      }).bind(this))
+
+      this._overlay.show()
+      this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
+      this._document.addEventListener('scroll', this._handleScroll.bind(this))
+    },
+
+    _close: function() {
+      if (!this._image) return
+
+      this._overlay.hide()
+      this._image.zoomOut()
+      this._document.removeEventListener('keydown', this._handleKeyDown.bind(this))
+      this._document.removeEventListener('scroll', this._handleScroll.bind(this))
+      this._image = null
+    },
+
+    _calculateZoom: function(callback) {
+      var imgRect = this._image.getRect()
+
+      var centerX = this._window.innerWidth / 2
+      var centerY = this._window.innerHeight / 2
+
+      var imgRectHalfWidth = imgRect.width / 2
+      var imgRectHalfHeight = imgRect.height / 2
+
+      var imgX = imgRect.left + imgRectHalfWidth
+      var imgY = imgRect.top + imgRectHalfHeight
+
+      var translate = {
+        x: centerX - imgX,
+        y: centerY - imgY
+      }
+
+      var distX = centerX - imgRectHalfWidth
+      var distY = centerY - imgRectHalfHeight
+
+      var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
+
+      callback(translate, scale)
     },
 
     _handleClick: function(event) {
@@ -45,47 +92,15 @@
       if (event.keyCode === 27) this._close()
     },
 
-    _zoom: function() {
-      this._calculateZoom((function(translate, scale) {
-        this._image.zoomIn(translate, scale)
-      }).bind(this))
-
-      this._overlay.show()
-      this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
-    },
-
-    _calculateZoom: function(callback) {
-      var imgRect = this._image.getRect()
-
-      var centerX = this._window.innerWidth / 2
-      var centerY = this._window.innerHeight / 2
-
-      var imgRectHalfWidth = imgRect.width / 2
-      var imgRectHalfHeight = imgRect.height / 2
-
-      var imgX = imgRect.left + imgRectHalfWidth
-      var imgY = imgRect.top + imgRectHalfHeight
-
-      var translate = {
-        x: centerX - imgX,
-        y: centerY - imgY
+    _handleScroll: function(event) {
+      console.log(window.scrollY)
+      if (!this._ticking) {
+        window.requestAnimationFrame((function() {
+          this._close()
+          this._ticking = false
+        }).bind(this))
       }
-
-      var distX = centerX - imgRectHalfWidth
-      var distY = centerY - imgRectHalfHeight
-
-      var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
-
-      callback(translate, scale)
-    },
-
-    _close: function() {
-      if (!this._image) return
-
-      this._overlay.hide()
-      this._image.zoomOut()
-      this._document.removeEventListener('keydown', this._handleKeyDown.bind(this))
-      this._image = null
+      this._ticking = true
     }
   }
 
