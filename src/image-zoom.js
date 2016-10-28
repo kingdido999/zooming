@@ -1,7 +1,7 @@
 +function() {
 
   function ImageZoomService() {
-    this._scaleBase = 0.9
+    this._scaleBase = 1.0
     this._image = null
     this._overlay = null
     this._window = window
