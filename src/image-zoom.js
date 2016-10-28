@@ -45,7 +45,6 @@
       switch (action) {
         case 'zoom':
           this._overlay.show()
-          this._body.appendChild(this._overlay.element)
           this._image.enable()
           this._zoom()
           break;
@@ -82,9 +81,7 @@
     var distX = centerX - imgRectHalfWidth
     var distY = centerY - imgRectHalfHeight
 
-    var scale = (distX < distY) ?
-    (this._scaleBase + distX / imgRectHalfWidth) :
-    (this._scaleBase + distY / imgRectHalfHeight)
+    var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
 
     this._image.transform(translate, scale)
   }
@@ -94,7 +91,7 @@
    */
   function Overlay(parent, element) {
     this._parent = parent
-    this.element = element
+    this._element = element
     this._styles = {
       'zIndex': 500,
       'background': '#fff',
@@ -112,23 +109,25 @@
   }
 
   Overlay.prototype._init = function() {
-    setStyles(this.element, this._styles)
+    setStyles(this._element, this._styles)
   }
 
   Overlay.prototype.show = function() {
-    setStyles(this.element, {
+    setStyles(this._element, {
       'filter': 'alpha(opacity=100)',
       'opacity': 1
     })
+
+    this._parent.appendChild(this._element)
   }
 
   Overlay.prototype.hide = function() {
-    setStyles(this.element, {
+    setStyles(this._element, {
       'filter': 'alpha(opacity=0)',
       'opacity': 0
     })
 
-    this._parent.removeChild(this.element)
+    this._parent.removeChild(this._element)
   }
 
   /**
