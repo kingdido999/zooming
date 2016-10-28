@@ -34,7 +34,7 @@
         default:
           break;
       }
-    } else if (this._image.isActive()) {
+    } else {
       this._close()
     }
   }
@@ -45,9 +45,9 @@
   }
 
   ImageZoomService.prototype._zoom = function() {
-    this._calculateZoom(function(translate, scale) {
+    this._calculateZoom((function(translate, scale) {
       this._image.zoomIn(translate, scale)
-    })
+    }).bind(this))
 
     this._overlay.show()
     this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
@@ -113,10 +113,6 @@
     this._targetImg = img
     this._rect = this._targetImg.getBoundingClientRect()
     this._body = document.body
-  }
-
-  Zoomable.prototype.isActive = function() {
-    return this._targetImg != null
   }
 
   Zoomable.prototype.zoomIn = function(translate, scale) {
