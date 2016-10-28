@@ -4,7 +4,7 @@
    * The main service.
    */
   function ImageZoomService() {
-    this._scaleBase = 0.95
+    this._scaleBase = 0.9
     this._image = null
     this._overlay = null
     this._window = window
@@ -17,19 +17,7 @@
     this._body.addEventListener('click', this._handleClick.bind(this))
 
     // Create overlay
-    this._overlay = new Overlay(this._body, document.createElement('div'))
-
-    // TODO: Setup cursor style
-    // var zoomableImages = this._document.querySelectorAll('[data-action="zoom"]')
-    // console.log(zoomableImages)
-    //
-    // for (var i = 0; i < zoomableImages.length; i++) {
-    //   setStyles(zoomableImages[i], {
-    //     'cursor': 'pointer',
-    //     'cursor': '-webkit-zoom-in',
-    //     'cursor': '-moz-zoom-in'
-    //   })
-    // }
+    this._overlay = new Overlay()
   }
 
   ImageZoomService.prototype._handleClick = function(event) {
@@ -45,12 +33,12 @@
       switch (action) {
         case 'zoom':
           this._overlay.show()
-          this._image.enable()
+          this._image.zoomIn()
           this._zoom()
           break;
         case 'close':
           this._overlay.hide()
-          this._image.disable()
+          this._image.zoomOut()
           break;
         default:
           break;
@@ -89,45 +77,20 @@
   /**
    * An overlay that hide/show DOM body.
    */
-  function Overlay(parent, element) {
-    this._parent = parent
-    this._element = element
-    this._styles = {
-      'zIndex': 500,
-      'background': '#fff',
-      'position': 'fixed',
-      'top': 0,
-      'left': 0,
-      'right': 0,
-      'bottom': 0,
-      '-webkit-transition': 'opacity 300ms',
-      '-o-transition': 'opacity 300ms',
-      'transition': 'opacity 300ms'
-    }
-
-    this._init()
-  }
-
-  Overlay.prototype._init = function() {
-    setStyles(this._element, this._styles)
+  function Overlay() {
+    this._body = document.body
+    this._element = document.createElement('div')
+    this._element.classList.add('image-zoom-overlay')
   }
 
   Overlay.prototype.show = function() {
-    setStyles(this._element, {
-      'filter': 'alpha(opacity=100)',
-      'opacity': 1
-    })
-
-    this._parent.appendChild(this._element)
+    this._body.classList.add('image-zoom-overlay-show')
+    this._body.appendChild(this._element)
   }
 
   Overlay.prototype.hide = function() {
-    setStyles(this._element, {
-      'filter': 'alpha(opacity=0)',
-      'opacity': 0
-    })
-
-    this._parent.removeChild(this._element)
+    this._body.classList.remove('image-zoom-overlay-show')
+    this._body.removeChild(this._element)
   }
 
   /**
@@ -136,45 +99,26 @@
   function Zoomable(img) {
     this._targetImg = img
     this._rect = this._targetImg.getBoundingClientRect()
-    this._styles = {
-      '-webkit-transition': 'all 300ms',
-      '-o-transition': 'all 300ms',
-      'transition': 'all 300ms'
-    }
-
-    this._init()
-  }
-
-  Zoomable.prototype._init = function() {
-    setStyles(this._targetImg, this._styles)
+    this._body = document.body
   }
 
   Zoomable.prototype.isActive = function() {
     return this._targetImg != null
   }
 
-  Zoomable.prototype.enable = function() {
+  Zoomable.prototype.zoomIn = function() {
     this._targetImg.setAttribute('data-action', 'close')
-
-    setStyles(this._targetImg, {
-      'position': 'relative',
-      'zIndex': 999,
-      'cursor': 'pointer',
-      'cursor': '-webkit-zoom-out',
-      'cursor': '-moz-zoom-out'
-    })
+    this._targetImg.classList.add('image-zoom-transition', 'image-zoom-img')
   }
 
-  Zoomable.prototype.disable = function() {
+  Zoomable.prototype.zoomOut = function() {
     this._targetImg.setAttribute('data-action', 'zoom')
+    this._targetImg.classList.remove('image-zoom-img')
 
     setStyles(this._targetImg, {
+      '-webkit-transform': '',
+      '-ms-transform': '',
       'transform': '',
-      'position': '',
-      'zIndex': '',
-      'cursor': 'pointer',
-      'cursor': '-webkit-zoom-in',
-      'cursor': '-moz-zoom-in'
     })
 
     this._targetImg = null
@@ -185,7 +129,8 @@
   }
 
   Zoomable.prototype.transform = function(translate, scale) {
-    var transform = `translate(${translate.x}px, ${translate.y}px) scale(${scale}, ${scale})`
+    var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
+    'scale(' + scale + ',' + scale + ')'
 
     setStyles(this._targetImg, {
       '-webkit-transform': transform,

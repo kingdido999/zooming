@@ -1,14 +1,15 @@
 # Image Zoom
 
-Image zooming made possible with pure JavaScript.
+Image zooming with pure JavaScript. No dependencies needed.
 
 This project is still under development. [Demo](http://desmonding.me/image-zoom/)
 
 ## How to use
 
-1. Include `image-zoom.js` in your page:
+1. Include `image-zoom.js` and `image-zoom.css` in your page:
 
 ```html
+<link rel="stylesheet" href="src/image-zoom.css">
 <script src="src/image-zoom.js"></script>
 ```
 
