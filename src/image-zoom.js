@@ -32,21 +32,21 @@
 
       switch (action) {
         case 'zoom':
-          this._overlay.show()
-          this._image.zoomIn()
           this._zoom()
           break;
         case 'close':
-          this._overlay.hide()
-          this._image.zoomOut()
+          this._close()
           break;
         default:
           break;
       }
     } else if (this._image.isActive()) {
-      this._overlay.hide()
-      this._image.disable()
+      this._close()
     }
+  }
+
+  ImageZoomService.prototype._handleKeyDown = function(event) {
+    if (event.keyCode === 27) this._close()
   }
 
   ImageZoomService.prototype._zoom = function() {
@@ -71,7 +71,20 @@
 
     var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
 
+    this._overlay.show()
+    this._image.zoomIn()
     this._image.transform(translate, scale)
+
+    this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
+  }
+
+  ImageZoomService.prototype._close = function() {
+    if (!this._image) return
+
+    this._overlay.hide()
+    this._image.zoomOut()
+    this._document.removeEventListener('keydown', this._handleKeyDown.bind(this))
+    this._image = null
   }
 
   /**
