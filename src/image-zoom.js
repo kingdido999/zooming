@@ -1,8 +1,5 @@
 +function() {
 
-  /**
-   * The main service.
-   */
   function ImageZoomService() {
     this._scaleBase = 0.9
     this._image = null
@@ -13,10 +10,7 @@
   }
 
   ImageZoomService.prototype.init = function() {
-    // Add listener for click event
     this._body.addEventListener('click', this._handleClick.bind(this))
-
-    // Create overlay
     this._overlay = new Overlay()
   }
 
@@ -46,10 +40,20 @@
   }
 
   ImageZoomService.prototype._handleKeyDown = function(event) {
+    // Esc => close zoom
     if (event.keyCode === 27) this._close()
   }
 
   ImageZoomService.prototype._zoom = function() {
+    this._calculateZoom(function(translate, scale) {
+      this._image.zoomIn(translate, scale)
+    })
+
+    this._overlay.show()
+    this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
+  }
+
+  ImageZoomService.prototype._calculateZoom = function(callback) {
     var imgRect = this._image.getRect()
 
     var centerX = this._window.innerWidth / 2
@@ -71,11 +75,7 @@
 
     var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
 
-    this._overlay.show()
-    this._image.zoomIn()
-    this._image.transform(translate, scale)
-
-    this._document.addEventListener('keydown', this._handleKeyDown.bind(this))
+    callback(translate, scale)
   }
 
   ImageZoomService.prototype._close = function() {
@@ -88,7 +88,7 @@
   }
 
   /**
-   * An overlay that hide/show DOM body.
+   * The overlay that hide/show DOM body.
    */
   function Overlay() {
     this._body = document.body
@@ -119,9 +119,18 @@
     return this._targetImg != null
   }
 
-  Zoomable.prototype.zoomIn = function() {
+  Zoomable.prototype.zoomIn = function(translate, scale) {
     this._targetImg.setAttribute('data-action', 'close')
     this._targetImg.classList.add('image-zoom-transition', 'image-zoom-img')
+
+    var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
+    'scale(' + scale + ',' + scale + ')'
+
+    setStyles(this._targetImg, {
+      '-webkit-transform': transform,
+      '-ms-transform': transform,
+      'transform': transform,
+    })
   }
 
   Zoomable.prototype.zoomOut = function() {
@@ -139,17 +148,6 @@
 
   Zoomable.prototype.getRect = function() {
     return this._rect
-  }
-
-  Zoomable.prototype.transform = function(translate, scale) {
-    var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
-    'scale(' + scale + ',' + scale + ')'
-
-    setStyles(this._targetImg, {
-      '-webkit-transform': transform,
-      '-ms-transform': transform,
-      'transform': transform,
-    })
   }
 
   /**
