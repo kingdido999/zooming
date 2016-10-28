@@ -40,24 +40,36 @@
     _calculateZoom: function(callback) {
       var imgRect = this._image.getRect()
 
-      var centerX = this._window.innerWidth / 2
-      var centerY = this._window.innerHeight / 2
-
-      var imgRectHalfWidth = imgRect.width / 2
-      var imgRectHalfHeight = imgRect.height / 2
-
-      var imgX = imgRect.left + imgRectHalfWidth
-      var imgY = imgRect.top + imgRectHalfHeight
-
-      var translate = {
-        x: centerX - imgX,
-        y: centerY - imgY
+      var windowCenter = {
+        x: this._window.innerWidth / 2,
+        y: this._window.innerHeight / 2
       }
 
-      var distX = centerX - imgRectHalfWidth
-      var distY = centerY - imgRectHalfHeight
+      var imgHalfWidth = imgRect.width / 2
+      var imgHalfHeight = imgRect.height / 2
 
-      var scale = this._scaleBase + Math.min(distX / imgRectHalfWidth, distY / imgRectHalfHeight)
+      var imgCenter = {
+        x: imgRect.left + imgHalfWidth,
+        y: imgRect.top + imgHalfHeight
+      }
+
+      // The vector to translate image to the window center
+      var translate = {
+        x: windowCenter.x - imgCenter.x,
+        y: windowCenter.y - imgCenter.y
+      }
+
+      // The distance between image edge and window edge
+      var distFromImageEdgeToWindowEdge = {
+        x: windowCenter.x - imgHalfWidth,
+        y: windowCenter.y - imgHalfHeight
+      }
+
+      // The additional scale is based on the smaller value of
+      // scaling horizontally and scaling vertically
+      var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
+      var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
+      var scale = this._scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
       callback(translate, scale)
     },
@@ -67,12 +79,13 @@
 
       if (!target) return
 
-      if (target.tagName === 'IMG' && target.hasAttribute('data-action')) {
+      if (target.tagName !== 'IMG') this._close()
+
+      if (target.hasAttribute('data-action')) {
+        // Make the target image zoomable
         this._image = new Zoomable(target)
 
-        var action = target.getAttribute('data-action')
-
-        switch (action) {
+        switch (target.getAttribute('data-action')) {
           case 'zoom':
             this._zoom()
             break;
@@ -82,20 +95,16 @@
           default:
             break;
         }
-      } else {
-        this._close()
       }
     },
 
     _handleKeyDown: function(event) {
-      // Esc => close zoom
-      if (event.keyCode === 27) this._close()
+      if (event.keyCode === 27) this._close() // Esc
     },
 
     _handleScroll: function(event) {
-      console.log(window.scrollY)
       if (!this._ticking) {
-        window.requestAnimationFrame((function() {
+        this._window.requestAnimationFrame((function() {
           this._close()
           this._ticking = false
         }).bind(this))
@@ -158,8 +167,6 @@
         '-ms-transform': '',
         'transform': '',
       })
-
-      this._target = null
     },
 
     getRect: function() {
