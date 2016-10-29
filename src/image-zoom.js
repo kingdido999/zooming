@@ -103,7 +103,7 @@
 
     _handleScroll: function(event) {
       var scrollTop = this._window.pageYOffset ||
-      (this._document.documentElement || this._document.body.parentNode || this._document.body).scrollTop
+      (this._document.documentElement || this._body.parentNode || this._body).scrollTop
 
       if (this._lastScrollPosition === null) this._lastScrollPosition = scrollTop
       var deltaY = this._lastScrollPosition - scrollTop
@@ -122,6 +122,7 @@
     this._overlay = null // An overlay that whites out the body
     this._rect = this._target.getBoundingClientRect()
     this._body = document.body
+    this._window = window
 
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
   }
@@ -151,7 +152,7 @@
 
       // Use setTimeout to apply correct body opacity transition when
       // zooming in, otherwise the transition effect won't trigger.
-      window.setTimeout((function() {
+      this._window.setTimeout((function() {
         this._body.classList.add('image-zoom-overlay-show')
       }).bind(this), 50)
     },
