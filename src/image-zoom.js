@@ -128,16 +128,7 @@
       this._target.setAttribute('data-action', 'close')
       this._target.classList.add('image-zoom-img')
 
-      this._overlay = document.createElement('div')
-      this._overlay.classList.add('image-zoom-overlay')
-      this._body.appendChild(this._overlay)
-
-      // Use setTimeout to apply correct body opacity transition when
-      // zooming in, otherwise the transition effect won't trigger.
-      window.setTimeout((function() {
-        this._body.classList.add('image-zoom-overlay-show')
-      }).bind(this), 50)
-
+      // Zoom in the image
       var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
       'scale(' + scale + ',' + scale + ')'
 
@@ -146,20 +137,33 @@
         '-ms-transform': transform,
         'transform': transform,
       })
+
+      this._overlay = document.createElement('div')
+
+      // If add class to overlay before transforming the image,
+      // it will cause image flickering on Safari.
+      this._overlay.classList.add('image-zoom-overlay')
+
+      this._body.appendChild(this._overlay)
+
+      // Use setTimeout to apply correct body opacity transition when
+      // zooming in, otherwise the transition effect won't trigger.
+      window.setTimeout((function() {
+        this._body.classList.add('image-zoom-overlay-show')
+      }).bind(this), 50)
     },
 
     zoomOut: function() {
       this._target.setAttribute('data-action', 'zoom')
       this._target.addEventListener('transitionend', this._handleTransitionEnd)
+      this._body.classList.remove('image-zoom-overlay-show')
 
+      // Zoom out the image
       setStyles(this._target, {
         '-webkit-transform': '',
         '-ms-transform': '',
         'transform': '',
       })
-
-
-      this._body.classList.remove('image-zoom-overlay-show')
     },
 
     getRect: function() {
