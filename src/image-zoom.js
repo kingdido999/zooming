@@ -6,10 +6,7 @@
     this._window = window
     this._document = document
     this._body = document.body
-
-    // For scrolling
-    this._last_known_scroll_position = 0
-    this._ticking = false
+    this._lastScrollPosition = null
 
     this._handleClick = this._handleClick.bind(this)
     this._handleKeyDown = this._handleKeyDown.bind(this)
@@ -105,13 +102,15 @@
     },
 
     _handleScroll: function(event) {
-      if (!this._ticking) {
-        this._window.requestAnimationFrame((function() {
-          this._close()
-          this._ticking = false
-        }).bind(this))
+      var scrollTop = this._window.pageYOffset ||
+      (this._document.documentElement || this._document.body.parentNode || this._document.body).scrollTop
+
+      if (this._lastScrollPosition === null) this._lastScrollPosition = scrollTop
+      var deltaY = this._lastScrollPosition - scrollTop
+      if (Math.abs(deltaY) >= 40) {
+        this._lastScrollPosition = null
+        this._close()
       }
-      this._ticking = true
     }
   }
 
