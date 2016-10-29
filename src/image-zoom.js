@@ -132,17 +132,20 @@
       this._overlay.classList.add('image-zoom-overlay')
       this._body.appendChild(this._overlay)
 
+      // Use setTimeout to apply correct body opacity transition when
+      // zooming in, otherwise the transition effect won't trigger.
+      window.setTimeout((function() {
+        this._body.classList.add('image-zoom-overlay-show')
+      }).bind(this), 50)
+
       var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
       'scale(' + scale + ',' + scale + ')'
-
 
       setStyles(this._target, {
         '-webkit-transform': transform,
         '-ms-transform': transform,
         'transform': transform,
       })
-
-      this._body.classList.add('image-zoom-overlay-show')
     },
 
     zoomOut: function() {
@@ -154,7 +157,8 @@
         '-ms-transform': '',
         'transform': '',
       })
-      
+
+
       this._body.classList.remove('image-zoom-overlay-show')
     },
 
