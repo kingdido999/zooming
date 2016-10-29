@@ -2,12 +2,15 @@
 
   function ImageZoomService() {
     this._scaleBase = 1.0
-    this._image = null
+    this._target = null // Zoomable target
     this._window = window
     this._document = document
     this._body = document.body
+
+    // For scrolling
     this._last_known_scroll_position = 0
     this._ticking = false
+
     this._handleClick = this._handleClick.bind(this)
     this._handleKeyDown = this._handleKeyDown.bind(this)
     this._handleScroll = this._handleScroll.bind(this)
@@ -20,7 +23,7 @@
 
     _zoom: function() {
       this._calculateZoom((function(translate, scale) {
-        this._image.zoomIn(translate, scale)
+        this._target.zoomIn(translate, scale)
       }).bind(this))
 
       this._document.addEventListener('keydown', this._handleKeyDown)
@@ -28,17 +31,17 @@
     },
 
     _close: function() {
-      if (!this._image) return
+      if (!this._target) return
 
-      this._image.zoomOut()
+      this._target.zoomOut()
+      this._target = null
 
       this._document.removeEventListener('keydown', this._handleKeyDown)
       this._document.removeEventListener('scroll', this._handleScroll)
-      this._image = null
     },
 
     _calculateZoom: function(callback) {
-      var imgRect = this._image.getRect()
+      var imgRect = this._target.getRect()
 
       var windowCenter = {
         x: this._window.innerWidth / 2,
@@ -83,7 +86,7 @@
         switch (target.getAttribute('data-action')) {
           case 'zoom':
             // Make the target image zoomable
-            this._image = new Zoomable(target)
+            this._target = new Zoomable(target)
             this._zoom()
             break;
           case 'close':
@@ -113,13 +116,14 @@
   }
 
   /**
-   * The target image.
+   * The zoomable target.
    */
-  function Zoomable(img) {
-    this._target = img
-    this._overlay = null
+  function Zoomable(target) {
+    this._target = target
+    this._overlay = null // An overlay that whites out the body
     this._rect = this._target.getBoundingClientRect()
     this._body = document.body
+
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
   }
 
