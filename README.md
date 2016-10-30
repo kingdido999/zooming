@@ -2,15 +2,15 @@
 
 Image zooming with no extra dependency. It supports zooming in with a higher resolution image if supplied.
 
-[Demo](http://desmonding.me/image-zoom/)
+[Demo](http://desmonding.me/zooming/)
 
 ## How to use
 
-1. Include `image-zoom.js` and `image-zoom.css` in your page:
+1. Include `zooming.js` and `zooming.css` in your page:
 
   ```html
-  <link rel="stylesheet" href="src/image-zoom.css">
-  <script src="src/image-zoom.js"></script>
+  <link rel="stylesheet" href="src/zooming.css">
+  <script src="src/zooming.js"></script>
   ```
 
 2. Add `data-action="zoom"` attribute to an image to make it zoomable:

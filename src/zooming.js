@@ -1,6 +1,6 @@
-+function() {
++function() { 'use strict'
 
-  function ImageZoomService() {
+  function Zooming() {
     this._scaleBase = 1.0
     this._target = null // Zoomable target
     this._body = document.body
@@ -12,7 +12,7 @@
     this._handleScroll = this._handleScroll.bind(this)
   }
 
-  ImageZoomService.prototype = {
+  Zooming.prototype = {
     init: function() {
       this._body.addEventListener('click', this._handleClick)
     },
@@ -251,6 +251,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    new ImageZoomService().init()
+    new Zooming().init()
   })
 }()

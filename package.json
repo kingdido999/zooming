@@ -1,12 +1,32 @@
 {
-  "name": "zoom",
+  "name": "zooming",
   "version": "0.1.0",
-  "description": "Image Zoom by pure JavaScript",
+  "description": "Image zooming with pure JavaScript.",
   "main": "src/zoom.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kingdido999/image-zoom.git"
+  },
+  "keywords": [
+    "zoom",
+    "image"
+  ],
   "dependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Desmond Ding",
-  "license": "MIT"
+  "author": "Desmond Ding <kingdido999@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kingdido999/image-zoom/issues"
+  },
+  "homepage": "https://github.com/kingdido999/image-zoom",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cssnano": "^2.1.2",
+    "gulp-file-insert": "^1.0.2",
+    "gulp-header": "^1.8.8",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.0.0"
+  }
 }
