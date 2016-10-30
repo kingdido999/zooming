@@ -17,28 +17,6 @@
       this._body.addEventListener('click', this._handleClick)
     },
 
-    _zoom: function(target) {
-      // Avoid zooming multiple times
-      if (this._target) return
-
-      // Make the target image zoomable
-      this._target = new Zoomable(target)
-      this._target.zoomIn()
-
-      document.addEventListener('keydown', this._handleKeyDown)
-      document.addEventListener('scroll', this._handleScroll)
-    },
-
-    _close: function() {
-      if (!this._target) return
-
-      this._target.zoomOut()
-      this._target = null
-
-      document.removeEventListener('keydown', this._handleKeyDown)
-      document.removeEventListener('scroll', this._handleScroll)
-    },
-
     _handleClick: function(event) {
       var target = event.target
 
@@ -76,6 +54,28 @@
         this._lastScrollPosition = null
         this._close()
       }
+    },
+
+    _zoom: function(target) {
+      // Avoid zooming multiple times
+      if (this._target) return
+
+      // Make the target image zoomable
+      this._target = new Zoomable(target)
+      this._target.zoomIn()
+
+      document.addEventListener('keydown', this._handleKeyDown)
+      document.addEventListener('scroll', this._handleScroll)
+    },
+
+    _close: function() {
+      if (!this._target) return
+
+      this._target.zoomOut()
+      this._target = null
+
+      document.removeEventListener('keydown', this._handleKeyDown)
+      document.removeEventListener('scroll', this._handleScroll)
     }
   }
 
@@ -88,15 +88,15 @@
     this._src = img.getAttribute('src')
     this._dataOriginal = img.getAttribute('data-original')
     this._overlay = null // An overlay that whites out the body
+    this._body = document.body
     this._styles = {
       width: '',
       height: '',
       transform: ''
     }
-    this._body = document.body
 
+    this._zoomImage = this._zoomImage.bind(this)
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
-    this._zoomOriginal = this._zoomOriginal.bind(this)
   }
 
   Zoomable.prototype = {
@@ -123,7 +123,7 @@
         }
 
         this._calculateZoom()
-        this._zoomOriginal()
+        this._zoomImage()
       }).bind(this)
 
       img.src = this._src
@@ -169,7 +169,7 @@
         'scale(' + scale + ',' + scale + ')'
     },
 
-    _zoomOriginal: function() {
+    _zoomImage: function() {
       // Repaint before animating, fix Safari image flickring issue
       this._image.offsetWidth
 
