@@ -32,8 +32,3 @@ img[data-action="close"] {
        -o-transition:      opacity 300ms;
           transition:      opacity 300ms;
 }
-
-.image-zoom-overlay-show .image-zoom-overlay {
-  filter: "alpha(opacity=100)";
-  opacity: 1;
-}
