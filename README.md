@@ -4,7 +4,7 @@ Image zooming with no extra dependency. It supports zooming with a higher resolu
 
 [Demo](http://desmonding.me/zooming/)
 
-## How to use
+## Usage
 
 1. Include `zooming.js` and `zooming.css` in your page:
 
@@ -24,6 +24,10 @@ Image zooming with no extra dependency. It supports zooming with a higher resolu
   ```html
   <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
   ```
+
+## Install
+
+`npm install zooming --save`
 
 ## Credit
 
