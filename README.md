@@ -1,6 +1,6 @@
-# Image Zoom
+# Zooming
 
-Image zooming with no extra dependency. It supports zooming in with a higher resolution image if supplied.
+Image zooming with no extra dependency. It supports zooming with a higher resolution image if supplied.
 
 [Demo](http://desmonding.me/zooming/)
 
