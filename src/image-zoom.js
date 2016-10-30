@@ -117,6 +117,9 @@
             'width': rect.width + 'px',
             'height': rect.height + 'px'
           })
+
+          // Use data-original as image src
+          this._image.setAttribute('src', this._dataOriginal)
         }
 
         this._calculateZoom()
@@ -194,10 +197,6 @@
     zoomOut: function() {
       this._image.addEventListener('transitionend', this._handleTransitionEnd)
 
-      if (this._dataOriginal) {
-        this._image.setAttribute('src', this._src)
-      }
-
       // Remove the overlay
       setStyles(this._overlay, {
         'filter': "alpha(opacity=0)",
@@ -224,15 +223,15 @@
               'width': this._styles.width,
               'height': this._styles.height
             })
+
+            // Restore the old image src
+            this._image.setAttribute('src', this._src)
           }
           this._body.removeChild(this._overlay)
           this._image.classList.remove('image-zoom-img')
           this._image.setAttribute('data-action', 'zoom')
           break
         case 'zoom':
-          if (this._dataOriginal) {
-            this._image.setAttribute('src', this._dataOriginal)
-          }
           this._image.setAttribute('data-action', 'close')
           break
         default:
