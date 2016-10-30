@@ -19,9 +19,7 @@
     },
 
     _zoom: function() {
-      this._calculateZoom((function(translate, scale) {
-        this._target.zoomIn(translate, scale)
-      }).bind(this))
+      this._target.zoomIn()
 
       this._document.addEventListener('keydown', this._handleKeyDown)
       this._document.addEventListener('scroll', this._handleScroll)
@@ -37,43 +35,6 @@
       this._document.removeEventListener('scroll', this._handleScroll)
     },
 
-    _calculateZoom: function(callback) {
-      var imgRect = this._target.getRect()
-
-      var windowCenter = {
-        x: this._window.innerWidth / 2,
-        y: this._window.innerHeight / 2
-      }
-
-      var imgHalfWidth = imgRect.width / 2
-      var imgHalfHeight = imgRect.height / 2
-
-      var imgCenter = {
-        x: imgRect.left + imgHalfWidth,
-        y: imgRect.top + imgHalfHeight
-      }
-
-      // The vector to translate image to the window center
-      var translate = {
-        x: windowCenter.x - imgCenter.x,
-        y: windowCenter.y - imgCenter.y
-      }
-
-      // The distance between image edge and window edge
-      var distFromImageEdgeToWindowEdge = {
-        x: windowCenter.x - imgHalfWidth,
-        y: windowCenter.y - imgHalfHeight
-      }
-
-      // The additional scale is based on the smaller value of
-      // scaling horizontally and scaling vertically
-      var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
-      var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
-      var scale = this._scaleBase + Math.min(scaleHorizontally, scaleVertically)
-
-      callback(translate, scale)
-    },
-
     _handleClick: function(event) {
       var target = event.target
 
@@ -85,12 +46,12 @@
             // Make the target image zoomable
             this._target = new Zoomable(target)
             this._zoom()
-            break;
+            break
           case 'close':
             this._close()
-            break;
+            break
           default:
-            break;
+            break
         }
       } else {
         this._close()
@@ -101,7 +62,7 @@
       if (event.keyCode === 27) this._close() // Esc
     },
 
-    _handleScroll: function(event) {
+    _handleScroll: function() {
       var scrollTop = this._window.pageYOffset ||
       (this._document.documentElement || this._body.parentNode || this._body).scrollTop
 
@@ -118,23 +79,51 @@
    * The zoomable target.
    */
   function Zoomable(target) {
+    this._scaleBase = 1.0
     this._target = target
+    this._src = target.getAttribute('src')
+    this._original = target.getAttribute('data-original')
     this._overlay = null // An overlay that whites out the body
+    this._translate = null
+    this._scale = null
     this._rect = this._target.getBoundingClientRect()
     this._body = document.body
     this._window = window
 
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
+    this._zoomOriginal = this._zoomOriginal.bind(this)
   }
 
   Zoomable.prototype = {
-    zoomIn: function(translate, scale) {
+    zoomIn: function() {
+      var img = new Image()
+
+      img.onload = (function() {
+        // If data-orginal is set, set image css width and height explicitly
+        // so the transformed source image is correctly displayed
+        if (this._original) {
+          this._target.style.width = img.width + 'px'
+          this._target.style.height = img.height + 'px'
+        }
+
+        this._calculateZoom()
+        this._zoomOriginal()
+      }).bind(this)
+
+      img.src = this._target.src
+    },
+
+    _zoomOriginal: function() {
+      // Repaint before animating, fix Safari image rendering issue
+      this._target.offsetWidth
+
       this._target.setAttribute('data-action', 'close')
       this._target.classList.add('image-zoom-img')
+      this._target.addEventListener('transitionend', this._handleTransitionEnd)
 
       // Zoom in the image
-      var transform = 'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
-      'scale(' + scale + ',' + scale + ')'
+      var transform = 'translate(' + this._translate.x + 'px,' + this._translate.y + 'px) ' +
+      'scale(' + this._scale + ',' + this._scale + ')'
 
       setStyles(this._target, {
         '-webkit-transform': transform,
@@ -157,6 +146,39 @@
       }).bind(this), 50)
     },
 
+    _calculateZoom: function() {
+      var windowCenter = {
+        x: this._window.innerWidth / 2,
+        y: this._window.innerHeight / 2
+      }
+
+      var imgHalfWidth = this._rect.width / 2
+      var imgHalfHeight = this._rect.height / 2
+
+      var imgCenter = {
+        x: this._rect.left + imgHalfWidth,
+        y: this._rect.top + imgHalfHeight
+      }
+
+      // The vector to translate image to the window center
+      this._translate = {
+        x: windowCenter.x - imgCenter.x,
+        y: windowCenter.y - imgCenter.y
+      }
+
+      // The distance between image edge and window edge
+      var distFromImageEdgeToWindowEdge = {
+        x: windowCenter.x - imgHalfWidth,
+        y: windowCenter.y - imgHalfHeight
+      }
+
+      // The additional scale is based on the smaller value of
+      // scaling horizontally and scaling vertically
+      var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
+      var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
+      this._scale = this._scaleBase + Math.min(scaleHorizontally, scaleVertically)
+    },
+
     zoomOut: function() {
       this._target.setAttribute('data-action', 'zoom')
       this._target.addEventListener('transitionend', this._handleTransitionEnd)
@@ -168,16 +190,27 @@
         '-ms-transform': '',
         'transform': '',
       })
-    },
 
-    getRect: function() {
-      return this._rect
+      if (this._original) {
+        this._target.setAttribute('src', this._src)
+      }
     },
 
     _handleTransitionEnd: function(event) {
-      if (this._target.getAttribute('data-action') === 'zoom') {
-        this._body.removeChild(this._overlay)
-        this._target.classList.remove('image-zoom-img')
+      switch (this._target.getAttribute('data-action')) {
+        case 'zoom':
+          this._body.removeChild(this._overlay)
+          this._target.classList.remove('image-zoom-img')
+          break
+        case 'close':
+          if (this._original) {
+            this._target.setAttribute('src', this._original)
+            // this._target.style.width = this._rect.width + 'px'
+            // this._target.style.height = this._rect.height + 'px'
+          }
+          break
+        default:
+          break
       }
 
       this._target.removeEventListener('transitionend', this._handleTransitionEnd)
