@@ -1,6 +1,8 @@
 # Image Zoom
 
-Image zooming with pure JavaScript. No dependencies needed. [Demo](http://desmonding.me/image-zoom/)
+Image zooming with no extra dependency. It supports zooming in with a higher resolution image if supplied.
+
+[Demo](http://desmonding.me/image-zoom/)
 
 ## How to use
 
