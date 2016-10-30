@@ -5,7 +5,7 @@
   "main": "src/zoom.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kingdido999/image-zoom.git"
+    "url": "git@github.com:kingdido999/zooming.git"
   },
   "keywords": [
     "zoom",
@@ -18,9 +18,9 @@
   "author": "Desmond Ding <kingdido999@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kingdido999/image-zoom/issues"
+    "url": "https://github.com/kingdido999/zooming/issues"
   },
-  "homepage": "https://github.com/kingdido999/image-zoom",
+  "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-cssnano": "^2.1.2",
