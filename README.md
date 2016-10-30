@@ -17,6 +17,12 @@ Image zooming with pure JavaScript. No dependencies needed. [Demo](http://desmon
 <img src="img/sample.jpg" data-action="zoom" />
 ```
 
+3. Add `data-original` attribute to supply a higher resolution image when zooming in.
+
+```html
+<img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
+```
+
 ## Credit
 
 Inspired by [zoom.js](https://github.com/fat/zoom.js).
