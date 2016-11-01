@@ -1,6 +1,6 @@
 /**
  * zooming - Image zooming with pure JavaScript.
- * @version v0.1.4
+ * @version v0.2.0
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -22,6 +22,11 @@
   Zooming.prototype = {
     init: function() {
       this._body.addEventListener('click', this._handleClick)
+
+      var zoomableImages = document.querySelectorAll('img[data-action="zoom"]')
+      for (var i = 0; i < zoomableImages.length; i++) {
+        setCursorStyle(zoomableImages[i], 'zoom-in')
+      }
     },
 
     _handleClick: function(event) {
@@ -67,7 +72,6 @@
       // Avoid zooming multiple times
       if (this._target) return
 
-      // Make the target image zoomable
       this._target = new Zoomable(target)
       this._target.zoomIn()
 
@@ -96,14 +100,44 @@
     this._dataOriginal = img.getAttribute('data-original')
     this._overlay = null // An overlay that whites out the body
     this._body = document.body
-    this._styles = {
-      width: '',
-      height: '',
-      transform: ''
-    }
-
     this._zoomImage = this._zoomImage.bind(this)
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
+
+    this._styles = {
+      image: {
+        width: '',
+        height: '',
+        transform: '',
+        zoomIn: {
+          'position': 'relative',
+          'z-index': 666,
+          '-webkit-transition': 'all 300ms',
+               '-o-transition': 'all 300ms',
+                  'transition': 'all 300ms'
+        },
+        zoomOut: {
+          'position': '',
+          'z-index': '',
+          '-webkit-transition': '',
+               '-o-transition': '',
+                  'transition': ''
+        }
+      },
+      overlay: {
+        'z-index': 233,
+        'background': '#fff',
+        'position': 'fixed',
+        'top': 0,
+        'left': 0,
+        'right': 0,
+        'bottom': 0,
+        'filter': 'alpha(opacity=0)',
+        'opacity': 0,
+        '-webkit-transition': 'opacity 300ms',
+             '-o-transition': 'opacity 300ms',
+                'transition': 'opacity 300ms'
+      }
+    }
   }
 
   Zoomable.prototype = {
@@ -115,8 +149,8 @@
         // so the transformed source image is correctly displayed
         if (this._dataOriginal) {
           // Save the original image width and height styles if present
-          this._styles.width = this._image.style.width
-          this._styles.height = this._image.style.height
+          this._styles.image.width = this._image.style.width
+          this._styles.image.height = this._image.style.height
 
           var rect = this._image.getBoundingClientRect()
 
@@ -171,7 +205,7 @@
       var scale = this._scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
       // Translate the image to window center, then scale the image
-      this._styles.transform =
+      this._styles.image.transform =
         'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
         'scale(' + scale + ',' + scale + ')'
     },
@@ -180,12 +214,12 @@
       // Repaint before animating, fix Safari image flickring issue
       this._image.offsetWidth
 
-      this._image.classList.add('image-zoom-img')
+      setStyles(this._image, this._styles.image.zoomIn)
       this._image.addEventListener('transitionend', this._handleTransitionEnd)
 
       // Create an overlay, it does not white out at this point
       this._overlay = document.createElement('div')
-      this._overlay.classList.add('image-zoom-overlay')
+      setStyles(this._overlay, this._styles.overlay)
       this._body.appendChild(this._overlay)
 
       // Use setTimeout to apply correct overlay opacity transition when
@@ -210,15 +244,15 @@
         'opacity': 0
       })
 
-      this._styles.transform = ''
+      this._styles.image.transform = ''
       this._transform()
     },
 
     _transform: function() {
       setStyles(this._image, {
-        '-webkit-transform': this._styles.transform,
-        '-ms-transform': this._styles.transform,
-        'transform': this._styles.transform,
+        '-webkit-transform': this._styles.image.transform,
+        '-ms-transform': this._styles.image.transform,
+        'transform': this._styles.image.transform,
       })
     },
 
@@ -235,10 +269,12 @@
             this._image.setAttribute('src', this._src)
           }
           this._body.removeChild(this._overlay)
-          this._image.classList.remove('image-zoom-img')
+          setStyles(this._image, this._styles.image.zoomOut)
+          setCursorStyle(this._image, 'zoom-in')
           this._image.setAttribute('data-action', 'zoom')
           break
         case 'zoom':
+          setCursorStyle(this._image, 'zoom-out')
           this._image.setAttribute('data-action', 'close')
           break
         default:
@@ -248,13 +284,16 @@
     }
   }
 
-  /**
-   * Set css styles.
-   */
   function setStyles(element, styles) {
     for (var prop in styles) {
       element.style[prop] = styles[prop]
     }
+  }
+
+  function setCursorStyle(element, style) {
+    element.style.cursor = style
+    element.style.cursor = '-webkit-' + style
+    element.style.cursor = '-moz-' + style
   }
 
   document.addEventListener('DOMContentLoaded', function() {

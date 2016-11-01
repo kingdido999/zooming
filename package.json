@@ -1,8 +1,8 @@
 {
   "name": "zooming",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Image zooming with pure JavaScript.",
-  "main": "src/zoom.js",
+  "main": "src/zooming.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:kingdido999/zooming.git"
@@ -23,7 +23,6 @@
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.0.13",
     "gulp-file-insert": "^1.0.2",
     "gulp-header": "^1.8.8",
     "gulp-rename": "^1.2.2",

@@ -1,16 +1,19 @@
 # Zooming
 
-Image zooming with no extra dependency. It supports zooming with a higher resolution image if supplied.
+Image zooming with pure JavaScript. No extra dependency. It supports zooming with a higher resolution image if supplied.
 
 [Demo](http://desmonding.me/zooming/)
 
+## Install
+
+`npm install zooming --save`
+
 ## Usage
 
-1. Include `zooming.js` and `zooming.css` in your page:
+1. Include `zooming.js` in your page:
 
   ```html
-  <link rel="stylesheet" href="src/zooming.css">
-  <script src="src/zooming.js"></script>
+  <script src="dist/zooming.js"></script>
   ```
 
 2. Add `data-action="zoom"` attribute to an image to make it zoomable:
@@ -24,10 +27,6 @@ Image zooming with no extra dependency. It supports zooming with a higher resolu
   ```html
   <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
   ```
-
-## Install
-
-`npm install zooming --save`
 
 ## Credit
 
