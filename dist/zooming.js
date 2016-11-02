@@ -1,6 +1,6 @@
 /**
  * zooming - Image zooming with pure JavaScript.
- * @version v0.2.1
+ * @version v0.2.2
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -145,29 +145,56 @@
       var img = new Image()
 
       img.onload = (function() {
-        // If data-orginal is present, set image css width and height explicitly
-        // so the transformed source image is correctly displayed
-        if (this._dataOriginal) {
-          // Save the original image width and height styles if present
-          this._styles.image.width = this._image.style.width
-          this._styles.image.height = this._image.style.height
+        if (this._dataOriginal) this._upgradeSource()
 
-          var rect = this._image.getBoundingClientRect()
-
-          setStyles(this._image, {
-            'width': rect.width + 'px',
-            'height': rect.height + 'px'
-          })
-
-          // Use data-original as image src
-          this._image.setAttribute('src', this._dataOriginal)
-        }
-
+        this._createOverlay()
         this._calculateZoom()
-        this._zoomImage()
+
+        // Repaint before animating, fix Safari image flickering issue
+        this._image.offsetWidth
+
+        // Zoom image
+        setStyles(this._image, this._styles.image.zoomIn)
+        this._transform()
       }).bind(this)
 
       img.src = this._src
+    },
+
+    zoomOut: function() {
+      this._image.addEventListener('transitionend', this._handleTransitionEnd)
+      this._removeOverlay()
+      this._styles.image.transform = ''
+      this._transform()
+    },
+
+    _upgradeSource: function() {
+      // Save the original image width and height styles if present
+      this._styles.image.width = this._image.style.width
+      this._styles.image.height = this._image.style.height
+
+      var rect = this._image.getBoundingClientRect()
+
+      // Set image css width and height explicitly so the transformed
+      // image is correctly displayed
+      setStyles(this._image, {
+        'width': rect.width + 'px',
+        'height': rect.height + 'px'
+      })
+
+      // Use data-original as image src
+      this._image.setAttribute('src', this._dataOriginal)
+    },
+
+    _downgradeSource: function() {
+      // Restore the old image width and height
+      setStyles(this._image, {
+        'width': this._styles.image.width,
+        'height': this._styles.image.height
+      })
+
+      // Restore the image src
+      this._image.setAttribute('src', this._src)
     },
 
     _calculateZoom: function() {
@@ -210,12 +237,7 @@
         'scale(' + scale + ',' + scale + ')'
     },
 
-    _zoomImage: function() {
-      // Repaint before animating, fix Safari image flickring issue
-      this._image.offsetWidth
-
-      setStyles(this._image, this._styles.image.zoomIn)
-
+    _createOverlay: function() {
       // Create an overlay, it does not white out at this point
       this._overlay = document.createElement('div')
       setStyles(this._overlay, this._styles.overlay)
@@ -230,21 +252,13 @@
           'opacity': 1
         })
       }).bind(this), 30)
-
-      this._transform()
     },
 
-    zoomOut: function() {
-      this._image.addEventListener('transitionend', this._handleTransitionEnd)
-
-      // Remove the overlay
+    _removeOverlay: function() {
       setStyles(this._overlay, {
         'filter': "alpha(opacity=0)",
         'opacity': 0
       })
-
-      this._styles.image.transform = ''
-      this._transform()
     },
 
     _transform: function() {
@@ -259,17 +273,9 @@
       switch (this._image.getAttribute('data-action')) {
         case 'close':
           this._body.removeChild(this._overlay)
+          
+          if (this._dataOriginal) this._downgradeSource()
 
-          if (this._dataOriginal) {
-            // Restore the old image width and height
-            setStyles(this._image, {
-              'width': this._styles.image.width,
-              'height': this._styles.image.height
-            })
-
-            // Restore the old image src
-            this._image.setAttribute('src', this._src)
-          }
           setStyles(this._image, this._styles.image.zoomOut)
           setCursorStyle(this._image, 'zoom-in')
           this._image.setAttribute('data-action', 'zoom')
