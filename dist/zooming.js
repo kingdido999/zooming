@@ -1,6 +1,6 @@
 /**
  * zooming - Image zooming with pure JavaScript.
- * @version v0.2.0
+ * @version v0.2.1
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -100,7 +100,6 @@
     this._dataOriginal = img.getAttribute('data-original')
     this._overlay = null // An overlay that whites out the body
     this._body = document.body
-    this._zoomImage = this._zoomImage.bind(this)
     this._handleTransitionEnd = this._handleTransitionEnd.bind(this)
 
     this._styles = {
@@ -142,6 +141,7 @@
 
   Zoomable.prototype = {
     zoomIn: function() {
+      this._image.addEventListener('transitionend', this._handleTransitionEnd)
       var img = new Image()
 
       img.onload = (function() {
@@ -215,7 +215,6 @@
       this._image.offsetWidth
 
       setStyles(this._image, this._styles.image.zoomIn)
-      this._image.addEventListener('transitionend', this._handleTransitionEnd)
 
       // Create an overlay, it does not white out at this point
       this._overlay = document.createElement('div')
@@ -259,16 +258,18 @@
     _handleTransitionEnd: function(event) {
       switch (this._image.getAttribute('data-action')) {
         case 'close':
+          this._body.removeChild(this._overlay)
+
           if (this._dataOriginal) {
+            // Restore the old image width and height
             setStyles(this._image, {
-              'width': this._styles.width,
-              'height': this._styles.height
+              'width': this._styles.image.width,
+              'height': this._styles.image.height
             })
 
             // Restore the old image src
             this._image.setAttribute('src', this._src)
           }
-          this._body.removeChild(this._overlay)
           setStyles(this._image, this._styles.image.zoomOut)
           setCursorStyle(this._image, 'zoom-in')
           this._image.setAttribute('data-action', 'zoom')
