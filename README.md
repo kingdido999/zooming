@@ -1,12 +1,18 @@
 # Zooming
 
-Image zooming with pure JavaScript. No extra dependency. It supports zooming with a higher resolution image if supplied.
+Image zoom with pure JavaScript. No extra dependency. Supports zooming with a higher resolution image if supplied.
 
 [Demo](http://desmonding.me/zooming/)
 
 ## Install
 
+npm:
+
 `npm install zooming --save`
+
+bower:
+
+`bower install zooming --save`
 
 ## Usage
 

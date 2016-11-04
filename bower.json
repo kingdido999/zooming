@@ -1,0 +1,22 @@
+{
+  "name": "zooming",
+  "version": "0.2.3",
+  "homepage": "https://github.com/kingdido999/zooming",
+  "authors": [
+    "Desmond Ding <kingdido999@gmail.com>"
+  ],
+  "description": "Image zoom with pure JavaScript.",
+  "main": "src/zooming.js",
+  "keywords": [
+    "image",
+    "zoom"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

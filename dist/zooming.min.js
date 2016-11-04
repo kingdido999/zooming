@@ -1,6 +1,6 @@
 /**
- * zooming - Image zooming with pure JavaScript.
- * @version v0.2.2
+ * zooming - Image zoom with pure JavaScript.
+ * @version v0.2.3
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
