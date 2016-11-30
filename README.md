@@ -55,8 +55,8 @@ Add `data-original` attribute to supply a higher resolution image when zooming i
     - `transitionTimingFunction` - default: `'cubic-bezier(.4,0,0,1)'`
     - `bgColor` - default: `'#fff'`
     - `bgOpacity` - default: `1`
-    - `scaleBase` - default: `1.0`
-    - `scrollThreshold` - default: `40`
+    - `scaleBase` - the base scale factor for zooming. default: `1.0` (scale to fit the window)
+    - `scrollThreshold` - how much scrolling it takes before closing out. default: `40`
     - `onOpen` - a callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument.
     - `onClose` - same as `onOpen`, except fired when zoomed out.
     - `onBeforeOpen` - a callback function, that will be called before zoom-in.
