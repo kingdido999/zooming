@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.3.0
+ * @version v0.3.1
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -53,7 +53,9 @@
     bottom: 0,
     filter: 'alpha(opacity=0)',
     opacity: 0,
-    transition: 'opacity ' + options.transitionDuration
+    transition: 'opacity ' +
+      options.transitionDuration + ' ' +
+      options.transitionTimingFunction
   })
 
   var api = {
@@ -185,14 +187,14 @@
       return this
     },
 
-    listen: function listen(el) {
+    listen: function (el) {
       if (typeof el === 'string') {
         var els = document.querySelectorAll(el),
             i = els.length
         while (i--) {
-          listen(els[i])
+          this.listen(els[i])
         }
-        return
+        return this
       }
 
       setStyle(el, {

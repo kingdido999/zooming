@@ -20,7 +20,7 @@ Any image with attribute `data-action="zoom"` is zoomable by default, for exampl
 <img src="img/sample.jpg" data-action="zoom" />
 ```
 
-You can also personalize zoomable images in JavaScript:
+You can also define zoomable images in JavaScript:
 
 ```javascript
 Zooming.listen('.selector') // or
