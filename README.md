@@ -6,34 +6,58 @@ Image zoom with pure JavaScript. No extra dependency. Supports zooming with a hi
 
 ## Install
 
-npm:
-
-`npm install zooming --save`
-
-bower:
-
-`bower install zooming --save`
+Download and include a script tag in your page, or install with your package manager (Bower/npm).
 
 ## Usage
 
-1. Include `zooming.js` in your page:
+Any image with attribute `data-action="zoom"` is zoomable by default, for example:
 
-  ```html
-  <script src="dist/zooming.js"></script>
-  ```
+```html
+<img src="img/sample.jpg" data-action="zoom" />
+```
 
-2. Add `data-action="zoom"` attribute to an image to make it zoomable:
+You can also define zoomable images in JavaScript:
 
-  ```html
-  <img src="img/sample.jpg" data-action="zoom" />
-  ```
+```javascript
+Zooming.listen('.selector') // or
+Zooming.listen(element)
+```
 
-3. Add `data-original` attribute to supply a higher resolution image when zooming in:
+Add `data-original` attribute to supply a higher resolution image when zooming in:
 
-  ```html
-  <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
-  ```
+```html
+<img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
+```
+
+## API Reference
+
+- #### Zooming.listen(selector | element)
+
+  Attach click listeners to all matched elements. You can also directly pass in a single node to this method.
+
+- #### Zooming.open(selector | element, [callback])
+
+  Zoom in on the matched element. Fires optional callback when the transition is done.
+
+- #### Zooming.close([callback])
+
+  Zoom out if currently zoomed-in. Fires optional callback when the transition is done.
+
+- #### Zooming.config(options)
+
+  Takes an options object. Available options (all options take valid CSS values):
+
+    - `transitionDuration` - default: `'.4s'`
+    - `transitionTimingFunction` - default: `'cubic-bezier(.4,0,0,1)'`
+    - `bgColor` - default: `'#fff'`
+    - `bgOpacity` - default: `1`
+    - `scaleBase` - default: `1.0`
+    - `scrollThreshold` - default: `40`
+    - `onOpen` - a callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument.
+    - `onClose` - same as `onOpen`, except fired when zoomed out.
+    - `onBeforeOpen` - a callback function, that will be called before zoom-in.
+    - `onBeforeClose` - a callback function, that will be called before zoom-out.
 
 ## Credit
 
-Inspired by [zoom.js](https://github.com/fat/zoom.js).
+Inspired by [zoom.js](https://github.com/fat/zoom.js) and [zoomerang](https://github.com/yyx990803/zoomerang).
