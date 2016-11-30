@@ -6,7 +6,11 @@ Image zoom with pure JavaScript. No extra dependency. Supports zooming with a hi
 
 ## Install
 
-Download and include a script tag in your page, or install with your package manager (Bower/npm).
+Download and include a script tag in your page, or install with your package manager (Bower/npm):
+
+`npm install zooming --save`
+
+`bower install zooming --save`
 
 ## Usage
 
@@ -16,7 +20,7 @@ Any image with attribute `data-action="zoom"` is zoomable by default, for exampl
 <img src="img/sample.jpg" data-action="zoom" />
 ```
 
-You can also define zoomable images in JavaScript:
+You can also personalize zoomable images in JavaScript:
 
 ```javascript
 Zooming.listen('.selector') // or
