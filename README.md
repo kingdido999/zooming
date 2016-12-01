@@ -35,19 +35,19 @@ Add `data-original` attribute to supply a higher resolution image when zooming i
 
 ## APIs
 
-#### Zooming.listen(selector | element)
+### Zooming.listen(selector | element)
 
 Attach click listeners to all matched elements. You can also directly pass in a single node to this method.
 
-#### Zooming.open(selector | element, [callback])
+### Zooming.open(selector | element, [callback])
 
 Zoom in on the matched element. Fires optional callback when the transition is done.
 
-#### Zooming.close([callback])
+### Zooming.close([callback])
 
 Zoom out if currently zoomed-in. Fires optional callback when the transition is done.
 
-#### Zooming.config(options)
+### Zooming.config(options)
 
 Takes an options object. Available options:
 
