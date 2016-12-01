@@ -36,21 +36,6 @@
       transformCssProp = transformProp.replace(/(.*)Transform/, '-$1-transform'),
       transEndEvent = trans.transEnd
 
-  setStyle(overlay, {
-    zIndex: 998,
-    background: options.bgColor,
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    filter: 'alpha(opacity=0)',
-    opacity: 0,
-    transition: 'opacity ' +
-      options.transitionDuration + ' ' +
-      options.transitionTimingFunction
-  })
-
   var api = {
 
     config: function (opts) {
@@ -103,7 +88,7 @@
           target.setAttribute('src', target.getAttribute('data-original'))
         }
 
-        // force layout
+        // force layout update
         target.offsetWidth
 
         // trigger transition
@@ -123,10 +108,7 @@
       // insert overlay
       parent.appendChild(overlay)
       window.setTimeout(function() {
-        setStyle(overlay, {
-          filter: 'alpha(opacity=100)',
-          opacity: options.bgOpacity
-        })
+        overlay.style.opacity = options.bgOpacity
       }, 30)
 
       document.addEventListener('scroll', scrollHandler)
@@ -150,12 +132,10 @@
       if (options.onBeforeClose) options.onBeforeClose(target)
 
       // remove overlay
-      setStyle(overlay, {
-        filter: 'alpha(opacity=0)',
-        opacity: 0
-      })
+      overlay.style.opacity = 0
 
       target.style.transform = ''
+
       document.removeEventListener('scroll', scrollHandler)
       document.removeEventListener('keydown', keydownHandler)
 
@@ -166,6 +146,7 @@
         shown = false
         lock = false
 
+        // downgrade source if possible
         if (target.hasAttribute('data-original')) {
           target.setAttribute('src', thumbnail)
         }
@@ -189,9 +170,7 @@
         return this
       }
 
-      setStyle(el, {
-        cursor: prefix + 'zoom-in'
-      })
+      el.style.cursor = prefix + 'zoom-in'
 
       el.addEventListener('click', function(e) {
         e.stopPropagation()
@@ -207,7 +186,23 @@
     }
   }
 
-  // ---------------------------------------------------------------------------
+  setStyle(overlay, {
+    zIndex: 998,
+    background: options.bgColor,
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0,
+    transition: 'opacity ' +
+      options.transitionDuration + ' ' +
+      options.transitionTimingFunction
+  })
+
+  overlay.addEventListener('click', api.close)
+  document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
+
 
   function setStyle (el, styles, remember) {
     checkTrans(styles)
@@ -316,9 +311,6 @@
   function keydownHandler (e) {
     if (event.keyCode === 27) api.close() // Esc
   }
-
-  overlay.addEventListener('click', api.close)
-  document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
 
   // umd expose
   if (typeof exports == "object") {
