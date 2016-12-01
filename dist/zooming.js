@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.3.1
+ * @version v0.3.2
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -137,6 +137,7 @@
       }, 30)
 
       document.addEventListener('scroll', scrollHandler)
+      document.addEventListener('keydown', keydownHandler)
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
@@ -161,11 +162,9 @@
         opacity: 0
       })
 
-      setStyle(target, {
-        transform: ''
-      })
-
+      target.style.transform = ''
       document.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('keydown', keydownHandler)
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
@@ -319,6 +318,10 @@
       lastScrollPosition = null
       api.close()
     }
+  }
+
+  function keydownHandler (e) {
+    if (event.keyCode === 27) api.close() // Esc
   }
 
   overlay.addEventListener('click', api.close)

@@ -130,6 +130,7 @@
       }, 30)
 
       document.addEventListener('scroll', scrollHandler)
+      document.addEventListener('keydown', keydownHandler)
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
@@ -154,11 +155,9 @@
         opacity: 0
       })
 
-      setStyle(target, {
-        transform: ''
-      })
-
+      target.style.transform = ''
       document.removeEventListener('scroll', scrollHandler)
+      document.removeEventListener('keydown', keydownHandler)
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
@@ -312,6 +311,10 @@
       lastScrollPosition = null
       api.close()
     }
+  }
+
+  function keydownHandler (e) {
+    if (event.keyCode === 27) api.close() // Esc
   }
 
   overlay.addEventListener('click', api.close)
