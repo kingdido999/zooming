@@ -12,7 +12,13 @@ Install with your package manager:
 
 `bower install zooming --save`
 
-Or download and include a script tag in your page.
+Then load this module, e.g., via Browserify:
+
+```javascript
+var Zooming = require('zooming')
+```
+
+Alternatively, download and include a script tag in your page.
 
 ## Usage
 
