@@ -286,7 +286,7 @@
 
         scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth,
         scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight,
-        
+
         // The additional scale is based on the smaller value of
         // scaling horizontally and scaling vertically
         scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically),
@@ -313,7 +313,8 @@
   }
 
   function keydownHandler (e) {
-    if (e.keyCode === 27) api.close() // Esc
+    var code = e.key || e.code
+    if (code === "Escape" || e.keyCode === 27) api.close()
   }
 
   // umd expose
