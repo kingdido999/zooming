@@ -1,16 +1,18 @@
 # Zooming
 
-Image zoom with pure JavaScript. No extra dependency. Supports zooming with a higher resolution image if supplied. It can be customized and invoked programmatically.
+Image zoom with pure JavaScript that can be customized and invoked programmatically. Supports zoom-in with a higher resolution image if supplied.
 
 [Demo](http://desmonding.me/zooming/)
 
 ## Install
 
-Download and include a script tag in your page, or install with your package manager (Bower/npm):
+Install with your package manager:
 
 `npm install zooming --save`
 
 `bower install zooming --save`
+
+Or download and include a script tag in your page.
 
 ## Usage
 
@@ -27,7 +29,7 @@ Zooming.listen('.selector') // or
 Zooming.listen(element)
 ```
 
-Add `data-original` attribute to supply a higher resolution image when zooming in:
+Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ```html
 <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
@@ -35,19 +37,19 @@ Add `data-original` attribute to supply a higher resolution image when zooming i
 
 ## APIs
 
-### `Zooming.listen(selector | element)`
+#### `Zooming.listen(selector | element)`
 
 Attach click listeners to all matched elements.
 
-### `Zooming.open(selector | element, [callback])`
+#### `Zooming.open(selector | element, [callback])`
 
 Zoom in on the matched element. Fires optional callback when the transition is done.
 
-### `Zooming.close([callback])`
+#### `Zooming.close([callback])`
 
 Zoom out if currently zoomed-in. Fires optional callback when the transition is done.
 
-### `Zooming.config(options)`
+#### `Zooming.config(options)`
 
 Takes an options object. Available options:
 
