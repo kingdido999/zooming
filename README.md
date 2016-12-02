@@ -35,32 +35,34 @@ Add `data-original` attribute to supply a higher resolution image when zooming i
 
 ## APIs
 
-### Zooming.listen(selector | element)
+### `Zooming.listen(selector | element)`
 
-Attach click listeners to all matched elements. You can also directly pass in a single node to this method.
+Attach click listeners to all matched elements.
 
-### Zooming.open(selector | element, [callback])
+### `Zooming.open(selector | element, [callback])`
 
 Zoom in on the matched element. Fires optional callback when the transition is done.
 
-### Zooming.close([callback])
+### `Zooming.close([callback])`
 
 Zoom out if currently zoomed-in. Fires optional callback when the transition is done.
 
-### Zooming.config(options)
+### `Zooming.config(options)`
 
 Takes an options object. Available options:
 
-  - `transitionDuration` - default: `'.4s'`
-  - `transitionTimingFunction` - default: `'cubic-bezier(.4,0,0,1)'`
-  - `bgColor` - default: `'#fff'`
-  - `bgOpacity` - default: `1`
-  - `scaleBase` - the base scale factor for zooming. default: `1.0` (scale to fit the window)
-  - `scrollThreshold` - how much scrolling it takes before closing out. default: `40`
-  - `onOpen` - a callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument.
-  - `onClose` - same as `onOpen`, except fired when zoomed out.
-  - `onBeforeOpen` - a callback function, that will be called before zoom-in.
-  - `onBeforeClose` - a callback function, that will be called before zoom-out.
+| Option                   | Type     | Default                 | Description |
+| ---                      | ---      | ----                    | ---         |
+| transitionDuration       | String   | .4s                     | Transition duration. |
+| transitionTimingFunction | String   | cubic-bezier(.4,0,0,1)  | Transition timing function. |
+| bgColor                  | String   | #fff                    | Overlay background color. |
+| bgOpacity                | String   | 1                       | Overlay background capacity. |
+| scaleBase                | String   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
+| scrollThreshold          | String   | 40                      | How much scrolling it takes before closing out. |
+| onOpen                   | Function | null                    | A callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument. |
+| onClose                  | Function | null                    | Same as `onOpen`, except fired when zoomed out. |
+| onBeforeOpen             | Function | null                    | A callback function that will be called before zoom-in. |
+| onBeforeClose            | Function | null                    | A callback function that will be called before zoom-out. |
 
 ## Credit
 
