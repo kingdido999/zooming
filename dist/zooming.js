@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.3.3
+ * @version v0.3.4
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -266,39 +266,43 @@
   }
 
   function calculateTransform (rect) {
-    var windowCenter = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2
-    }
+    var imgHalfWidth = rect.width / 2,
+        imgHalfHeight = rect.height / 2,
 
-    var imgHalfWidth = rect.width / 2
-    var imgHalfHeight = rect.height / 2
+        windowCenter = {
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2
+        },
 
-    var imgCenter = {
-      x: rect.left + imgHalfWidth,
-      y: rect.top + imgHalfHeight
-    }
+        imgCenter = {
+          x: rect.left + imgHalfWidth,
+          y: rect.top + imgHalfHeight
+        },
 
-    // The vector to translate image to the window center
-    var translate = {
-      x: windowCenter.x - imgCenter.x,
-      y: windowCenter.y - imgCenter.y
-    }
+        // The vector to translate image to the window center
+        translate = {
+          x: windowCenter.x - imgCenter.x,
+          y: windowCenter.y - imgCenter.y
+        },
 
-    // The distance between image edge and window edge
-    var distFromImageEdgeToWindowEdge = {
-      x: windowCenter.x - imgHalfWidth,
-      y: windowCenter.y - imgHalfHeight
-    }
+        // The distance between image edge and window edge
+        distFromImageEdgeToWindowEdge = {
+          x: windowCenter.x - imgHalfWidth,
+          y: windowCenter.y - imgHalfHeight
+        },
 
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
-    var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
-    var scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
+        scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth,
+        scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight,
+        
+        // The additional scale is based on the smaller value of
+        // scaling horizontally and scaling vertically
+        scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically),
 
-    // Translate the image to window center, then scale the image
-    return 'translate(' + translate.x + 'px,' + translate.y + 'px) ' + 'scale(' + scale + ',' + scale + ')'
+        transform =
+          'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
+          'scale(' + scale + ',' + scale + ')'
+
+    return transform
   }
 
   function scrollHandler () {
@@ -316,7 +320,7 @@
   }
 
   function keydownHandler (e) {
-    if (event.keyCode === 27) api.close() // Esc
+    if (e.keyCode === 27) api.close() // Esc
   }
 
   // umd expose
