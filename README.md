@@ -56,9 +56,9 @@ Takes an options object. Available options:
 | transitionDuration       | String   | .4s                     | Transition duration. |
 | transitionTimingFunction | String   | cubic-bezier(.4,0,0,1)  | Transition timing function. |
 | bgColor                  | String   | #fff                    | Overlay background color. |
-| bgOpacity                | String   | 1                       | Overlay background capacity. |
-| scaleBase                | String   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
-| scrollThreshold          | String   | 40                      | How much scrolling it takes before closing out. |
+| bgOpacity                | Number   | 1                       | Overlay background capacity. |
+| scaleBase                | Number   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
+| scrollThreshold          | Number   | 40                      | How much scrolling it takes before closing out. |
 | onOpen                   | Function | null                    | A callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument. |
 | onClose                  | Function | null                    | Same as `onOpen`, except fired when zoomed out. |
 | onBeforeOpen             | Function | null                    | A callback function that will be called before zoom-in. |
