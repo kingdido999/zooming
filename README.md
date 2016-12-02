@@ -61,8 +61,8 @@ Takes an options object. Available options:
 
 | Option                   | Type     | Default                 | Description |
 | ---                      | ---      | ----                    | ---         |
-| transitionDuration       | String   | .4s                     | Transition duration. |
-| transitionTimingFunction | String   | cubic-bezier(.4,0,0,1)  | Transition timing function. |
+| transitionDuration       | String   | .4s                     | Transition duration. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration) |
+| transitionTimingFunction | String   | cubic-bezier(.4,0,0,1)  | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
 | bgColor                  | String   | #fff                    | Overlay background color. |
 | bgOpacity                | Number   | 1                       | Overlay background capacity. |
 | scaleBase                | Number   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
