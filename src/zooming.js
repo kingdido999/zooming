@@ -309,7 +309,7 @@
   }
 
   function keydownHandler (e) {
-    if (event.keyCode === 27) api.close() // Esc
+    if (e.keyCode === 27) api.close() // Esc
   }
 
   // umd expose
