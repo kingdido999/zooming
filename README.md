@@ -2,6 +2,7 @@
 
 Pure JavaScript image zoom that can be customized and invoked programmatically.
 
+- Click to zoom in
 - Press on the image for extra zoom-in and try moving around!
 - Zoom into a higher resolution image if supplied
 
