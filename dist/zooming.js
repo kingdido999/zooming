@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.3.5
+ * @version v0.4.0
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -19,8 +19,18 @@
   // state
   var shown = false,
       lock  = false,
-      originalStyles,
-      thumbnail,
+      press = false,
+      grab = false
+
+  // style
+  var originalStyles,
+      openStyles,
+      scale,
+      translate
+
+  var srcThumbnail,
+      rect,
+      pressTimer,
       lastScrollPosition = null
 
   var options = {
@@ -29,11 +39,16 @@
     bgColor: '#fff',
     bgOpacity: 1,
     scaleBase: 1.0,
+    scaleExtra: 0.5,
     scrollThreshold: 40,
     onOpen: null,
     onClose: null,
+    onGrab: null,
+    onRelease: null,
+    onBeforeOpen: null,
     onBeforeClose: null,
-    onBeforeOpen: null
+    onBeforeGrab: null,
+    onBeforeRelease: null
   }
 
   // compatibility stuff
@@ -63,7 +78,7 @@
     },
 
     open: function (el, cb) {
-      if (shown || lock) return
+      if (shown || lock || grab) return
 
       target = typeof el === 'string'
         ? document.querySelector(el)
@@ -81,11 +96,11 @@
       var img = new Image()
 
       img.onload = function() {
-        var rect = target.getBoundingClientRect()
+        rect = target.getBoundingClientRect()
 
         // upgrade source if possible
         if (target.hasAttribute('data-original')) {
-          thumbnail = target.getAttribute('src')
+          srcThumbnail = target.getAttribute('src')
 
           setStyle(target, {
             width: rect.width + 'px',
@@ -98,23 +113,25 @@
         // force layout update
         target.offsetWidth
 
-        // trigger transition
-        originalStyles = setStyle(target, {
+        openStyles = {
           position: 'relative',
           zIndex: 999,
-          cursor: prefix + 'zoom-out',
+          cursor: prefix + 'grab',
           transition: transformCssProp + ' ' +
             options.transitionDuration + ' ' +
             options.transitionTimingFunction,
-          transform: calculateTransform(rect)
-        }, true)
+          transform: calculateTransform()
+        }
+
+        // trigger transition
+        originalStyles = setStyle(target, openStyles, true)
       }
 
       img.src = target.getAttribute('src')
 
       // insert overlay
       parent.appendChild(overlay)
-      window.setTimeout(function() {
+      setTimeout(function() {
         overlay.style.opacity = options.bgOpacity
       }, 30)
 
@@ -123,6 +140,10 @@
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
+        target.addEventListener('mousedown', mousedownHandler)
+        target.addEventListener('mousemove', mousemoveHandler)
+        target.addEventListener('mouseup', mouseupHandler)
+
         lock = false
         cb = cb || options.onOpen
         if (cb) cb(target)
@@ -132,7 +153,7 @@
     },
 
     close: function (cb) {
-      if (!shown || lock) return
+      if (!shown || lock || grab) return
       lock = true
 
       // onBeforeClose event
@@ -148,19 +169,76 @@
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
+        target.removeEventListener('mousedown', mousedownHandler)
+        target.removeEventListener('mousemove', mousemoveHandler)
+        target.removeEventListener('mouseup', mouseupHandler)
+
         setStyle(target, originalStyles)
         parent.removeChild(overlay)
         shown = false
         lock = false
+        grab = false
 
         // downgrade source if possible
         if (target.hasAttribute('data-original')) {
-          target.setAttribute('src', thumbnail)
+          target.setAttribute('src', srcThumbnail)
         }
 
         cb = typeof cb === 'function'
           ? cb
           : options.onClose
+        if (cb) cb(target)
+      })
+
+      return this
+    },
+
+    grab: function(cursorX, cursorY, cb) {
+      if (!shown || lock) return
+      grab = true
+
+      // onBeforeGrab event
+      if (options.onBeforeGrab) options.onBeforeGrab(target)
+
+      var dx = cursorX - window.innerWidth / 2,
+          dy = cursorY - window.innerHeight / 2,
+          oldTransform = target.style.transform,
+          transform = oldTransform
+            .replace(
+              /translate\(.*?\)/i,
+              'translate(' + (translate.x + dx) + 'px,' + (translate.y + dy) + 'px) ')
+            .replace(
+              /scale\([0-9|\.]*\)/i,
+              'scale(' + (scale + options.scaleExtra) + ')')
+
+      setStyle(target, {
+        cursor: prefix + 'grabbing',
+        transition: transformCssProp + ' .1s',
+        transform: transform
+      })
+
+      target.addEventListener(transEndEvent, function onEnd () {
+        target.removeEventListener(transEndEvent, onEnd)
+        cb = cb || options.onGrab
+        if (cb) cb(target)
+      })
+    },
+
+    release: function(cb) {
+      if (!shown || lock || !grab) return
+
+      // onBeforeRelease event
+      if (options.onBeforeRelease) options.onBeforeRelease(target)
+
+      setStyle(target, openStyles)
+
+      target.addEventListener(transEndEvent, function onEnd () {
+        target.removeEventListener(transEndEvent, onEnd)
+        grab = false
+
+        cb = typeof cb === 'function'
+          ? cb
+          : options.onRelease
         if (cb) cb(target)
       })
 
@@ -182,11 +260,8 @@
       el.addEventListener('click', function(e) {
         e.stopPropagation()
 
-        if (shown) {
-          api.close()
-        } else {
-          api.open(el)
-        }
+        if (shown) api.close()
+        else api.open(el)
       })
 
       return this
@@ -209,7 +284,6 @@
 
   overlay.addEventListener('click', api.close)
   document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
-
 
   function setStyle (el, styles, remember) {
     checkTrans(styles)
@@ -265,24 +339,18 @@
     }
   }
 
-  function calculateTransform (rect) {
+  function calculateTransform () {
     var imgHalfWidth = rect.width / 2,
         imgHalfHeight = rect.height / 2,
-
-        windowCenter = {
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2
-        },
 
         imgCenter = {
           x: rect.left + imgHalfWidth,
           y: rect.top + imgHalfHeight
         },
 
-        // The vector to translate image to the window center
-        translate = {
-          x: windowCenter.x - imgCenter.x,
-          y: windowCenter.y - imgCenter.y
+        windowCenter = {
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2
         },
 
         // The distance between image edge and window edge
@@ -292,15 +360,21 @@
         },
 
         scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth,
-        scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight,
+        scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
 
-        // The additional scale is based on the smaller value of
-        // scaling horizontally and scaling vertically
-        scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically),
+      // The vector to translate image to the window center
+      translate = {
+        x: windowCenter.x - imgCenter.x,
+        y: windowCenter.y - imgCenter.y
+      }
 
-        transform =
+      // The additional scale is based on the smaller value of
+      // scaling horizontally and scaling vertically
+      scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
+
+      var transform =
           'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
-          'scale(' + scale + ',' + scale + ')'
+          'scale(' + scale + ')'
 
     return transform
   }
@@ -321,15 +395,36 @@
 
   function keydownHandler (e) {
     var code = e.key || e.code
-    if (code === "Escape" || e.keyCode === 27) api.close()
+    if (code === 'Escape' || e.keyCode === 27) api.close()
+  }
+
+  function mousedownHandler (e) {
+    e.preventDefault()
+
+    pressTimer = setTimeout(function() {
+      press = true
+      api.grab(e.clientX, e.clientY)
+    }, 200)
+  }
+
+  function mousemoveHandler (e) {
+    if (press) api.grab(e.clientX, e.clientY)
+  }
+
+  function mouseupHandler () {
+    clearTimeout(pressTimer)
+    press = false
+    api.release()
   }
 
   // umd expose
-  if (typeof exports == "object") {
+  /* eslint-disable no-undef */
+  if (typeof exports == 'object') {
     module.exports = api
-  } else if (typeof define == "function" && define.amd) {
+  } else if (typeof define == 'function' && define.amd) {
     define(function(){ return api })
   } else {
     this.Zooming = api
   }
+  /* eslint-enable no-undef */
 }()
