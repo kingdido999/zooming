@@ -257,7 +257,7 @@
       el.style.cursor = prefix + 'zoom-in'
 
       el.addEventListener('click', function(e) {
-        e.stopPropagation()
+        e.preventDefault()
 
         if (shown) api.close()
         else api.open(el)
@@ -437,6 +437,7 @@
     clearTimeout(pressTimer)
     press = false
     api.release()
+    api.close()
   }
 
   // umd expose

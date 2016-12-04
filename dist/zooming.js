@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.1
+ * @version v0.4.2
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -264,7 +264,7 @@
       el.style.cursor = prefix + 'zoom-in'
 
       el.addEventListener('click', function(e) {
-        e.stopPropagation()
+        e.preventDefault()
 
         if (shown) api.close()
         else api.open(el)
@@ -444,6 +444,7 @@
     clearTimeout(pressTimer)
     press = false
     api.release()
+    api.close()
   }
 
   // umd expose
