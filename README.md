@@ -1,6 +1,9 @@
 # Zooming
 
-Image zoom with pure JavaScript that can be customized and invoked programmatically. Supports zoom-in with a higher resolution image if supplied.
+Pure JavaScript image zoom that can be customized and invoked programmatically.
+
+- Press on the image for extra zoom-in and try moving around!
+- Zoom into a higher resolution image if supplied
 
 [Demo](http://desmonding.me/zooming/)
 
@@ -41,7 +44,7 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
 ```
 
-## APIs
+## Methods
 
 #### `Zooming.listen(selector | element)`
 
@@ -49,11 +52,19 @@ Attach click listeners to all matched elements.
 
 #### `Zooming.open(selector | element, [callback])`
 
-Zoom in on the matched element. Fires optional callback when the transition is done.
+Open (zoom in) the matched element. Fires optional callback when the transition is done.
 
 #### `Zooming.close([callback])`
 
-Zoom out if currently zoomed-in. Fires optional callback when the transition is done.
+Close (zoom out) if currently zoomed-in. Fires optional callback when the transition is done.
+
+#### `Zooming.grab([callback])`
+
+Grab the current image and apply extra zoom in. Fires optional callback when the transition is done.
+
+#### `Zooming.release([callback])`
+
+Release the current image. Fires optional callback when the transition is done.
 
 #### `Zooming.config(options)`
 
@@ -66,11 +77,16 @@ Takes an options object. Available options:
 | bgColor                  | String   | #fff                    | Overlay background color. |
 | bgOpacity                | Number   | 1                       | Overlay background capacity. |
 | scaleBase                | Number   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
+| scaleExtra               | Number   | 0.5                     | The extra scale factor when grabbing the image. |
 | scrollThreshold          | Number   | 40                      | How much scrolling it takes before closing out. |
-| onOpen                   | Function | null                    | A callback function that will be called when a target is zoomed in and transition has ended. It will get the target element as the argument. |
-| onClose                  | Function | null                    | Same as `onOpen`, except fired when zoomed out. |
-| onBeforeOpen             | Function | null                    | A callback function that will be called before zoom-in. |
-| onBeforeClose            | Function | null                    | A callback function that will be called before zoom-out. |
+| onOpen                   | Function | null                    | A callback function that will be called when a target is opened and transition has ended. It will get the target element as the argument. |
+| onClose                  | Function | null                    | Same as above, except fired when closed. |
+| onGrab                   | Function | null                    | Same as above, except fired when grabbed. |
+| onRelease                | Function | null                    | Same as above, except fired when released. |
+| onBeforeOpen             | Function | null                    | A callback function that will be called before open. |
+| onBeforeClose            | Function | null                    | A callback function that will be called before close. |
+| onBeforeGrab             | Function | null                    | A callback function that will be called before grab. |
+| onBeforeRelease          | Function | null                    | A callback function that will be called before release. |
 
 ## Credit
 
