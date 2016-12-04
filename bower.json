@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "homepage": "https://github.com/kingdido999/zooming",
   "authors": [
     "Desmond Ding <kingdido999@gmail.com>"
@@ -9,7 +9,8 @@
   "main": "src/zooming.js",
   "keywords": [
     "image",
-    "zoom"
+    "zoom",
+    "grab"
   ],
   "license": "MIT",
   "ignore": [

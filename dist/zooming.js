@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.0
+ * @version v0.4.1
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -143,6 +143,9 @@
         target.addEventListener('mousedown', mousedownHandler)
         target.addEventListener('mousemove', mousemoveHandler)
         target.addEventListener('mouseup', mouseupHandler)
+        target.addEventListener('touchstart', touchstartHandler)
+        target.addEventListener('touchmove', touchmoveHandler)
+        target.addEventListener('touchend', touchendHandler)
 
         lock = false
         cb = cb || options.onOpen
@@ -172,6 +175,9 @@
         target.removeEventListener('mousedown', mousedownHandler)
         target.removeEventListener('mousemove', mousemoveHandler)
         target.removeEventListener('mouseup', mouseupHandler)
+        target.removeEventListener('touchstart', touchstartHandler)
+        target.removeEventListener('touchmove', touchmoveHandler)
+        target.removeEventListener('touchend', touchendHandler)
 
         setStyle(target, originalStyles)
         parent.removeChild(overlay)
@@ -412,6 +418,29 @@
   }
 
   function mouseupHandler () {
+    clearTimeout(pressTimer)
+    press = false
+    api.release()
+  }
+
+  function touchstartHandler (e) {
+    e.preventDefault()
+
+    pressTimer = setTimeout(function() {
+      press = true
+      var touch = e.touches[0]
+      api.grab(touch.clientX, touch.clientY)
+    }, 200)
+  }
+
+  function touchmoveHandler (e) {
+    if (press) {
+      var touch = e.touches[0]
+      api.grab(touch.clientX, touch.clientY)
+    }
+  }
+
+  function touchendHandler () {
     clearTimeout(pressTimer)
     press = false
     api.release()
