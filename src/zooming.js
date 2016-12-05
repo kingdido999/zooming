@@ -18,12 +18,13 @@
   // style
   var originalStyles,
       openStyles,
-      scale,
-      translate
+      translate,
+      scale
 
   var srcThumbnail,
-      rect,
+      imgRect,
       pressTimer,
+      pressDelay = 200,
       lastScrollPosition = null
 
   var options = {
@@ -50,6 +51,8 @@
       transformProp = trans.transform,
       transformCssProp = transformProp.replace(/(.*)Transform/, '-$1-transform'),
       transEndEvent = trans.transEnd
+
+  // ---------------------------------------------------------------------------
 
   var api = {
 
@@ -89,15 +92,15 @@
       var img = new Image()
 
       img.onload = function() {
-        rect = target.getBoundingClientRect()
+        imgRect = target.getBoundingClientRect()
 
         // upgrade source if possible
         if (target.hasAttribute('data-original')) {
           srcThumbnail = target.getAttribute('src')
 
           setStyle(target, {
-            width: rect.width + 'px',
-            height: rect.height + 'px'
+            width: imgRect.width + 'px',
+            height: imgRect.height + 'px'
           })
 
           target.setAttribute('src', target.getAttribute('data-original'))
@@ -284,6 +287,8 @@
   overlay.addEventListener('click', api.close)
   document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
 
+  // helpers -------------------------------------------------------------------
+
   function setStyle (el, styles, remember) {
     checkTrans(styles)
     var s = el.style,
@@ -339,12 +344,12 @@
   }
 
   function calculateTransform () {
-    var imgHalfWidth = rect.width / 2,
-        imgHalfHeight = rect.height / 2,
+    var imgHalfWidth = imgRect.width / 2,
+        imgHalfHeight = imgRect.height / 2,
 
         imgCenter = {
-          x: rect.left + imgHalfWidth,
-          y: rect.top + imgHalfHeight
+          x: imgRect.left + imgHalfWidth,
+          y: imgRect.top + imgHalfHeight
         },
 
         windowCenter = {
@@ -378,6 +383,8 @@
     return transform
   }
 
+  // listeners -----------------------------------------------------------------
+
   function scrollHandler () {
     var scrollTop = window.pageYOffset ||
       (document.documentElement || body.parentNode || body).scrollTop
@@ -403,7 +410,7 @@
     pressTimer = setTimeout(function() {
       press = true
       api.grab(e.clientX, e.clientY)
-    }, 200)
+    }, pressDelay)
   }
 
   function mousemoveHandler (e) {
@@ -423,7 +430,7 @@
       press = true
       var touch = e.touches[0]
       api.grab(touch.clientX, touch.clientY)
-    }, 200)
+    }, pressDelay)
   }
 
   function touchmoveHandler (e) {
@@ -436,11 +443,12 @@
   function touchendHandler () {
     clearTimeout(pressTimer)
     press = false
-    api.release()
-    api.close()
+    if (grab) api.release()
+    else api.close()
   }
 
-  // umd expose
+  // umd expose ----------------------------------------------------------------
+
   /* eslint-disable no-undef */
   if (typeof exports == 'object') {
     module.exports = api
