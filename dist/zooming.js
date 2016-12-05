@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.5
+ * @version v0.4.6
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -222,7 +222,11 @@
 
       setStyle(target, {
         cursor: prefix + 'grabbing',
-        transition: transformCssProp + (start ? ' ' + options.transitionDuration : '') + ' ease',
+        transition: transformCssProp + ' ' + (
+          start
+          ? options.transitionDuration + ' ' + options.transitionTimingFunction
+          : 'ease'
+        ),
         transform: transform
       })
 

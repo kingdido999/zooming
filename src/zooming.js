@@ -215,7 +215,11 @@
 
       setStyle(target, {
         cursor: prefix + 'grabbing',
-        transition: transformCssProp + (start ? ' ' + options.transitionDuration : '') + ' ease',
+        transition: transformCssProp + ' ' + (
+          start
+          ? options.transitionDuration + ' ' + options.transitionTimingFunction
+          : 'ease'
+        ),
         transform: transform
       })
 
