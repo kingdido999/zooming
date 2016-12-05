@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.4
+ * @version v0.4.5
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -202,7 +202,7 @@
       return this
     },
 
-    grab: function(cursorX, cursorY, cb) {
+    grab: function(cursorX, cursorY, start, cb) {
       if (!shown || lock) return
       grab = true
 
@@ -222,7 +222,7 @@
 
       setStyle(target, {
         cursor: prefix + 'grabbing',
-        transition: transformCssProp + ' ease',
+        transition: transformCssProp + (start ? ' ' + options.transitionDuration : '') + ' ease',
         transform: transform
       })
 
@@ -416,7 +416,7 @@
 
     pressTimer = setTimeout(function() {
       press = true
-      api.grab(e.clientX, e.clientY)
+      api.grab(e.clientX, e.clientY, true)
     }, pressDelay)
   }
 
@@ -436,7 +436,7 @@
     pressTimer = setTimeout(function() {
       press = true
       var touch = e.touches[0]
-      api.grab(touch.clientX, touch.clientY)
+      api.grab(touch.clientX, touch.clientY, true)
     }, pressDelay)
   }
 

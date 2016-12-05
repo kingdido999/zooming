@@ -59,9 +59,11 @@ Open (zoom in) the matched element. Fires optional callback when the transition 
 
 Close (zoom out) if currently zoomed-in. Fires optional callback when the transition is done.
 
-#### `Zooming.grab(cursorX, cursorY, [callback])`
+#### `Zooming.grab(cursorX, cursorY, start, [callback])`
 
 Grab the current image given a cursor position and apply extra zoom in. Fires optional callback when the transition is done.
+
+`start`: indicate whether this is the initial grab (press mouse/finger down) or not.
 
 #### `Zooming.release([callback])`
 
