@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.3
+ * @version v0.4.4
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -214,15 +214,15 @@
           oldTransform = target.style.transform,
           transform = oldTransform
             .replace(
-              /translate\(.*?\)/i,
-              'translate(' + (translate.x + dx) + 'px,' + (translate.y + dy) + 'px) ')
+              /translate3d\(.*?\)/i,
+              'translate3d(' + (translate.x + dx) + 'px,' + (translate.y + dy) + 'px, 0)')
             .replace(
               /scale\([0-9|\.]*\)/i,
               'scale(' + (scale + options.scaleExtra) + ')')
 
       setStyle(target, {
         cursor: prefix + 'grabbing',
-        transition: transformCssProp + ' .1s',
+        transition: transformCssProp + ' ease',
         transform: transform
       })
 
@@ -384,7 +384,7 @@
       scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
       var transform =
-          'translate(' + translate.x + 'px,' + translate.y + 'px) ' +
+          'translate3d(' + translate.x + 'px,' + translate.y + 'px, 0) ' +
           'scale(' + scale + ')'
 
     return transform
