@@ -47,30 +47,30 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ## Methods
 
-#### `Zooming.listen(selector | element)`
+#### `.listen(selector | element)`
 
-Attach click listeners to all matched elements.
+Attach click listeners to all matched images.
 
-#### `Zooming.open(selector | element, [callback])`
+#### `.open(selector | element [, callback])`
 
-Open (zoom in) the matched element. Fires optional callback when the transition is done.
+Open (zoom in) the matched image. Fires optional callback when the transition is done.
 
-#### `Zooming.close([callback])`
+#### `.close([callback])`
 
-Close (zoom out) if currently zoomed-in. Fires optional callback when the transition is done.
+Close (zoom out) if currently zoomed-in.
 
-#### `Zooming.grab(x, y, start, [callback])`
+#### `.grab(x, y [, start] [, callback])`
 
-Grab the current image given a mouse/touch position and apply extra zoom in. Fires optional callback when the transition is done.
+Grab the current image given a mouse/touch position and apply extra zoom in.
 
 - `x`, `y`: Number. The point where the press happened.
 - `start`: Boolean. Indicate whether this is the initial grab (press mouse/finger down) or not.
 
-#### `Zooming.release([callback])`
+#### `.release([callback])`
 
-Release the current image. Fires optional callback when the transition is done.
+Release the current image.
 
-#### `Zooming.config(options)`
+#### `.config(options)`
 
 Takes an options object. Available options:
 
