@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Image zoom with pure JavaScript.",
   "main": "src/zooming.js",
   "repository": {
