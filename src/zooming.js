@@ -28,6 +28,7 @@
       lastScrollPosition = null
 
   var options = {
+    defaultZoomable: 'img[data-action="zoom"]',
     transitionDuration: '.4s',
     transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
     bgColor: '#fff',
@@ -289,7 +290,7 @@
   })
 
   overlay.addEventListener('click', api.close)
-  document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
+  document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
 
   // helpers -------------------------------------------------------------------
 

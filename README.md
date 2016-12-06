@@ -74,23 +74,24 @@ Release the current image.
 
 Takes an options object. Available options:
 
-| Option                   | Type     | Default                 | Description |
-| ---                      | ---      | ----                    | ---         |
-| transitionDuration       | String   | .4s                     | Transition duration. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration) |
-| transitionTimingFunction | String   | cubic-bezier(.4,0,0,1)  | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
-| bgColor                  | String   | #fff                    | Overlay background color. |
-| bgOpacity                | Number   | 1                       | Overlay background capacity. |
-| scaleBase                | Number   | 1.0                     | The base scale factor for zooming. By default scale to fit the window. |
-| scaleExtra               | Number   | 0.5                     | The extra scale factor when grabbing the image. |
-| scrollThreshold          | Number   | 40                      | How much scrolling it takes before closing out. |
-| onOpen                   | Function | null                    | A callback function that will be called when a target is opened and transition has ended. It will get the target element as the argument. |
-| onClose                  | Function | null                    | Same as above, except fired when closed. |
-| onGrab                   | Function | null                    | Same as above, except fired when grabbed. |
-| onRelease                | Function | null                    | Same as above, except fired when released. |
-| onBeforeOpen             | Function | null                    | A callback function that will be called before open. |
-| onBeforeClose            | Function | null                    | A callback function that will be called before close. |
-| onBeforeGrab             | Function | null                    | A callback function that will be called before grab. |
-| onBeforeRelease          | Function | null                    | A callback function that will be called before release. |
+| Option                   | Type     | Default                   | Description |
+| ---                      | ---      | ----                      | ---         |
+| defaultZoomable          | Object   | 'img[data-action="zoom"]' | Zoomable elements by default. It can be a css selector or an element. |
+| transitionDuration       | String   | '.4s'                     | Transition duration. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration) |
+| transitionTimingFunction | String   | 'cubic-bezier(.4,0,0,1)'  | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
+| bgColor                  | String   | '#fff'                    | Overlay background color. |
+| bgOpacity                | Number   | 1                         | Overlay background capacity. |
+| scaleBase                | Number   | 1.0                       | The base scale factor for zooming. By default scale to fit the window. |
+| scaleExtra               | Number   | 0.5                       | The extra scale factor when grabbing the image. |
+| scrollThreshold          | Number   | 40                        | How much scrolling it takes before closing out. |
+| onOpen                   | Function | null                      | A callback function that will be called when a target is opened and transition has ended. It will get the target element as the argument. |
+| onClose                  | Function | null                      | Same as above, except fired when closed. |
+| onGrab                   | Function | null                      | Same as above, except fired when grabbed. |
+| onRelease                | Function | null                      | Same as above, except fired when released. |
+| onBeforeOpen             | Function | null                      | A callback function that will be called before open. |
+| onBeforeClose            | Function | null                      | A callback function that will be called before close. |
+| onBeforeGrab             | Function | null                      | A callback function that will be called before grab. |
+| onBeforeRelease          | Function | null                      | A callback function that will be called before release. |
 
 ## Credit
 
