@@ -1,6 +1,6 @@
 /**
  * zooming - Image zoom with pure JavaScript.
- * @version v0.4.6
+ * @version v0.4.7
  * @link https://github.com/kingdido999/zooming
  * @license MIT
  */
@@ -35,6 +35,7 @@
       lastScrollPosition = null
 
   var options = {
+    defaultZoomable: 'img[data-action="zoom"]',
     transitionDuration: '.4s',
     transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
     bgColor: '#fff',
@@ -202,15 +203,15 @@
       return this
     },
 
-    grab: function(cursorX, cursorY, start, cb) {
+    grab: function(x, y, start, cb) {
       if (!shown || lock) return
       grab = true
 
       // onBeforeGrab event
       if (options.onBeforeGrab) options.onBeforeGrab(target)
 
-      var dx = cursorX - window.innerWidth / 2,
-          dy = cursorY - window.innerHeight / 2,
+      var dx = x - window.innerWidth / 2,
+          dy = y - window.innerHeight / 2,
           oldTransform = target.style.transform,
           transform = oldTransform
             .replace(
@@ -296,7 +297,7 @@
   })
 
   overlay.addEventListener('click', api.close)
-  document.addEventListener('DOMContentLoaded', api.listen('img[data-action="zoom"]'))
+  document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
 
   // helpers -------------------------------------------------------------------
 
