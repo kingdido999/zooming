@@ -195,15 +195,15 @@
       return this
     },
 
-    grab: function(cursorX, cursorY, start, cb) {
+    grab: function(x, y, start, cb) {
       if (!shown || lock) return
       grab = true
 
       // onBeforeGrab event
       if (options.onBeforeGrab) options.onBeforeGrab(target)
 
-      var dx = cursorX - window.innerWidth / 2,
-          dy = cursorY - window.innerHeight / 2,
+      var dx = x - window.innerWidth / 2,
+          dy = y - window.innerHeight / 2,
           oldTransform = target.style.transform,
           transform = oldTransform
             .replace(
