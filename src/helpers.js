@@ -4,6 +4,7 @@ const pressDelay = 200
 
 const defaults = {
   zoomable: 'img[data-action="zoom"]',
+  enableGrab: true,
   transitionDuration: '.4s',
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',

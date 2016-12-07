@@ -56,12 +56,15 @@ export default class Zooming {
 
     this.scrollHandler = this.scrollHandler.bind(this)
     this.keydownHandler = this.keydownHandler.bind(this)
-    this.mousedownHandler = this.mousedownHandler.bind(this)
-    this.mousemoveHandler = this.mousemoveHandler.bind(this)
-    this.mouseupHandler = this.mouseupHandler.bind(this)
-    this.touchstartHandler = this.touchstartHandler.bind(this)
-    this.touchmoveHandler = this.touchmoveHandler.bind(this)
-    this.touchendHandler = this.touchendHandler.bind(this)
+    
+    if (this.options.enableGrab) {
+      this.mousedownHandler = this.mousedownHandler.bind(this)
+      this.mousemoveHandler = this.mousemoveHandler.bind(this)
+      this.mouseupHandler = this.mouseupHandler.bind(this)
+      this.touchstartHandler = this.touchstartHandler.bind(this)
+      this.touchmoveHandler = this.touchmoveHandler.bind(this)
+      this.touchendHandler = this.touchendHandler.bind(this)
+    }
   }
 
   config (opts) {
@@ -120,7 +123,7 @@ export default class Zooming {
       this.openStyles = {
         position: 'relative',
         zIndex: 999,
-        cursor: prefix + 'grab',
+        cursor: prefix + (this.options.enableGrab ? 'grab' : 'zoom-out'),
         transition: this.transformCssProp + ' ' +
           this.options.transitionDuration + ' ' +
           this.options.transitionTimingFunction,
@@ -144,12 +147,15 @@ export default class Zooming {
 
     const onEnd = () => {
       this.target.removeEventListener(this.transEndEvent, onEnd)
-      this.target.addEventListener('mousedown', this.mousedownHandler)
-      this.target.addEventListener('mousemove', this.mousemoveHandler)
-      this.target.addEventListener('mouseup', this.mouseupHandler)
-      this.target.addEventListener('touchstart', this.touchstartHandler)
-      this.target.addEventListener('touchmove', this.touchmoveHandler)
-      this.target.addEventListener('touchend', this.touchendHandler)
+
+      if (this.options.enableGrab) {
+        this.target.addEventListener('mousedown', this.mousedownHandler)
+        this.target.addEventListener('mousemove', this.mousemoveHandler)
+        this.target.addEventListener('mouseup', this.mouseupHandler)
+        this.target.addEventListener('touchstart', this.touchstartHandler)
+        this.target.addEventListener('touchmove', this.touchmoveHandler)
+        this.target.addEventListener('touchend', this.touchendHandler)
+      }
 
       this._lock = false
       cb = cb || this.options.onOpen
@@ -178,12 +184,15 @@ export default class Zooming {
 
     const onEnd = () => {
       this.target.removeEventListener(this.transEndEvent, onEnd)
-      this.target.removeEventListener('mousedown', this.mousedownHandler)
-      this.target.removeEventListener('mousemove', this.mousemoveHandler)
-      this.target.removeEventListener('mouseup', this.mouseupHandler)
-      this.target.removeEventListener('touchstart', this.touchstartHandler)
-      this.target.removeEventListener('touchmove', this.touchmoveHandler)
-      this.target.removeEventListener('touchend', this.touchendHandler)
+
+      if (this.options.enableGrab) {
+        this.target.removeEventListener('mousedown', this.mousedownHandler)
+        this.target.removeEventListener('mousemove', this.mousemoveHandler)
+        this.target.removeEventListener('mouseup', this.mouseupHandler)
+        this.target.removeEventListener('touchstart', this.touchstartHandler)
+        this.target.removeEventListener('touchmove', this.touchmoveHandler)
+        this.target.removeEventListener('touchend', this.touchendHandler)
+      }
 
       this.setStyle(this.target, this.originalStyles)
       this.parent.removeChild(this.overlay)

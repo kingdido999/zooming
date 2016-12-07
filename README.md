@@ -77,6 +77,7 @@ Takes an options object. Available options:
 | Option                   | Type             | Default                   | Description |
 | ---                      | ---              | ----                      | ---         |
 | defaultZoomable          | String or Object | 'img[data-action="zoom"]' | Zoomable elements by default. It can be a css selector or an element. |
+| enableGrab               | Boolean          | true                      | To be able to grab and drag the image for extra zoom-in. |
 | transitionDuration       | String           | '.4s'                     | Transition duration. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration) |
 | transitionTimingFunction | String           | 'cubic-bezier(.4,0,0,1)'  | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
 | bgColor                  | String           | '#fff'                    | Overlay background color. |
