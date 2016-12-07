@@ -1,7 +1,9 @@
-import { options } from './options'
+import { options } from './helpers'
 import Zooming from './zooming'
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // listen to zoomable elements by default
   new Zooming().listen(options.defaultZoomable)
 })
 

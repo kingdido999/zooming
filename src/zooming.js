@@ -1,7 +1,5 @@
-import { options } from './options'
+import { prefix, pressDelay, options } from './helpers'
 
-// webkit prefix helper
-const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 
 export default class Zooming {
   constructor(opts) {
@@ -15,7 +13,7 @@ export default class Zooming {
     // state
     this._shown = false
     this._lock  = false
-    this.press = false
+    this._press = false
     this._grab = false
 
     // style
@@ -29,8 +27,6 @@ export default class Zooming {
     this.pressTimer
     this.lastScrollPosition = null
 
-    this.pressDelay = 200
-
     // compatibility stuff
     const trans = this.sniffTransition(this.overlay)
     this.transitionProp = trans.transition
@@ -39,6 +35,8 @@ export default class Zooming {
     this.transEndEvent = trans.transEnd
 
     this.options = {}
+    Object.assign(this.options, options)
+
     this.config(opts)
 
     this.setStyle(this.overlay, {
@@ -68,9 +66,7 @@ export default class Zooming {
   }
 
   config (opts) {
-    Object.assign(this.options, options)
-
-    if (!opts) return
+    if (!opts) return this
 
     for (let key in opts) {
       this.options[key] = opts[key]
@@ -82,6 +78,8 @@ export default class Zooming {
         this.options.transitionDuration + ' ' +
         this.options.transitionTimingFunction
     })
+
+    return this
   }
 
   open (el, cb) {
@@ -416,18 +414,18 @@ export default class Zooming {
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
-      this.press = true
+      this._press = true
       this.grab(e.clientX, e.clientY, true)
-    }, this.pressDelay)
+    }, pressDelay)
   }
 
   mousemoveHandler (e) {
-    if (this.press) this.grab(e.clientX, e.clientY)
+    if (this._press) this.grab(e.clientX, e.clientY)
   }
 
   mouseupHandler () {
     clearTimeout(this.pressTimer)
-    this.press = false
+    this._press = false
     this.release()
   }
 
@@ -435,14 +433,14 @@ export default class Zooming {
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
-      this.press = true
+      this._press = true
       var touch = e.touches[0]
       this.grab(touch.clientX, touch.clientY, true)
-    }, this.pressDelay)
+    }, pressDelay)
   }
 
   touchmoveHandler (e) {
-    if (this.press) {
+    if (this._press) {
       var touch = e.touches[0]
       this.grab(touch.clientX, touch.clientY)
     }
@@ -450,7 +448,7 @@ export default class Zooming {
 
   touchendHandler () {
     clearTimeout(this.pressTimer)
-    this.press = false
+    this._press = false
     if (this._grab) this.release()
     else this.close()
   }

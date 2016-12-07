@@ -1,4 +1,8 @@
-export const options = {
+// webkit prefix helper
+const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+const pressDelay = 200
+
+const options = {
   defaultZoomable: 'img[data-action="zoom"]',
   transitionDuration: '.4s',
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
@@ -16,3 +20,5 @@ export const options = {
   onBeforeGrab: null,
   onBeforeRelease: null
 }
+
+export { prefix, pressDelay, options }
