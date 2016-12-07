@@ -29,6 +29,7 @@
 
   var options = {
     defaultZoomable: 'img[data-action="zoom"]',
+    enableGrab: true,
     transitionDuration: '.4s',
     transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
     bgColor: '#fff',
@@ -113,7 +114,7 @@
         openStyles = {
           position: 'relative',
           zIndex: 999,
-          cursor: prefix + 'grab',
+          cursor: prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
           transition: transformCssProp + ' ' +
             options.transitionDuration + ' ' +
             options.transitionTimingFunction,
@@ -137,12 +138,15 @@
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
-        target.addEventListener('mousedown', mousedownHandler)
-        target.addEventListener('mousemove', mousemoveHandler)
-        target.addEventListener('mouseup', mouseupHandler)
-        target.addEventListener('touchstart', touchstartHandler)
-        target.addEventListener('touchmove', touchmoveHandler)
-        target.addEventListener('touchend', touchendHandler)
+
+        if (options.enableGrab) {
+          target.addEventListener('mousedown', mousedownHandler)
+          target.addEventListener('mousemove', mousemoveHandler)
+          target.addEventListener('mouseup', mouseupHandler)
+          target.addEventListener('touchstart', touchstartHandler)
+          target.addEventListener('touchmove', touchmoveHandler)
+          target.addEventListener('touchend', touchendHandler)
+        }
 
         lock = false
         cb = cb || options.onOpen
@@ -169,12 +173,15 @@
 
       target.addEventListener(transEndEvent, function onEnd () {
         target.removeEventListener(transEndEvent, onEnd)
-        target.removeEventListener('mousedown', mousedownHandler)
-        target.removeEventListener('mousemove', mousemoveHandler)
-        target.removeEventListener('mouseup', mouseupHandler)
-        target.removeEventListener('touchstart', touchstartHandler)
-        target.removeEventListener('touchmove', touchmoveHandler)
-        target.removeEventListener('touchend', touchendHandler)
+
+        if (options.enableGrab) {
+          target.removeEventListener('mousedown', mousedownHandler)
+          target.removeEventListener('mousemove', mousemoveHandler)
+          target.removeEventListener('mouseup', mouseupHandler)
+          target.removeEventListener('touchstart', touchstartHandler)
+          target.removeEventListener('touchmove', touchmoveHandler)
+          target.removeEventListener('touchend', touchendHandler)
+        }
 
         setStyle(target, originalStyles)
         parent.removeChild(overlay)
