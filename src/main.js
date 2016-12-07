@@ -2,7 +2,7 @@ import { options } from './options'
 import Zooming from './zooming'
 
 document.addEventListener('DOMContentLoaded', () => {
-  new Zooming(options).listen(options.defaultZoomable)
+  new Zooming().listen(options.defaultZoomable)
 })
 
 if (ENV !== 'production') {

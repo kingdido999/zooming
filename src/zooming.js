@@ -5,9 +5,6 @@ const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-'
 
 export default class Zooming {
   constructor(opts) {
-
-    this.opts = opts
-
     // elements
     this.body = document.body
     this.overlay = document.createElement('div')
@@ -41,11 +38,12 @@ export default class Zooming {
     this.transformCssProp = this.transformProp.replace(/(.*)Transform/, '-$1-transform')
     this.transEndEvent = trans.transEnd
 
-    this.config(this.opts)
+    this.options = {}
+    this.config(opts)
 
     this.setStyle(this.overlay, {
       zIndex: 998,
-      background: options.bgColor,
+      background: this.options.bgColor,
       position: 'fixed',
       top: 0,
       left: 0,
@@ -53,8 +51,8 @@ export default class Zooming {
       bottom: 0,
       opacity: 0,
       transition: 'opacity ' +
-        options.transitionDuration + ' ' +
-        options.transitionTimingFunction
+        this.options.transitionDuration + ' ' +
+        this.options.transitionTimingFunction
     })
 
     this.overlay.addEventListener('click', this.close)
@@ -70,20 +68,20 @@ export default class Zooming {
   }
 
   config (opts) {
-    if (!opts) return options
+    Object.assign(this.options, options)
 
-    for (var key in opts) {
-      options[key] = opts[key]
+    if (!opts) return
+
+    for (let key in opts) {
+      this.options[key] = opts[key]
     }
 
     this.setStyle(this.overlay, {
-      backgroundColor: options.bgColor,
+      backgroundColor: this.options.bgColor,
       transition: 'opacity ' +
-        options.transitionDuration + ' ' +
-        options.transitionTimingFunction
+        this.options.transitionDuration + ' ' +
+        this.options.transitionTimingFunction
     })
-
-    return this
   }
 
   open (el, cb) {
@@ -96,7 +94,7 @@ export default class Zooming {
     if (this.target.tagName !== 'IMG') return
 
     // onBeforeOpen event
-    if (options.onBeforeOpen) options.onBeforeOpen(this.target)
+    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target)
 
     this._shown = true
     this._lock = true
@@ -127,8 +125,8 @@ export default class Zooming {
         zIndex: 999,
         cursor: prefix + 'grab',
         transition: this.transformCssProp + ' ' +
-          options.transitionDuration + ' ' +
-          options.transitionTimingFunction,
+          this.options.transitionDuration + ' ' +
+          this.options.transitionTimingFunction,
         transform: this.calculateTransform()
       }
 
@@ -141,7 +139,7 @@ export default class Zooming {
     // insert overlay
     this.parent.appendChild(this.overlay)
     setTimeout(() => {
-      this.overlay.style.opacity = options.bgOpacity
+      this.overlay.style.opacity = this.options.bgOpacity
     }, 30)
 
     document.addEventListener('scroll', this.scrollHandler)
@@ -157,7 +155,7 @@ export default class Zooming {
       this.target.addEventListener('touchend', this.touchendHandler)
 
       this._lock = false
-      cb = cb || options.onOpen
+      cb = cb || this.options.onOpen
       if (cb) cb(this.target)
     }
 
@@ -171,7 +169,7 @@ export default class Zooming {
     this._lock = true
 
     // onBeforeClose event
-    if (options.onBeforeClose) options.onBeforeClose(this.target)
+    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target)
 
     // remove overlay
     this.overlay.style.opacity = 0
@@ -203,7 +201,7 @@ export default class Zooming {
 
       cb = typeof cb === 'function'
         ? cb
-        : options.onClose
+        : this.options.onClose
       if (cb) cb(this.target)
     }
 
@@ -217,7 +215,7 @@ export default class Zooming {
     this._grab = true
 
     // onBeforeGrab event
-    if (options.onBeforeGrab) options.onBeforeGrab(this.target)
+    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target)
 
     const dx = x - window.innerWidth / 2
     const dy = y - window.innerHeight / 2
@@ -228,13 +226,13 @@ export default class Zooming {
             'translate3d(' + (this.translate.x + dx) + 'px,' + (this.translate.y + dy) + 'px, 0)')
           .replace(
             /scale\([0-9|\.]*\)/i,
-            'scale(' + (this.scale + options.scaleExtra) + ')')
+            'scale(' + (this.scale + this.options.scaleExtra) + ')')
 
     this.setStyle(this.target, {
       cursor: prefix + 'grabbing',
       transition: this.transformCssProp + ' ' + (
         start
-        ? options.transitionDuration + ' ' + options.transitionTimingFunction
+        ? this.options.transitionDuration + ' ' + this.options.transitionTimingFunction
         : 'ease'
       ),
       transform: transform
@@ -242,7 +240,7 @@ export default class Zooming {
 
     const onEnd = () => {
       this.target.removeEventListener(this.transEndEvent, onEnd)
-      cb = cb || options.onGrab
+      cb = cb || this.options.onGrab
       if (cb) cb(this.target)
     }
 
@@ -253,7 +251,7 @@ export default class Zooming {
     if (!this._shown || this._lock || !this._grab) return
 
     // onBeforeRelease event
-    if (options.onBeforeRelease) options.onBeforeRelease(this.target)
+    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target)
 
     this.setStyle(this.target, this.openStyles)
 
@@ -263,7 +261,7 @@ export default class Zooming {
 
       cb = typeof cb === 'function'
         ? cb
-        : options.onRelease
+        : this.options.onRelease
       if (cb) cb(this.target)
     }
 
@@ -384,7 +382,7 @@ export default class Zooming {
 
     // The additional scale is based on the smaller value of
     // scaling horizontally and scaling vertically
-    this.scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
+    this.scale = this.options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
     const transform =
         'translate3d(' + this.translate.x + 'px,' + this.translate.y + 'px, 0) ' +
@@ -403,7 +401,7 @@ export default class Zooming {
 
     var deltaY = this.lastScrollPosition - scrollTop
 
-    if (Math.abs(deltaY) >= options.scrollThreshold) {
+    if (Math.abs(deltaY) >= this.options.scrollThreshold) {
       this.lastScrollPosition = null
       this.close()
     }
