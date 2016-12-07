@@ -1,4 +1,4 @@
-import { prefix, pressDelay, options } from './helpers'
+import { prefix, pressDelay, defaults, sniffTransition, checkTrans } from './helpers'
 
 
 export default class Zooming {
@@ -6,7 +6,6 @@ export default class Zooming {
     // elements
     this.body = document.body
     this.overlay = document.createElement('div')
-
     this.target
     this.parent
 
@@ -28,15 +27,15 @@ export default class Zooming {
     this.lastScrollPosition = null
 
     // compatibility stuff
-    const trans = this.sniffTransition(this.overlay)
+    const trans = sniffTransition(this.overlay)
     this.transitionProp = trans.transition
     this.transformProp = trans.transform
     this.transformCssProp = this.transformProp.replace(/(.*)Transform/, '-$1-transform')
     this.transEndEvent = trans.transEnd
+    this.setStyleHelper = checkTrans(this.transitionProp, this.transformProp)
 
     this.options = {}
-    Object.assign(this.options, options)
-
+    Object.assign(this.options, defaults)
     this.config(opts)
 
     this.setStyle(this.overlay, {
@@ -292,61 +291,8 @@ export default class Zooming {
     return this
   }
 
-  // helpers -------------------------------------------------------------------
-
   setStyle (el, styles, remember) {
-    this.checkTrans(styles)
-    let s = el.style
-    let original = {}
-
-    for (var key in styles) {
-      if (remember) original[key] = s[key] || ''
-      s[key] = styles[key]
-    }
-
-    return original
-  }
-
-  sniffTransition (el) {
-    let ret   = {}
-    const trans = ['webkitTransition', 'transition', 'mozTransition']
-    const tform = ['webkitTransform', 'transform', 'mozTransform']
-    const end   = {
-      'transition'       : 'transitionend',
-      'mozTransition'    : 'transitionend',
-      'webkitTransition' : 'webkitTransitionEnd'
-    }
-
-    trans.some((prop) => {
-      if (el.style[prop] !== undefined) {
-        ret.transition = prop
-        ret.transEnd = end[prop]
-        return true
-      }
-    })
-
-    tform.some((prop) => {
-      if (el.style[prop] !== undefined) {
-        ret.transform = prop
-        return true
-      }
-    })
-
-    return ret
-  }
-
-  checkTrans (styles) {
-    var value
-    if (styles.transition) {
-      value = styles.transition
-      delete styles.transition
-      styles[this.transitionProp] = value
-    }
-    if (styles.transform) {
-      value = styles.transform
-      delete styles.transform
-      styles[this.transformProp] = value
-    }
+    return this.setStyleHelper(el, styles, remember)
   }
 
   calculateTransform () {

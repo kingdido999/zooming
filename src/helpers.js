@@ -1,9 +1,9 @@
-// webkit prefix helper
+// webkit prefix
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 const pressDelay = 200
 
-const options = {
-  defaultZoomable: 'img[data-action="zoom"]',
+const defaults = {
+  zoomable: 'img[data-action="zoom"]',
   transitionDuration: '.4s',
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',
@@ -21,4 +21,58 @@ const options = {
   onBeforeRelease: null
 }
 
-export { prefix, pressDelay, options }
+const sniffTransition = (el) => {
+  let ret     = {}
+  const trans = ['webkitTransition', 'transition', 'mozTransition']
+  const tform = ['webkitTransform', 'transform', 'mozTransform']
+  const end   = {
+    'transition'       : 'transitionend',
+    'mozTransition'    : 'transitionend',
+    'webkitTransition' : 'webkitTransitionEnd'
+  }
+
+  trans.some((prop) => {
+    if (el.style[prop] !== undefined) {
+      ret.transition = prop
+      ret.transEnd = end[prop]
+      return true
+    }
+  })
+
+  tform.some((prop) => {
+    if (el.style[prop] !== undefined) {
+      ret.transform = prop
+      return true
+    }
+  })
+
+  return ret
+}
+
+const checkTrans = (transitionProp, transformProp) => {
+  return function setStyle(el, styles, remember) {
+    let value
+    if (styles.transition) {
+      value = styles.transition
+      delete styles.transition
+      styles[transitionProp] = value
+    }
+    if (styles.transform) {
+      value = styles.transform
+      delete styles.transform
+      styles[transformProp] = value
+    }
+
+    let s = el.style
+    let original = {}
+
+    for (var key in styles) {
+      if (remember) original[key] = s[key] || ''
+      s[key] = styles[key]
+    }
+
+    return original
+  }
+}
+
+export { prefix, pressDelay, defaults, sniffTransition, checkTrans }
