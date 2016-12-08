@@ -47,6 +47,20 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
 ```
 
+## Development
+
+Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
+
+Fork and clone it.
+
+Under project folder:
+
+`yarn`
+
+`yarn watch`
+
+Now open up `index.html` and play around with it!
+
 ## Methods
 
 #### `.listen(selector | element)`
@@ -95,20 +109,6 @@ Takes an options object. Available options:
 | onBeforeClose            | Function         | null                      | A callback function that will be called before close. |
 | onBeforeGrab             | Function         | null                      | A callback function that will be called before grab. |
 | onBeforeRelease          | Function         | null                      | A callback function that will be called before release. |
-
-## Development
-
-Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
-
-Fork and clone it.
-
-Under project folder:
-
-`yarn`
-
-`yarn watch`
-
-Now open up `index.html` and play around with it!
 
 ## Credit
 
