@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Image zoom with pure JavaScript.",
   "main": "src/zooming.js",
   "repository": {
@@ -15,8 +15,6 @@
   "dependencies": {},
   "scripts": {
     "dev": "rollup -c --watch",
-    "reload": "livereload 'build/'",
-    "watch": "npm-run-all --parallel reload dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
@@ -27,13 +25,9 @@
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.2.0",
-    "livereload": "^0.6.0",
-    "npm-run-all": "^3.1.2",
     "rollup": "^0.36.4",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-eslint": "^3.0.0",
-    "rollup-plugin-replace": "^1.1.1",
-    "rollup-plugin-uglify": "^1.0.1",
     "rollup-watch": "^2.5.0"
   }
 }

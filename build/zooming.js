@@ -443,11 +443,6 @@ overlay.addEventListener('click', api$1.close);
 
 document.addEventListener('DOMContentLoaded', api$1.listen(options.defaultZoomable));
 
-{
-  // Enable LiveReload
-  document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>');
-}
-
 return api$1;
 
 })));
