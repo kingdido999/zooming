@@ -1,7 +1,7 @@
 import { prefix, pressDelay, options, sniffTransition, checkTrans } from './helpers'
 
 // elements
-const body = document.body
+const body    = document.body
 const overlay = document.createElement('div')
 let target
 let parent
@@ -10,7 +10,7 @@ let parent
 let shown = false
 let lock  = false
 let press = false
-let grab = false
+let grab  = false
 let lastScrollPosition = null
 
 // style
@@ -28,6 +28,7 @@ const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
 
+// -----------------------------------------------------------------------------
 
 const api = {
 
@@ -147,12 +148,8 @@ const api = {
 
     const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
     const transform = target.style.transform
-      .replace(
-        /translate3d\(.*?\)/i,
-        `translate3d(${translate.x + dx}px, ${translate.y + dy}px, 0)`)
-      .replace(
-        /scale\([0-9|\.]*\)/i,
-        `scale(${scale + options.scaleExtra})`)
+      .replace(/translate3d\(.*?\)/i, `translate3d(${translate.x + dx}px, ${translate.y + dy}px, 0)`)
+      .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + options.scaleExtra})`)
 
     setStyle(target, {
       cursor: `${prefix} grabbing`,
@@ -185,6 +182,8 @@ const api = {
     return this
   }
 }
+
+// -----------------------------------------------------------------------------
 
 function setStyle(el, styles, remember) {
   return setStyleHelper(el, styles, remember)
@@ -220,24 +219,6 @@ function imgOnload () {
 
   // trigger transition
   originalStyles = setStyle(target, openStyles, true)
-}
-
-function init () {
-  setStyle(overlay, {
-    zIndex: 998,
-    background: options.bgColor,
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0,
-    transition: `opacity
-      ${options.transitionDuration}
-      ${options.transitionTimingFunction}`
-  })
-
-  overlay.addEventListener('click', api.close)
 }
 
 function calculateTransform () {
@@ -357,6 +338,21 @@ function touchendHandler () {
   else api.close()
 }
 
-init()
+// init ------------------------------------------------------------------------
+setStyle(overlay, {
+  zIndex: 998,
+  background: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: `opacity
+    ${options.transitionDuration}
+    ${options.transitionTimingFunction}`
+})
+
+overlay.addEventListener('click', api.close)
 
 export default api
