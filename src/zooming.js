@@ -1,8 +1,8 @@
 import { prefix, pressDelay, defaults, sniffTransition, checkTrans } from './helpers'
 
-
 export default class Zooming {
   constructor(opts) {
+
     // elements
     this.body = document.body
     this.overlay = document.createElement('div')
@@ -13,7 +13,8 @@ export default class Zooming {
     this._shown = false
     this._lock  = false
     this._press = false
-    this._grab = false
+    this._grab  = false
+    this._lastScrollPosition = null
 
     // style
     this.originalStyles
@@ -24,47 +25,11 @@ export default class Zooming {
     this.srcThumbnail
     this.imgRect
     this.pressTimer
-    this.lastScrollPosition = null
 
-    // compatibility stuff
-    const trans = sniffTransition(this.overlay)
-    this.transitionProp = trans.transition
-    this.transformProp = trans.transform
-    this.transformCssProp = this.transformProp.replace(/(.*)Transform/, '-$1-transform')
-    this.transEndEvent = trans.transEnd
-    this.setStyleHelper = checkTrans(this.transitionProp, this.transformProp)
+    this.trans = sniffTransition(this.overlay)
+    this.setStyleHelper = checkTrans(this.trans.transitionProp, this.trans.transformProp)
 
-    this.options = {}
-    Object.assign(this.options, defaults)
-    this.config(opts)
-
-    this.setStyle(this.overlay, {
-      zIndex: 998,
-      background: this.options.bgColor,
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      opacity: 0,
-      transition: 'opacity ' +
-        this.options.transitionDuration + ' ' +
-        this.options.transitionTimingFunction
-    })
-
-    this.overlay.addEventListener('click', this.close)
-
-    this.scrollHandler = this.scrollHandler.bind(this)
-    this.keydownHandler = this.keydownHandler.bind(this)
-    
-    if (this.options.enableGrab) {
-      this.mousedownHandler = this.mousedownHandler.bind(this)
-      this.mousemoveHandler = this.mousemoveHandler.bind(this)
-      this.mouseupHandler = this.mouseupHandler.bind(this)
-      this.touchstartHandler = this.touchstartHandler.bind(this)
-      this.touchmoveHandler = this.touchmoveHandler.bind(this)
-      this.touchendHandler = this.touchendHandler.bind(this)
-    }
+    this._init(opts)
   }
 
   config (opts) {
@@ -74,7 +39,7 @@ export default class Zooming {
       this.options[key] = opts[key]
     }
 
-    this.setStyle(this.overlay, {
+    this._setStyle(this.overlay, {
       backgroundColor: this.options.bgColor,
       transition: 'opacity ' +
         this.options.transitionDuration + ' ' +
@@ -100,69 +65,23 @@ export default class Zooming {
     this._lock = true
     this.parent = this.target.parentNode
 
-    var img = new Image()
-
-    img.onload = () => {
-      this.imgRect = this.target.getBoundingClientRect()
-
-      // upgrade source if possible
-      if (this.target.hasAttribute('data-original')) {
-        this.srcThumbnail = this.target.getAttribute('src')
-
-        this.setStyle(this.target, {
-          width: this.imgRect.width + 'px',
-          height: this.imgRect.height + 'px'
-        })
-
-        this.target.setAttribute('src', this.target.getAttribute('data-original'))
-      }
-
-      // force layout update
-      this.target.offsetWidth
-
-      this.openStyles = {
-        position: 'relative',
-        zIndex: 999,
-        cursor: prefix + (this.options.enableGrab ? 'grab' : 'zoom-out'),
-        transition: this.transformCssProp + ' ' +
-          this.options.transitionDuration + ' ' +
-          this.options.transitionTimingFunction,
-        transform: this.calculateTransform()
-      }
-
-      // trigger transition
-      this.originalStyles = this.setStyle(this.target, this.openStyles, true)
-    }
-
+    const img = new Image()
+    img.onload = this._imgOnload()
     img.src = this.target.getAttribute('src')
 
-    // insert overlay
-    this.parent.appendChild(this.overlay)
-    setTimeout(() => {
-      this.overlay.style.opacity = this.options.bgOpacity
-    }, 30)
+    this._insertOverlay()
 
     document.addEventListener('scroll', this.scrollHandler)
     document.addEventListener('keydown', this.keydownHandler)
 
-    const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
-
-      if (this.options.enableGrab) {
-        this.target.addEventListener('mousedown', this.mousedownHandler)
-        this.target.addEventListener('mousemove', this.mousemoveHandler)
-        this.target.addEventListener('mouseup', this.mouseupHandler)
-        this.target.addEventListener('touchstart', this.touchstartHandler)
-        this.target.addEventListener('touchmove', this.touchmoveHandler)
-        this.target.addEventListener('touchend', this.touchendHandler)
-      }
+    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
+      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
+      if (this.options.enableGrab) this._addGrabListeners()
 
       this._lock = false
       cb = cb || this.options.onOpen
       if (cb) cb(this.target)
-    }
-
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    }).bind(this))
 
     return this
   }
@@ -174,27 +93,18 @@ export default class Zooming {
     // onBeforeClose event
     if (this.options.onBeforeClose) this.options.onBeforeClose(this.target)
 
-    // remove overlay
-    this.overlay.style.opacity = 0
+    this._removeOverlay()
 
     this.target.style.transform = ''
 
     document.removeEventListener('scroll', this.scrollHandler)
     document.removeEventListener('keydown', this.keydownHandler)
 
-    const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
+      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
+      if (this.options.enableGrab) this._removeGrabListeners()
 
-      if (this.options.enableGrab) {
-        this.target.removeEventListener('mousedown', this.mousedownHandler)
-        this.target.removeEventListener('mousemove', this.mousemoveHandler)
-        this.target.removeEventListener('mouseup', this.mouseupHandler)
-        this.target.removeEventListener('touchstart', this.touchstartHandler)
-        this.target.removeEventListener('touchmove', this.touchmoveHandler)
-        this.target.removeEventListener('touchend', this.touchendHandler)
-      }
-
-      this.setStyle(this.target, this.originalStyles)
+      this._setStyle(this.target, this.originalStyles)
       this.parent.removeChild(this.overlay)
       this._shown = false
       this._lock = false
@@ -209,9 +119,7 @@ export default class Zooming {
         ? cb
         : this.options.onClose
       if (cb) cb(this.target)
-    }
-
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    }).bind(this))
 
     return this
   }
@@ -234,9 +142,9 @@ export default class Zooming {
             /scale\([0-9|\.]*\)/i,
             'scale(' + (this.scale + this.options.scaleExtra) + ')')
 
-    this.setStyle(this.target, {
+    this._setStyle(this.target, {
       cursor: prefix + 'grabbing',
-      transition: this.transformCssProp + ' ' + (
+      transition: this.trans.transformCssProp + ' ' + (
         start
         ? this.options.transitionDuration + ' ' + this.options.transitionTimingFunction
         : 'ease'
@@ -244,13 +152,14 @@ export default class Zooming {
       transform: transform
     })
 
-    const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
-      cb = cb || this.options.onGrab
-      if (cb) cb(this.target)
-    }
+    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
+      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+      cb = typeof cb === 'function'
+        ? cb
+        : this.options.onGrab
+      if (cb) cb(this.target)
+    }).bind(this))
   }
 
   release (cb) {
@@ -259,19 +168,17 @@ export default class Zooming {
     // onBeforeRelease event
     if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target)
 
-    this.setStyle(this.target, this.openStyles)
+    this._setStyle(this.target, this.openStyles)
 
-    const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
+      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
       this._grab = false
 
       cb = typeof cb === 'function'
         ? cb
         : this.options.onRelease
       if (cb) cb(this.target)
-    }
-
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    }).bind(this))
 
     return this
   }
@@ -300,11 +207,91 @@ export default class Zooming {
     return this
   }
 
-  setStyle (el, styles, remember) {
+  _init (opts) {
+    // config options
+    this.options = {}
+    Object.assign(this.options, defaults)
+    this.config(opts)
+
+    // initial overlay setup
+    this._setStyle(this.overlay, {
+      zIndex: 998,
+      background: this.options.bgColor,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0,
+      transition: 'opacity ' +
+        this.options.transitionDuration + ' ' +
+        this.options.transitionTimingFunction
+    })
+
+    this.overlay.addEventListener('click', this.close)
+
+    this.scrollHandler = this.scrollHandler.bind(this)
+    this.keydownHandler = this.keydownHandler.bind(this)
+
+    if (this.options.enableGrab) {
+      this.mousedownHandler = this.mousedownHandler.bind(this)
+      this.mousemoveHandler = this.mousemoveHandler.bind(this)
+      this.mouseupHandler = this.mouseupHandler.bind(this)
+      this.touchstartHandler = this.touchstartHandler.bind(this)
+      this.touchmoveHandler = this.touchmoveHandler.bind(this)
+      this.touchendHandler = this.touchendHandler.bind(this)
+    }
+  }
+
+  _imgOnload () {
+    this.imgRect = this.target.getBoundingClientRect()
+
+    // upgrade source if possible
+    if (this.target.hasAttribute('data-original')) {
+      this.srcThumbnail = this.target.getAttribute('src')
+
+      this._setStyle(this.target, {
+        width: this.imgRect.width + 'px',
+        height: this.imgRect.height + 'px'
+      })
+
+      this.target.setAttribute('src', this.target.getAttribute('data-original'))
+    }
+
+    // force layout update
+    this.target.offsetWidth
+
+    this.openStyles = {
+      position: 'relative',
+      zIndex: 999,
+      cursor: prefix + (this.options.enableGrab ? 'grab' : 'zoom-out'),
+      transition: this.trans.transformCssProp + ' ' +
+        this.options.transitionDuration + ' ' +
+        this.options.transitionTimingFunction,
+      transform: this._calculateTransform()
+    }
+
+    // trigger transition
+    this.originalStyles = this._setStyle(this.target, this.openStyles, true)
+  }
+
+  _insertOverlay () {
+    this.parent.appendChild(this.overlay)
+
+    setTimeout(() => {
+      this.overlay.style.opacity = this.options.bgOpacity
+    }, 30)
+  }
+
+  _removeOverlay () {
+    this.overlay.style.opacity = 0
+  }
+
+  _setStyle (el, styles, remember) {
     return this.setStyleHelper(el, styles, remember)
   }
 
-  calculateTransform () {
+  _calculateTransform () {
     const imgHalfWidth = this.imgRect.width / 2
     const imgHalfHeight = this.imgRect.height / 2
 
@@ -344,24 +331,42 @@ export default class Zooming {
     return transform
   }
 
+  _addGrabListeners () {
+    this.target.addEventListener('mousedown', this.mousedownHandler)
+    this.target.addEventListener('mousemove', this.mousemoveHandler)
+    this.target.addEventListener('mouseup', this.mouseupHandler)
+    this.target.addEventListener('touchstart', this.touchstartHandler)
+    this.target.addEventListener('touchmove', this.touchmoveHandler)
+    this.target.addEventListener('touchend', this.touchendHandler)
+  }
+
+  _removeGrabListeners () {
+    this.target.removeEventListener('mousedown', this.mousedownHandler)
+    this.target.removeEventListener('mousemove', this.mousemoveHandler)
+    this.target.removeEventListener('mouseup', this.mouseupHandler)
+    this.target.removeEventListener('touchstart', this.touchstartHandler)
+    this.target.removeEventListener('touchmove', this.touchmoveHandler)
+    this.target.removeEventListener('touchend', this.touchendHandler)
+  }
+
   // listeners -----------------------------------------------------------------
 
   scrollHandler () {
-    var scrollTop = window.pageYOffset ||
+    const scrollTop = window.pageYOffset ||
       (document.documentElement || this.body.parentNode || this.body).scrollTop
 
-    if (this.lastScrollPosition === null) this.lastScrollPosition = scrollTop
+    if (this._lastScrollPosition === null) this._lastScrollPosition = scrollTop
 
-    var deltaY = this.lastScrollPosition - scrollTop
+    const deltaY = this._lastScrollPosition - scrollTop
 
     if (Math.abs(deltaY) >= this.options.scrollThreshold) {
-      this.lastScrollPosition = null
+      this._lastScrollPosition = null
       this.close()
     }
   }
 
   keydownHandler (e) {
-    var code = e.key || e.code
+    const code = e.key || e.code
     if (code === 'Escape' || e.keyCode === 27) this.close()
   }
 
@@ -389,14 +394,14 @@ export default class Zooming {
 
     this.pressTimer = setTimeout(() => {
       this._press = true
-      var touch = e.touches[0]
+      const touch = e.touches[0]
       this.grab(touch.clientX, touch.clientY, true)
     }, pressDelay)
   }
 
   touchmoveHandler (e) {
     if (this._press) {
-      var touch = e.touches[0]
+      const touch = e.touches[0]
       this.grab(touch.clientX, touch.clientY)
     }
   }

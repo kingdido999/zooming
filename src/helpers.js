@@ -32,17 +32,18 @@ const sniffTransition = (el) => {
     'webkitTransition' : 'webkitTransitionEnd'
   }
 
-  trans.some((prop) => {
+  trans.some(prop => {
     if (el.style[prop] !== undefined) {
-      ret.transition = prop
-      ret.transEnd = end[prop]
+      ret.transitionProp = prop
+      ret.transEndEvent = end[prop]
       return true
     }
   })
 
-  tform.some((prop) => {
+  tform.some(prop => {
     if (el.style[prop] !== undefined) {
-      ret.transform = prop
+      ret.transformProp = prop
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform')
       return true
     }
   })
