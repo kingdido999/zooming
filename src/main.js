@@ -1,9 +1,7 @@
 import { options } from './helpers'
 import api from './zooming'
 
-document.addEventListener('DOMContentLoaded', () => {
-  api.listen(options.defaultZoomable)
-})
+document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
 
 if (ENV !== 'production') {
   // Enable LiveReload
