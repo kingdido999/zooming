@@ -12,6 +12,8 @@ Pure JavaScript image zoom that can be customized and invoked programmatically.
 
 Install with your package manager:
 
+`yarn add zooming`
+
 `npm install zooming --save`
 
 `bower install zooming --save`
@@ -44,6 +46,20 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 ```html
 <img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
 ```
+
+## Development
+
+Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
+
+Fork and clone it.
+
+Under project folder:
+
+`yarn`
+
+`yarn watch`
+
+Now open up `index.html` and play around with it!
 
 ## Methods
 

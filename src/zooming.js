@@ -1,473 +1,358 @@
-+function() {
+import { prefix, pressDelay, options, sniffTransition, checkTrans } from './helpers'
 
-  // webkit prefix helper
-  var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+// elements
+const body    = document.body
+const overlay = document.createElement('div')
+let target
+let parent
 
-  // elements
-  var body = document.body,
-      overlay = document.createElement('div'),
-      target,
-      parent
+// state
+let shown = false
+let lock  = false
+let press = false
+let grab  = false
+let lastScrollPosition = null
 
-  // state
-  var shown = false,
-      lock  = false,
-      press = false,
+// style
+let originalStyles
+let openStyles
+let translate
+let scale
+
+let srcThumbnail
+let imgRect
+let pressTimer
+
+const trans = sniffTransition(overlay)
+const transformCssProp = trans.transformCssProp
+const transEndEvent = trans.transEndEvent
+const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
+
+// -----------------------------------------------------------------------------
+
+const api = {
+
+  listen: (el) => {
+    if (typeof el === 'string') {
+      document.querySelectorAll(el).forEach(e => api.listen(e))
+      return this
+    }
+
+    el.style.cursor = `${prefix}zoom-in`
+
+    el.addEventListener('click', (e) => {
+      e.preventDefault()
+
+      if (shown) api.close()
+      else api.open(el)
+    })
+
+    return this
+  },
+
+  config: (opts) => {
+    if (!opts) return options
+
+    for (let key in opts) {
+      options[key] = opts[key]
+    }
+
+    setStyle(overlay, {
+      backgroundColor: options.bgColor,
+      transition: `opacity
+        ${options.transitionDuration}
+        ${options.transitionTimingFunction}`
+    })
+
+    return this
+  },
+
+  open: (el, cb = options.onOpen) => {
+    if (shown || lock || grab) return
+
+    target = typeof el === 'string'
+      ? document.querySelector(el)
+      : el
+
+    if (target.tagName !== 'IMG') return
+
+    // onBeforeOpen event
+    if (options.onBeforeOpen) options.onBeforeOpen(target)
+
+    shown = true
+    lock = true
+    parent = target.parentNode
+
+    const img = new Image()
+    img.onload = imgOnload()
+    img.src = target.getAttribute('src')
+
+    parent.appendChild(overlay)
+    setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
+
+    document.addEventListener('scroll', scrollHandler)
+    document.addEventListener('keydown', keydownHandler)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+
+      if (options.enableGrab) addGrabListeners(target)
+
+      lock = false
+
+      if (cb) cb(target)
+    })
+
+    return this
+  },
+
+  close: (cb = options.onClose) => {
+    if (!shown || lock || grab) return
+    lock = true
+
+    // onBeforeClose event
+    if (options.onBeforeClose) options.onBeforeClose(target)
+    overlay.style.opacity = 0
+    target.style.transform = ''
+
+    document.removeEventListener('scroll', scrollHandler)
+    document.removeEventListener('keydown', keydownHandler)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+
+      if (options.enableGrab) removeGrabListeners(target)
+
+      shown = false
+      lock = false
       grab = false
 
-  // style
-  var originalStyles,
-      openStyles,
-      translate,
-      scale
+      setStyle(target, originalStyles)
+      parent.removeChild(overlay)
 
-  var srcThumbnail,
-      imgRect,
-      pressTimer,
-      pressDelay = 200,
-      lastScrollPosition = null
+      // downgrade source if possible
+      if (target.hasAttribute('data-original')) target.setAttribute('src', srcThumbnail)
 
-  var options = {
-    defaultZoomable: 'img[data-action="zoom"]',
-    enableGrab: true,
-    transitionDuration: '.4s',
-    transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
-    bgColor: '#fff',
-    bgOpacity: 1,
-    scaleBase: 1.0,
-    scaleExtra: 0.5,
-    scrollThreshold: 40,
-    onOpen: null,
-    onClose: null,
-    onGrab: null,
-    onRelease: null,
-    onBeforeOpen: null,
-    onBeforeClose: null,
-    onBeforeGrab: null,
-    onBeforeRelease: null
-  }
-
-  // compatibility stuff
-  var trans = sniffTransition(),
-      transitionProp = trans.transition,
-      transformProp = trans.transform,
-      transformCssProp = transformProp.replace(/(.*)Transform/, '-$1-transform'),
-      transEndEvent = trans.transEnd
-
-  // ---------------------------------------------------------------------------
-
-  var api = {
-
-    config: function (opts) {
-      if (!opts) return options
-
-      for (var key in opts) {
-        options[key] = opts[key]
-      }
-
-      setStyle(overlay, {
-        backgroundColor: options.bgColor,
-        transition: 'opacity ' +
-          options.transitionDuration + ' ' +
-          options.transitionTimingFunction
-      })
-
-      return this
-    },
-
-    open: function (el, cb) {
-      if (shown || lock || grab) return
-
-      target = typeof el === 'string'
-        ? document.querySelector(el)
-        : el
-
-      if (target.tagName !== 'IMG') return
-
-      // onBeforeOpen event
-      if (options.onBeforeOpen) options.onBeforeOpen(target)
-
-      shown = true
-      lock = true
-      parent = target.parentNode
-
-      var img = new Image()
-
-      img.onload = function() {
-        imgRect = target.getBoundingClientRect()
-
-        // upgrade source if possible
-        if (target.hasAttribute('data-original')) {
-          srcThumbnail = target.getAttribute('src')
-
-          setStyle(target, {
-            width: imgRect.width + 'px',
-            height: imgRect.height + 'px'
-          })
-
-          target.setAttribute('src', target.getAttribute('data-original'))
-        }
-
-        // force layout update
-        target.offsetWidth
-
-        openStyles = {
-          position: 'relative',
-          zIndex: 999,
-          cursor: prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
-          transition: transformCssProp + ' ' +
-            options.transitionDuration + ' ' +
-            options.transitionTimingFunction,
-          transform: calculateTransform()
-        }
-
-        // trigger transition
-        originalStyles = setStyle(target, openStyles, true)
-      }
-
-      img.src = target.getAttribute('src')
-
-      // insert overlay
-      parent.appendChild(overlay)
-      setTimeout(function() {
-        overlay.style.opacity = options.bgOpacity
-      }, 30)
-
-      document.addEventListener('scroll', scrollHandler)
-      document.addEventListener('keydown', keydownHandler)
-
-      target.addEventListener(transEndEvent, function onEnd () {
-        target.removeEventListener(transEndEvent, onEnd)
-
-        if (options.enableGrab) {
-          target.addEventListener('mousedown', mousedownHandler)
-          target.addEventListener('mousemove', mousemoveHandler)
-          target.addEventListener('mouseup', mouseupHandler)
-          target.addEventListener('touchstart', touchstartHandler)
-          target.addEventListener('touchmove', touchmoveHandler)
-          target.addEventListener('touchend', touchendHandler)
-        }
-
-        lock = false
-        cb = cb || options.onOpen
-        if (cb) cb(target)
-      })
-
-      return this
-    },
-
-    close: function (cb) {
-      if (!shown || lock || grab) return
-      lock = true
-
-      // onBeforeClose event
-      if (options.onBeforeClose) options.onBeforeClose(target)
-
-      // remove overlay
-      overlay.style.opacity = 0
-
-      target.style.transform = ''
-
-      document.removeEventListener('scroll', scrollHandler)
-      document.removeEventListener('keydown', keydownHandler)
-
-      target.addEventListener(transEndEvent, function onEnd () {
-        target.removeEventListener(transEndEvent, onEnd)
-
-        if (options.enableGrab) {
-          target.removeEventListener('mousedown', mousedownHandler)
-          target.removeEventListener('mousemove', mousemoveHandler)
-          target.removeEventListener('mouseup', mouseupHandler)
-          target.removeEventListener('touchstart', touchstartHandler)
-          target.removeEventListener('touchmove', touchmoveHandler)
-          target.removeEventListener('touchend', touchendHandler)
-        }
-
-        setStyle(target, originalStyles)
-        parent.removeChild(overlay)
-        shown = false
-        lock = false
-        grab = false
-
-        // downgrade source if possible
-        if (target.hasAttribute('data-original')) {
-          target.setAttribute('src', srcThumbnail)
-        }
-
-        cb = typeof cb === 'function'
-          ? cb
-          : options.onClose
-        if (cb) cb(target)
-      })
-
-      return this
-    },
-
-    grab: function(x, y, start, cb) {
-      if (!shown || lock) return
-      grab = true
-
-      // onBeforeGrab event
-      if (options.onBeforeGrab) options.onBeforeGrab(target)
-
-      var dx = x - window.innerWidth / 2,
-          dy = y - window.innerHeight / 2,
-          oldTransform = target.style.transform,
-          transform = oldTransform
-            .replace(
-              /translate3d\(.*?\)/i,
-              'translate3d(' + (translate.x + dx) + 'px,' + (translate.y + dy) + 'px, 0)')
-            .replace(
-              /scale\([0-9|\.]*\)/i,
-              'scale(' + (scale + options.scaleExtra) + ')')
-
-      setStyle(target, {
-        cursor: prefix + 'grabbing',
-        transition: transformCssProp + ' ' + (
-          start
-          ? options.transitionDuration + ' ' + options.transitionTimingFunction
-          : 'ease'
-        ),
-        transform: transform
-      })
-
-      target.addEventListener(transEndEvent, function onEnd () {
-        target.removeEventListener(transEndEvent, onEnd)
-        cb = cb || options.onGrab
-        if (cb) cb(target)
-      })
-    },
-
-    release: function(cb) {
-      if (!shown || lock || !grab) return
-
-      // onBeforeRelease event
-      if (options.onBeforeRelease) options.onBeforeRelease(target)
-
-      setStyle(target, openStyles)
-
-      target.addEventListener(transEndEvent, function onEnd () {
-        target.removeEventListener(transEndEvent, onEnd)
-        grab = false
-
-        cb = typeof cb === 'function'
-          ? cb
-          : options.onRelease
-        if (cb) cb(target)
-      })
-
-      return this
-    },
-
-    listen: function (el) {
-      if (typeof el === 'string') {
-        var els = document.querySelectorAll(el),
-            i = els.length
-        while (i--) {
-          this.listen(els[i])
-        }
-        return this
-      }
-
-      el.style.cursor = prefix + 'zoom-in'
-
-      el.addEventListener('click', function(e) {
-        e.preventDefault()
-
-        if (shown) api.close()
-        else api.open(el)
-      })
-
-      return this
-    }
-  }
-
-  setStyle(overlay, {
-    zIndex: 998,
-    background: options.bgColor,
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0,
-    transition: 'opacity ' +
-      options.transitionDuration + ' ' +
-      options.transitionTimingFunction
-  })
-
-  overlay.addEventListener('click', api.close)
-  document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
-
-  // helpers -------------------------------------------------------------------
-
-  function setStyle (el, styles, remember) {
-    checkTrans(styles)
-    var s = el.style,
-        original = {}
-
-    for (var key in styles) {
-      if (remember) original[key] = s[key] || ''
-      s[key] = styles[key]
-    }
-
-    return original
-  }
-
-  function sniffTransition () {
-    var ret   = {},
-        trans = ['webkitTransition', 'transition', 'mozTransition'],
-        tform = ['webkitTransform', 'transform', 'mozTransform'],
-        end   = {
-            'transition'       : 'transitionend',
-            'mozTransition'    : 'transitionend',
-            'webkitTransition' : 'webkitTransitionEnd'
-        }
-
-    trans.some(function (prop) {
-      if (overlay.style[prop] !== undefined) {
-        ret.transition = prop
-        ret.transEnd = end[prop]
-        return true
-      }
+      if (cb) cb(target)
     })
 
-    tform.some(function (prop) {
-      if (overlay.style[prop] !== undefined) {
-        ret.transform = prop
-        return true
-      }
+    return this
+  },
+
+  grab: function(x, y, start, cb = options.onGrab) {
+    if (!shown || lock) return
+    grab = true
+
+    // onBeforeGrab event
+    if (options.onBeforeGrab) options.onBeforeGrab(target)
+
+    const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
+    const transform = target.style.transform
+      .replace(/translate3d\(.*?\)/i, `translate3d(${translate.x + dx}px, ${translate.y + dy}px, 0)`)
+      .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + options.scaleExtra})`)
+
+    setStyle(target, {
+      cursor: `${prefix} grabbing`,
+      transition: `${transformCssProp} ${start
+        ? options.transitionDuration + ' ' + options.transitionTimingFunction
+        : 'ease'}`,
+      transform: transform
     })
-    return ret
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
+    })
+  },
+
+  release: (cb = options.onRelease) => {
+    if (!shown || lock || !grab) return
+
+    // onBeforeRelease event
+    if (options.onBeforeRelease) options.onBeforeRelease(target)
+
+    setStyle(target, openStyles)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+      grab = false
+      if (cb) cb(target)
+    })
+
+    return this
+  }
+}
+
+// -----------------------------------------------------------------------------
+
+function setStyle(el, styles, remember) {
+  return setStyleHelper(el, styles, remember)
+}
+
+function imgOnload () {
+  imgRect = target.getBoundingClientRect()
+
+  // upgrade source if possible
+  if (target.hasAttribute('data-original')) {
+    srcThumbnail = target.getAttribute('src')
+
+    setStyle(target, {
+      width: `${imgRect.width}px`,
+      height: `${imgRect.height}px`
+    })
+
+    target.setAttribute('src', target.getAttribute('data-original'))
   }
 
-  function checkTrans (styles) {
-    var value
-    if (styles.transition) {
-      value = styles.transition
-      delete styles.transition
-      styles[transitionProp] = value
-    }
-    if (styles.transform) {
-      value = styles.transform
-      delete styles.transform
-      styles[transformProp] = value
-    }
+  // force layout update
+  target.offsetWidth
+
+  openStyles = {
+    position: 'relative',
+    zIndex: 999,
+    cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+    transition: `${transformCssProp}
+      ${options.transitionDuration}
+      ${options.transitionTimingFunction}`,
+    transform: calculateTransform()
   }
 
-  function calculateTransform () {
-    var imgHalfWidth = imgRect.width / 2,
-        imgHalfHeight = imgRect.height / 2,
+  // trigger transition
+  originalStyles = setStyle(target, openStyles, true)
+}
 
-        imgCenter = {
-          x: imgRect.left + imgHalfWidth,
-          y: imgRect.top + imgHalfHeight
-        },
+function calculateTransform () {
+  const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
 
-        windowCenter = {
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2
-        },
-
-        // The distance between image edge and window edge
-        distFromImageEdgeToWindowEdge = {
-          x: windowCenter.x - imgHalfWidth,
-          y: windowCenter.y - imgHalfHeight
-        },
-
-        scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth,
-        scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
-
-      // The vector to translate image to the window center
-      translate = {
-        x: windowCenter.x - imgCenter.x,
-        y: windowCenter.y - imgCenter.y
-      }
-
-      // The additional scale is based on the smaller value of
-      // scaling horizontally and scaling vertically
-      scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
-
-      var transform =
-          'translate3d(' + translate.x + 'px,' + translate.y + 'px, 0) ' +
-          'scale(' + scale + ')'
-
-    return transform
+  const imgCenter = {
+    x: imgRect.left + imgHalfWidth,
+    y: imgRect.top + imgHalfHeight
   }
 
-  // listeners -----------------------------------------------------------------
-
-  function scrollHandler () {
-    var scrollTop = window.pageYOffset ||
-      (document.documentElement || body.parentNode || body).scrollTop
-
-    if (lastScrollPosition === null) lastScrollPosition = scrollTop
-
-    var deltaY = lastScrollPosition - scrollTop
-
-    if (Math.abs(deltaY) >= options.scrollThreshold) {
-      lastScrollPosition = null
-      api.close()
-    }
+  const windowCenter = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
   }
 
-  function keydownHandler (e) {
-    var code = e.key || e.code
-    if (code === 'Escape' || e.keyCode === 27) api.close()
+  // The distance between image edge and window edge
+  const distFromImageEdgeToWindowEdge = {
+    x: windowCenter.x - imgHalfWidth,
+    y: windowCenter.y - imgHalfHeight
   }
 
-  function mousedownHandler (e) {
-    e.preventDefault()
+  const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
+  const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
 
-    pressTimer = setTimeout(function() {
-      press = true
-      api.grab(e.clientX, e.clientY, true)
-    }, pressDelay)
+  // The vector to translate image to the window center
+  translate = {
+    x: windowCenter.x - imgCenter.x,
+    y: windowCenter.y - imgCenter.y
   }
 
-  function mousemoveHandler (e) {
-    if (press) api.grab(e.clientX, e.clientY)
+  // The additional scale is based on the smaller value of
+  // scaling horizontally and scaling vertically
+  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
+
+  return `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${scale})`
+}
+
+function addGrabListeners (el) {
+  el.addEventListener('mousedown', mousedownHandler)
+  el.addEventListener('mousemove', mousemoveHandler)
+  el.addEventListener('mouseup', mouseupHandler)
+  el.addEventListener('touchstart', touchstartHandler)
+  el.addEventListener('touchmove', touchmoveHandler)
+  el.addEventListener('touchend', touchendHandler)
+}
+
+function removeGrabListeners (el) {
+  el.removeEventListener('mousedown', mousedownHandler)
+  el.removeEventListener('mousemove', mousemoveHandler)
+  el.removeEventListener('mouseup', mouseupHandler)
+  el.removeEventListener('touchstart', touchstartHandler)
+  el.removeEventListener('touchmove', touchmoveHandler)
+  el.removeEventListener('touchend', touchendHandler)
+}
+
+// listeners -----------------------------------------------------------------
+
+function scrollHandler () {
+  const scrollTop = window.pageYOffset ||
+    (document.documentElement || body.parentNode || body).scrollTop
+
+  if (lastScrollPosition === null) lastScrollPosition = scrollTop
+
+  const deltaY = lastScrollPosition - scrollTop
+
+  if (Math.abs(deltaY) >= options.scrollThreshold) {
+    lastScrollPosition = null
+    api.close()
   }
+}
 
-  function mouseupHandler () {
-    clearTimeout(pressTimer)
-    press = false
-    api.release()
+function keydownHandler (e) {
+  const code = e.key || e.code
+  if (code === 'Escape' || e.keyCode === 27) api.close()
+}
+
+function mousedownHandler (e) {
+  e.preventDefault()
+
+  pressTimer = setTimeout(function() {
+    press = true
+    api.grab(e.clientX, e.clientY, true)
+  }, pressDelay)
+}
+
+function mousemoveHandler (e) {
+  if (press) api.grab(e.clientX, e.clientY)
+}
+
+function mouseupHandler () {
+  clearTimeout(pressTimer)
+  press = false
+  api.release()
+}
+
+function touchstartHandler (e) {
+  e.preventDefault()
+
+  pressTimer = setTimeout(function() {
+    press = true
+    const touch = e.touches[0]
+    api.grab(touch.clientX, touch.clientY, true)
+  }, pressDelay)
+}
+
+function touchmoveHandler (e) {
+  if (press) {
+    const touch = e.touches[0]
+    api.grab(touch.clientX, touch.clientY)
   }
+}
 
-  function touchstartHandler (e) {
-    e.preventDefault()
+function touchendHandler () {
+  clearTimeout(pressTimer)
+  press = false
+  if (grab) api.release()
+  else api.close()
+}
 
-    pressTimer = setTimeout(function() {
-      press = true
-      var touch = e.touches[0]
-      api.grab(touch.clientX, touch.clientY, true)
-    }, pressDelay)
-  }
+// init ------------------------------------------------------------------------
+setStyle(overlay, {
+  zIndex: 998,
+  background: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: `opacity
+    ${options.transitionDuration}
+    ${options.transitionTimingFunction}`
+})
 
-  function touchmoveHandler (e) {
-    if (press) {
-      var touch = e.touches[0]
-      api.grab(touch.clientX, touch.clientY)
-    }
-  }
+overlay.addEventListener('click', api.close)
 
-  function touchendHandler () {
-    clearTimeout(pressTimer)
-    press = false
-    if (grab) api.release()
-    else api.close()
-  }
-
-  // umd expose ----------------------------------------------------------------
-
-  /* eslint-disable no-undef */
-  if (typeof exports == 'object') {
-    module.exports = api
-  } else if (typeof define == 'function' && define.amd) {
-    define(function(){ return api })
-  } else {
-    this.Zooming = api
-  }
-  /* eslint-enable no-undef */
-}()
+export default api
