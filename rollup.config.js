@@ -8,7 +8,7 @@ export default {
   dest: 'build/zooming.js',
   format: 'umd',
   moduleName: 'Zooming',
-  sourceMap: 'inline',
+  sourceMap: true,
   plugins: [
     babel({
       exclude: 'node_modules/**'
