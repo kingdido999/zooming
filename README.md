@@ -12,6 +12,8 @@ Pure JavaScript image zoom that can be customized and invoked programmatically.
 
 Install with your package manager:
 
+`yarn add zooming`
+
 `npm install zooming --save`
 
 `bower install zooming --save`
@@ -93,6 +95,20 @@ Takes an options object. Available options:
 | onBeforeClose            | Function         | null                      | A callback function that will be called before close. |
 | onBeforeGrab             | Function         | null                      | A callback function that will be called before grab. |
 | onBeforeRelease          | Function         | null                      | A callback function that will be called before release. |
+
+## Development
+
+Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
+
+Fork and clone it.
+
+Under project folder:
+
+`yarn`
+
+`yarn watch`
+
+Now open up `index.html` and play around with it!
 
 ## Credit
 
