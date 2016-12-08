@@ -1,10 +1,8 @@
-import { defaults } from './helpers'
-import Zooming from './zooming'
+import { options } from './helpers'
+import api from './zooming'
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // listen to zoomable elements by default
-  new Zooming().listen(defaults.zoomable)
+  api.listen(options.defaultZoomable)
 })
 
 if (ENV !== 'production') {
@@ -15,4 +13,4 @@ if (ENV !== 'production') {
   )
 }
 
-export default Zooming
+export default api

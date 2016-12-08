@@ -1,415 +1,362 @@
-import { prefix, pressDelay, defaults, sniffTransition, checkTrans } from './helpers'
+import { prefix, pressDelay, options, sniffTransition, checkTrans } from './helpers'
 
-export default class Zooming {
-  constructor(opts) {
+// elements
+const body = document.body
+const overlay = document.createElement('div')
+let target
+let parent
 
-    // elements
-    this.body = document.body
-    this.overlay = document.createElement('div')
-    this.target
-    this.parent
+// state
+let shown = false
+let lock  = false
+let press = false
+let grab = false
+let lastScrollPosition = null
 
-    // state
-    this._shown = false
-    this._lock  = false
-    this._press = false
-    this._grab  = false
-    this._lastScrollPosition = null
+// style
+let originalStyles
+let openStyles
+let translate
+let scale
 
-    // style
-    this.originalStyles
-    this.openStyles
-    this.translate
-    this.scale
+let srcThumbnail
+let imgRect
+let pressTimer
 
-    this.srcThumbnail
-    this.imgRect
-    this.pressTimer
+const trans = sniffTransition(overlay)
+const transformCssProp = trans.transformCssProp
+const transEndEvent = trans.transEndEvent
+const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
 
-    this.trans = sniffTransition(this.overlay)
-    this.setStyleHelper = checkTrans(this.trans.transitionProp, this.trans.transformProp)
 
-    this._init(opts)
-  }
+const api = {
 
-  config (opts) {
-    if (!opts) return this
-
-    for (let key in opts) {
-      this.options[key] = opts[key]
-    }
-
-    this._setStyle(this.overlay, {
-      backgroundColor: this.options.bgColor,
-      transition: 'opacity ' +
-        this.options.transitionDuration + ' ' +
-        this.options.transitionTimingFunction
-    })
-
-    return this
-  }
-
-  open (el, cb) {
-    if (this._shown || this._lock || this._grab) return
-
-    this.target = typeof el === 'string'
-      ? document.querySelector(el)
-      : el
-
-    if (this.target.tagName !== 'IMG') return
-
-    // onBeforeOpen event
-    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target)
-
-    this._shown = true
-    this._lock = true
-    this.parent = this.target.parentNode
-
-    const img = new Image()
-    img.onload = this._imgOnload()
-    img.src = this.target.getAttribute('src')
-
-    this._insertOverlay()
-
-    document.addEventListener('scroll', this.scrollHandler)
-    document.addEventListener('keydown', this.keydownHandler)
-
-    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
-      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
-      if (this.options.enableGrab) this._addGrabListeners()
-
-      this._lock = false
-      cb = cb || this.options.onOpen
-      if (cb) cb(this.target)
-    }).bind(this))
-
-    return this
-  }
-
-  close (cb) {
-    if (!this._shown || this._lock || this._grab) return
-    this._lock = true
-
-    // onBeforeClose event
-    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target)
-
-    this._removeOverlay()
-
-    this.target.style.transform = ''
-
-    document.removeEventListener('scroll', this.scrollHandler)
-    document.removeEventListener('keydown', this.keydownHandler)
-
-    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
-      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
-      if (this.options.enableGrab) this._removeGrabListeners()
-
-      this._setStyle(this.target, this.originalStyles)
-      this.parent.removeChild(this.overlay)
-      this._shown = false
-      this._lock = false
-      this._grab = false
-
-      // downgrade source if possible
-      if (this.target.hasAttribute('data-original')) {
-        this.target.setAttribute('src', this.srcThumbnail)
-      }
-
-      cb = typeof cb === 'function'
-        ? cb
-        : this.options.onClose
-      if (cb) cb(this.target)
-    }).bind(this))
-
-    return this
-  }
-
-  grab (x, y, start, cb) {
-    if (!this._shown || this._lock) return
-    this._grab = true
-
-    // onBeforeGrab event
-    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target)
-
-    const dx = x - window.innerWidth / 2
-    const dy = y - window.innerHeight / 2
-    const oldTransform = this.target.style.transform
-    const transform = oldTransform
-          .replace(
-            /translate3d\(.*?\)/i,
-            'translate3d(' + (this.translate.x + dx) + 'px,' + (this.translate.y + dy) + 'px, 0)')
-          .replace(
-            /scale\([0-9|\.]*\)/i,
-            'scale(' + (this.scale + this.options.scaleExtra) + ')')
-
-    this._setStyle(this.target, {
-      cursor: prefix + 'grabbing',
-      transition: this.trans.transformCssProp + ' ' + (
-        start
-        ? this.options.transitionDuration + ' ' + this.options.transitionTimingFunction
-        : 'ease'
-      ),
-      transform: transform
-    })
-
-    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
-      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
-
-      cb = typeof cb === 'function'
-        ? cb
-        : this.options.onGrab
-      if (cb) cb(this.target)
-    }).bind(this))
-  }
-
-  release (cb) {
-    if (!this._shown || this._lock || !this._grab) return
-
-    // onBeforeRelease event
-    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target)
-
-    this._setStyle(this.target, this.openStyles)
-
-    this.target.addEventListener(this.trans.transEndEvent, (function onEnd () {
-      this.target.removeEventListener(this.trans.transEndEvent, onEnd)
-      this._grab = false
-
-      cb = typeof cb === 'function'
-        ? cb
-        : this.options.onRelease
-      if (cb) cb(this.target)
-    }).bind(this))
-
-    return this
-  }
-
-  listen (el) {
+  listen: (el) => {
     if (typeof el === 'string') {
-      const els = document.querySelectorAll(el)
-      let i = els.length
-
-      while (i--) {
-        this.listen(els[i])
-      }
-
+      document.querySelectorAll(el).forEach(e => api.listen(e))
       return this
     }
 
-    el.style.cursor = prefix + 'zoom-in'
+    el.style.cursor = `${prefix}zoom-in`
 
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
-      if (this._shown) this.close()
-      else this.open(el)
+      if (shown) api.close()
+      else api.open(el)
+    })
+
+    return this
+  },
+
+  config: (opts) => {
+    if (!opts) return options
+
+    for (let key in opts) {
+      options[key] = opts[key]
+    }
+
+    setStyle(overlay, {
+      backgroundColor: options.bgColor,
+      transition: `opacity
+        ${options.transitionDuration}
+        ${options.transitionTimingFunction}`
+    })
+
+    return this
+  },
+
+  open: (el, cb = options.onOpen) => {
+    if (shown || lock || grab) return
+
+    target = typeof el === 'string'
+      ? document.querySelector(el)
+      : el
+
+    if (target.tagName !== 'IMG') return
+
+    // onBeforeOpen event
+    if (options.onBeforeOpen) options.onBeforeOpen(target)
+
+    shown = true
+    lock = true
+    parent = target.parentNode
+
+    const img = new Image()
+    img.onload = imgOnload()
+    img.src = target.getAttribute('src')
+
+    parent.appendChild(overlay)
+    setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
+
+    document.addEventListener('scroll', scrollHandler)
+    document.addEventListener('keydown', keydownHandler)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+
+      if (options.enableGrab) addGrabListeners(target)
+
+      lock = false
+
+      if (cb) cb(target)
+    })
+
+    return this
+  },
+
+  close: (cb = options.onClose) => {
+    if (!shown || lock || grab) return
+    lock = true
+
+    // onBeforeClose event
+    if (options.onBeforeClose) options.onBeforeClose(target)
+    overlay.style.opacity = 0
+    target.style.transform = ''
+
+    document.removeEventListener('scroll', scrollHandler)
+    document.removeEventListener('keydown', keydownHandler)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+
+      if (options.enableGrab) removeGrabListeners(target)
+
+      shown = false
+      lock = false
+      grab = false
+
+      setStyle(target, originalStyles)
+      parent.removeChild(overlay)
+
+      // downgrade source if possible
+      if (target.hasAttribute('data-original')) target.setAttribute('src', srcThumbnail)
+
+      if (cb) cb(target)
+    })
+
+    return this
+  },
+
+  grab: function(x, y, start, cb = options.onGrab) {
+    if (!shown || lock) return
+    grab = true
+
+    // onBeforeGrab event
+    if (options.onBeforeGrab) options.onBeforeGrab(target)
+
+    const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
+    const transform = target.style.transform
+      .replace(
+        /translate3d\(.*?\)/i,
+        `translate3d(${translate.x + dx}px, ${translate.y + dy}px, 0)`)
+      .replace(
+        /scale\([0-9|\.]*\)/i,
+        `scale(${scale + options.scaleExtra})`)
+
+    setStyle(target, {
+      cursor: `${prefix} grabbing`,
+      transition: `${transformCssProp} ${start
+        ? options.transitionDuration + ' ' + options.transitionTimingFunction
+        : 'ease'}`,
+      transform: transform
+    })
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
+    })
+  },
+
+  release: (cb = options.onRelease) => {
+    if (!shown || lock || !grab) return
+
+    // onBeforeRelease event
+    if (options.onBeforeRelease) options.onBeforeRelease(target)
+
+    setStyle(target, openStyles)
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+      grab = false
+      if (cb) cb(target)
     })
 
     return this
   }
+}
 
-  _init (opts) {
-    // config options
-    this.options = {}
-    Object.assign(this.options, defaults)
-    this.config(opts)
+function setStyle(el, styles, remember) {
+  return setStyleHelper(el, styles, remember)
+}
 
-    // initial overlay setup
-    this._setStyle(this.overlay, {
-      zIndex: 998,
-      background: this.options.bgColor,
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      opacity: 0,
-      transition: 'opacity ' +
-        this.options.transitionDuration + ' ' +
-        this.options.transitionTimingFunction
+function imgOnload () {
+  imgRect = target.getBoundingClientRect()
+
+  // upgrade source if possible
+  if (target.hasAttribute('data-original')) {
+    srcThumbnail = target.getAttribute('src')
+
+    setStyle(target, {
+      width: `${imgRect.width}px`,
+      height: `${imgRect.height}px`
     })
 
-    this.overlay.addEventListener('click', this.close)
-
-    this.scrollHandler = this.scrollHandler.bind(this)
-    this.keydownHandler = this.keydownHandler.bind(this)
-
-    if (this.options.enableGrab) {
-      this.mousedownHandler = this.mousedownHandler.bind(this)
-      this.mousemoveHandler = this.mousemoveHandler.bind(this)
-      this.mouseupHandler = this.mouseupHandler.bind(this)
-      this.touchstartHandler = this.touchstartHandler.bind(this)
-      this.touchmoveHandler = this.touchmoveHandler.bind(this)
-      this.touchendHandler = this.touchendHandler.bind(this)
-    }
+    target.setAttribute('src', target.getAttribute('data-original'))
   }
 
-  _imgOnload () {
-    this.imgRect = this.target.getBoundingClientRect()
+  // force layout update
+  target.offsetWidth
 
-    // upgrade source if possible
-    if (this.target.hasAttribute('data-original')) {
-      this.srcThumbnail = this.target.getAttribute('src')
-
-      this._setStyle(this.target, {
-        width: this.imgRect.width + 'px',
-        height: this.imgRect.height + 'px'
-      })
-
-      this.target.setAttribute('src', this.target.getAttribute('data-original'))
-    }
-
-    // force layout update
-    this.target.offsetWidth
-
-    this.openStyles = {
-      position: 'relative',
-      zIndex: 999,
-      cursor: prefix + (this.options.enableGrab ? 'grab' : 'zoom-out'),
-      transition: this.trans.transformCssProp + ' ' +
-        this.options.transitionDuration + ' ' +
-        this.options.transitionTimingFunction,
-      transform: this._calculateTransform()
-    }
-
-    // trigger transition
-    this.originalStyles = this._setStyle(this.target, this.openStyles, true)
+  openStyles = {
+    position: 'relative',
+    zIndex: 999,
+    cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+    transition: `${transformCssProp}
+      ${options.transitionDuration}
+      ${options.transitionTimingFunction}`,
+    transform: calculateTransform()
   }
 
-  _insertOverlay () {
-    this.parent.appendChild(this.overlay)
+  // trigger transition
+  originalStyles = setStyle(target, openStyles, true)
+}
 
-    setTimeout(() => {
-      this.overlay.style.opacity = this.options.bgOpacity
-    }, 30)
+function init () {
+  setStyle(overlay, {
+    zIndex: 998,
+    background: options.bgColor,
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0,
+    transition: `opacity
+      ${options.transitionDuration}
+      ${options.transitionTimingFunction}`
+  })
+
+  overlay.addEventListener('click', api.close)
+}
+
+function calculateTransform () {
+  const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
+
+  const imgCenter = {
+    x: imgRect.left + imgHalfWidth,
+    y: imgRect.top + imgHalfHeight
   }
 
-  _removeOverlay () {
-    this.overlay.style.opacity = 0
+  const windowCenter = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
   }
 
-  _setStyle (el, styles, remember) {
-    return this.setStyleHelper(el, styles, remember)
+  // The distance between image edge and window edge
+  const distFromImageEdgeToWindowEdge = {
+    x: windowCenter.x - imgHalfWidth,
+    y: windowCenter.y - imgHalfHeight
   }
 
-  _calculateTransform () {
-    const imgHalfWidth = this.imgRect.width / 2
-    const imgHalfHeight = this.imgRect.height / 2
+  const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
+  const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
 
-    const imgCenter = {
-      x: this.imgRect.left + imgHalfWidth,
-      y: this.imgRect.top + imgHalfHeight
-    }
-
-    const windowCenter = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2
-    }
-
-    // The distance between image edge and window edge
-    const distFromImageEdgeToWindowEdge = {
-      x: windowCenter.x - imgHalfWidth,
-      y: windowCenter.y - imgHalfHeight
-    }
-
-    const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
-    const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
-
-    // The vector to translate image to the window center
-    this.translate = {
-      x: windowCenter.x - imgCenter.x,
-      y: windowCenter.y - imgCenter.y
-    }
-
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    this.scale = this.options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
-
-    const transform =
-        'translate3d(' + this.translate.x + 'px,' + this.translate.y + 'px, 0) ' +
-        'scale(' + this.scale + ')'
-
-    return transform
+  // The vector to translate image to the window center
+  translate = {
+    x: windowCenter.x - imgCenter.x,
+    y: windowCenter.y - imgCenter.y
   }
 
-  _addGrabListeners () {
-    this.target.addEventListener('mousedown', this.mousedownHandler)
-    this.target.addEventListener('mousemove', this.mousemoveHandler)
-    this.target.addEventListener('mouseup', this.mouseupHandler)
-    this.target.addEventListener('touchstart', this.touchstartHandler)
-    this.target.addEventListener('touchmove', this.touchmoveHandler)
-    this.target.addEventListener('touchend', this.touchendHandler)
-  }
+  // The additional scale is based on the smaller value of
+  // scaling horizontally and scaling vertically
+  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
-  _removeGrabListeners () {
-    this.target.removeEventListener('mousedown', this.mousedownHandler)
-    this.target.removeEventListener('mousemove', this.mousemoveHandler)
-    this.target.removeEventListener('mouseup', this.mouseupHandler)
-    this.target.removeEventListener('touchstart', this.touchstartHandler)
-    this.target.removeEventListener('touchmove', this.touchmoveHandler)
-    this.target.removeEventListener('touchend', this.touchendHandler)
-  }
+  return `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${scale})`
+}
 
-  // listeners -----------------------------------------------------------------
+function addGrabListeners (el) {
+  el.addEventListener('mousedown', mousedownHandler)
+  el.addEventListener('mousemove', mousemoveHandler)
+  el.addEventListener('mouseup', mouseupHandler)
+  el.addEventListener('touchstart', touchstartHandler)
+  el.addEventListener('touchmove', touchmoveHandler)
+  el.addEventListener('touchend', touchendHandler)
+}
 
-  scrollHandler () {
-    const scrollTop = window.pageYOffset ||
-      (document.documentElement || this.body.parentNode || this.body).scrollTop
+function removeGrabListeners (el) {
+  el.removeEventListener('mousedown', mousedownHandler)
+  el.removeEventListener('mousemove', mousemoveHandler)
+  el.removeEventListener('mouseup', mouseupHandler)
+  el.removeEventListener('touchstart', touchstartHandler)
+  el.removeEventListener('touchmove', touchmoveHandler)
+  el.removeEventListener('touchend', touchendHandler)
+}
 
-    if (this._lastScrollPosition === null) this._lastScrollPosition = scrollTop
+// listeners -----------------------------------------------------------------
 
-    const deltaY = this._lastScrollPosition - scrollTop
+function scrollHandler () {
+  const scrollTop = window.pageYOffset ||
+    (document.documentElement || body.parentNode || body).scrollTop
 
-    if (Math.abs(deltaY) >= this.options.scrollThreshold) {
-      this._lastScrollPosition = null
-      this.close()
-    }
-  }
+  if (lastScrollPosition === null) lastScrollPosition = scrollTop
 
-  keydownHandler (e) {
-    const code = e.key || e.code
-    if (code === 'Escape' || e.keyCode === 27) this.close()
-  }
+  const deltaY = lastScrollPosition - scrollTop
 
-  mousedownHandler (e) {
-    e.preventDefault()
-
-    this.pressTimer = setTimeout(() => {
-      this._press = true
-      this.grab(e.clientX, e.clientY, true)
-    }, pressDelay)
-  }
-
-  mousemoveHandler (e) {
-    if (this._press) this.grab(e.clientX, e.clientY)
-  }
-
-  mouseupHandler () {
-    clearTimeout(this.pressTimer)
-    this._press = false
-    this.release()
-  }
-
-  touchstartHandler (e) {
-    e.preventDefault()
-
-    this.pressTimer = setTimeout(() => {
-      this._press = true
-      const touch = e.touches[0]
-      this.grab(touch.clientX, touch.clientY, true)
-    }, pressDelay)
-  }
-
-  touchmoveHandler (e) {
-    if (this._press) {
-      const touch = e.touches[0]
-      this.grab(touch.clientX, touch.clientY)
-    }
-  }
-
-  touchendHandler () {
-    clearTimeout(this.pressTimer)
-    this._press = false
-    if (this._grab) this.release()
-    else this.close()
+  if (Math.abs(deltaY) >= options.scrollThreshold) {
+    lastScrollPosition = null
+    api.close()
   }
 }
+
+function keydownHandler (e) {
+  const code = e.key || e.code
+  if (code === 'Escape' || e.keyCode === 27) api.close()
+}
+
+function mousedownHandler (e) {
+  e.preventDefault()
+
+  pressTimer = setTimeout(function() {
+    press = true
+    api.grab(e.clientX, e.clientY, true)
+  }, pressDelay)
+}
+
+function mousemoveHandler (e) {
+  if (press) api.grab(e.clientX, e.clientY)
+}
+
+function mouseupHandler () {
+  clearTimeout(pressTimer)
+  press = false
+  api.release()
+}
+
+function touchstartHandler (e) {
+  e.preventDefault()
+
+  pressTimer = setTimeout(function() {
+    press = true
+    const touch = e.touches[0]
+    api.grab(touch.clientX, touch.clientY, true)
+  }, pressDelay)
+}
+
+function touchmoveHandler (e) {
+  if (press) {
+    const touch = e.touches[0]
+    api.grab(touch.clientX, touch.clientY)
+  }
+}
+
+function touchendHandler () {
+  clearTimeout(pressTimer)
+  press = false
+  if (grab) api.release()
+  else api.close()
+}
+
+init()
+
+export default api

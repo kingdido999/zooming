@@ -2,8 +2,8 @@
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 const pressDelay = 200
 
-const defaults = {
-  zoomable: 'img[data-action="zoom"]',
+const options = {
+  defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
   transitionDuration: '.4s',
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
@@ -68,7 +68,7 @@ const checkTrans = (transitionProp, transformProp) => {
     let s = el.style
     let original = {}
 
-    for (var key in styles) {
+    for (let key in styles) {
       if (remember) original[key] = s[key] || ''
       s[key] = styles[key]
     }
@@ -77,4 +77,4 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
-export { prefix, pressDelay, defaults, sniffTransition, checkTrans }
+export { prefix, pressDelay, options, sniffTransition, checkTrans }
