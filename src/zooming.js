@@ -341,11 +341,13 @@ function touchmoveHandler (e) {
   }
 }
 
-function touchendHandler () {
-  clearTimeout(pressTimer)
-  press = false
-  if (grab) api.release()
-  else api.close()
+function touchendHandler (e) {
+  if (e.touches.length === 0) {
+    clearTimeout(pressTimer)
+    press = false
+    if (grab) api.release()
+    else api.close()
+  }
 }
 
 // init ------------------------------------------------------------------------
