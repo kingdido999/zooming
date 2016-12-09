@@ -83,6 +83,107 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
   };
 };
 
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var set = function set(object, property, value, receiver) {
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent !== null) {
+      set(parent, property, value, receiver);
+    }
+  } else if ("value" in desc && desc.writable) {
+    desc.value = value;
+  } else {
+    var setter = desc.set;
+
+    if (setter !== undefined) {
+      setter.call(receiver, value);
+    }
+  }
+
+  return value;
+};
+
+var slicedToArray = function () {
+  function sliceIterator(arr, i) {
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"]) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  return function (arr, i) {
+    if (Array.isArray(arr)) {
+      return arr;
+    } else if (Symbol.iterator in Object(arr)) {
+      return sliceIterator(arr, i);
+    } else {
+      throw new TypeError("Invalid attempt to destructure non-iterable instance");
+    }
+  };
+}();
+
 var _this = undefined;
 
 // elements
@@ -364,6 +465,12 @@ function removeGrabListeners(el) {
   el.removeEventListener('touchend', touchendHandler);
 }
 
+function calculateTouchCenter(touches) {
+  var touchPos = touches.length > 1 ? [(touches[0].clientX + touches[1].clientX) / 2, (touches[0].clientY + touches[1].clientY) / 2] : [touches[0].clientX, touches[0].clientY];
+
+  return touchPos;
+}
+
 // listeners -----------------------------------------------------------------
 
 function scrollHandler() {
@@ -408,15 +515,24 @@ function touchstartHandler(e) {
 
   pressTimer = setTimeout(function () {
     press = true;
-    var touch = e.touches[0];
-    api.grab(touch.clientX, touch.clientY, true);
+
+    var _calculateTouchCenter = calculateTouchCenter(e.touches),
+        _calculateTouchCenter2 = slicedToArray(_calculateTouchCenter, 2),
+        x = _calculateTouchCenter2[0],
+        y = _calculateTouchCenter2[1];
+
+    api.grab(x, y, true);
   }, pressDelay);
 }
 
 function touchmoveHandler(e) {
   if (press) {
-    var touch = e.touches[0];
-    api.grab(touch.clientX, touch.clientY);
+    var _calculateTouchCenter3 = calculateTouchCenter(e.touches),
+        _calculateTouchCenter4 = slicedToArray(_calculateTouchCenter3, 2),
+        x = _calculateTouchCenter4[0],
+        y = _calculateTouchCenter4[1];
+
+    api.grab(x, y);
   }
 }
 

@@ -274,6 +274,16 @@ function removeGrabListeners (el) {
   el.removeEventListener('touchend', touchendHandler)
 }
 
+function calculateTouchCenter (touches) {
+  const touchPos = touches.length > 1
+    ? [
+      (touches[0].clientX + touches[1].clientX) / 2,
+      (touches[0].clientY + touches[1].clientY) / 2]
+    : [touches[0].clientX, touches[0].clientY]
+
+  return touchPos
+}
+
 // listeners -----------------------------------------------------------------
 
 function scrollHandler () {
@@ -319,15 +329,15 @@ function touchstartHandler (e) {
 
   pressTimer = setTimeout(function() {
     press = true
-    const touch = e.touches[0]
-    api.grab(touch.clientX, touch.clientY, true)
+    const [x, y] = calculateTouchCenter(e.touches)
+    api.grab(x, y, true)
   }, pressDelay)
 }
 
 function touchmoveHandler (e) {
   if (press) {
-    const touch = e.touches[0]
-    api.grab(touch.clientX, touch.clientY)
+    const [x, y] = calculateTouchCenter(e.touches)
+    api.grab(x, y)
   }
 }
 
