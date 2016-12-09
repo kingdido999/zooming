@@ -1,4 +1,4 @@
-import { prefix, pressDelay, options, sniffTransition, checkTrans } from './helpers'
+import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans } from './helpers'
 
 // elements
 const body    = document.body
@@ -302,8 +302,8 @@ function processTouches (touches, cb) {
 
   if (total > 1) {
     const [distX, distY] = [maxX - minX, maxY - minY]
-    if (distX > distY) options.scaleExtra = (distX / window.innerWidth) * 2
-    else options.scaleExtra = (distY / window.innerHeight) * 2
+    if (distX > distY) options.scaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
+    else options.scaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
   }
 
   cb(xs/touches.length, ys/touches.length)
@@ -336,7 +336,7 @@ function mousedownHandler (e) {
   pressTimer = setTimeout(function() {
     press = true
     api.grab(e.clientX, e.clientY, true)
-  }, pressDelay)
+  }, PRESS_DELAY)
 }
 
 function mousemoveHandler (e) {
@@ -355,7 +355,7 @@ function touchstartHandler (e) {
   pressTimer = setTimeout(function() {
     press = true
     processTouches(e.touches, (x, y) => api.grab(x, y, true))
-  }, pressDelay)
+  }, PRESS_DELAY)
 }
 
 function touchmoveHandler (e) {

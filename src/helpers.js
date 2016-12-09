@@ -1,6 +1,7 @@
 // webkit prefix
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
-const pressDelay = 200
+const PRESS_DELAY = 200
+const TOUCH_SCALE_FACTOR = 8
 
 const options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -77,4 +78,4 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
-export { prefix, pressDelay, options, sniffTransition, checkTrans }
+export { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans }

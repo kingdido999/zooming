@@ -6,7 +6,8 @@
 
 // webkit prefix
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
-var pressDelay = 200;
+var PRESS_DELAY = 200;
+var TOUCH_SCALE_FACTOR = 8;
 
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -85,7 +86,6 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -394,7 +394,7 @@ function processTouches(touches, cb) {
     var distX = maxX - minX,
         distY = maxY - minY;
 
-    if (distX > distY) options.scaleExtra = distX / window.innerWidth * 2;else options.scaleExtra = distY / window.innerHeight * 2;
+    if (distX > distY) options.scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else options.scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
   }
 
   cb(xs / touches.length, ys / touches.length);
@@ -426,7 +426,7 @@ function mousedownHandler(e) {
   pressTimer = setTimeout(function () {
     press = true;
     api.grab(e.clientX, e.clientY, true);
-  }, pressDelay);
+  }, PRESS_DELAY);
 }
 
 function mousemoveHandler(e) {
@@ -447,7 +447,7 @@ function touchstartHandler(e) {
     processTouches(e.touches, function (x, y) {
       return api.grab(x, y, true);
     });
-  }, pressDelay);
+  }, PRESS_DELAY);
 }
 
 function touchmoveHandler(e) {
