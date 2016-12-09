@@ -86,6 +86,7 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -390,11 +391,11 @@ function processTouches(touches, cb) {
     xs += x;
     ys += y;
 
-    if (total === 0) continue;
+    if (total > 1) {
+      if (x < minX) minX = x;else if (x > maxX) maxX = x;
 
-    if (x < minX) minX = x;else if (x > maxX) maxX = x;
-
-    if (y < minY) minY = y;else if (y > maxY) maxY = y;
+      if (y < minY) minY = y;else if (y > maxY) maxY = y;
+    }
   }
 
   if (total > 1) {
