@@ -112,6 +112,7 @@ var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+var defaultScaleExtra = options.scaleExtra;
 
 // -----------------------------------------------------------------------------
 
@@ -364,15 +365,36 @@ function removeGrabListeners(el) {
   el.removeEventListener('touchend', touchendHandler);
 }
 
-function calculateTouchCenter(touches, cb) {
+function processTouches(touches, cb) {
+  var total = touches.length;
   var i = touches.length;
   var xs = 0,
       ys = 0;
 
+  var minX = touches[0].clientX;
+  var minY = touches[0].clientY;
+  var maxX = touches[0].clientX;
+  var maxY = touches[0].clientY;
 
   while (i--) {
-    xs += touches[i].clientX;
-    ys += touches[i].clientY;
+    var t = touches[i];
+    var x = t.clientX;
+    var y = t.clientY;
+    xs += x;
+    ys += y;
+
+    if (total > 1) {
+      if (x < minX) minX = x;else if (x > maxX) maxX = x;
+
+      if (y < minY) minY = y;else if (y > maxY) maxY = y;
+    }
+  }
+
+  if (total > 1) {
+    var distX = maxX - minX,
+        distY = maxY - minY;
+
+    if (distX > distY) options.scaleExtra = distX / window.innerWidth;else options.scaleExtra = distY / window.innerHeight;
   }
 
   cb(xs / touches.length, ys / touches.length);
@@ -422,7 +444,7 @@ function touchstartHandler(e) {
 
   pressTimer = setTimeout(function () {
     press = true;
-    calculateTouchCenter(e.touches, function (x, y) {
+    processTouches(e.touches, function (x, y) {
       return api.grab(x, y, true);
     });
   }, pressDelay);
@@ -430,7 +452,7 @@ function touchstartHandler(e) {
 
 function touchmoveHandler(e) {
   if (press) {
-    calculateTouchCenter(e.touches, function (x, y) {
+    processTouches(e.touches, function (x, y) {
       return api.grab(x, y);
     });
   }
@@ -440,6 +462,7 @@ function touchendHandler(e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer);
     press = false;
+    options.scaleExtra = defaultScaleExtra;
     if (_grab) api.release();else api.close();
   }
 }

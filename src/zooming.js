@@ -27,6 +27,7 @@ const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
+const defaultScaleExtra = options.scaleExtra
 
 // -----------------------------------------------------------------------------
 
@@ -274,13 +275,35 @@ function removeGrabListeners (el) {
   el.removeEventListener('touchend', touchendHandler)
 }
 
-function calculateTouchCenter (touches, cb) {
+function processTouches (touches, cb) {
+  const total = touches.length
   let i = touches.length
   let [xs, ys] = [0, 0]
+  let minX = touches[0].clientX
+  let minY = touches[0].clientY
+  let maxX = touches[0].clientX
+  let maxY = touches[0].clientY
 
   while (i--) {
-    xs += touches[i].clientX
-    ys += touches[i].clientY
+    const t = touches[i]
+    const x = t.clientX
+    const y = t.clientY
+    xs += x
+    ys += y
+
+    if (total > 1) {
+      if (x < minX) minX = x
+      else if (x > maxX) maxX = x
+
+      if (y < minY) minY = y
+      else if (y > maxY) maxY = y
+    }
+  }
+
+  if (total > 1) {
+    const [distX, distY] = [maxX - minX, maxY - minY]
+    if (distX > distY) options.scaleExtra = distX / window.innerWidth
+    else options.scaleExtra = distY / window.innerHeight
   }
 
   cb(xs/touches.length, ys/touches.length)
@@ -331,13 +354,13 @@ function touchstartHandler (e) {
 
   pressTimer = setTimeout(function() {
     press = true
-    calculateTouchCenter(e.touches, (x, y) => api.grab(x, y, true))
+    processTouches(e.touches, (x, y) => api.grab(x, y, true))
   }, pressDelay)
 }
 
 function touchmoveHandler (e) {
   if (press) {
-    calculateTouchCenter(e.touches, (x, y) => api.grab(x, y))
+    processTouches(e.touches, (x, y) => api.grab(x, y))
   }
 }
 
@@ -345,6 +368,7 @@ function touchendHandler (e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer)
     press = false
+    options.scaleExtra = defaultScaleExtra
     if (grab) api.release()
     else api.close()
   }
