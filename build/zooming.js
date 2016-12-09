@@ -86,6 +86,7 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -112,7 +113,7 @@ var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
-var defaultScaleExtra = options.scaleExtra;
+var DEFAULT_SCALE_EXTRA = options.scaleExtra;
 
 // -----------------------------------------------------------------------------
 
@@ -371,6 +372,8 @@ function processTouches(touches, cb) {
   var xs = 0,
       ys = 0;
 
+  // keep track of the min and max of touch positions
+
   var minX = touches[0].clientX;
   var minY = touches[0].clientY;
   var maxX = touches[0].clientX;
@@ -383,14 +386,15 @@ function processTouches(touches, cb) {
     xs += x;
     ys += y;
 
-    if (total > 1) {
-      if (x < minX) minX = x;else if (x > maxX) maxX = x;
+    if (total === 0) continue;
 
-      if (y < minY) minY = y;else if (y > maxY) maxY = y;
-    }
+    if (x < minX) minX = x;else if (x > maxX) maxX = x;
+
+    if (y < minY) minY = y;else if (y > maxY) maxY = y;
   }
 
   if (total > 1) {
+    // change scaleExtra dynamically
     var distX = maxX - minX,
         distY = maxY - minY;
 
@@ -462,7 +466,7 @@ function touchendHandler(e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer);
     press = false;
-    options.scaleExtra = defaultScaleExtra;
+    options.scaleExtra = DEFAULT_SCALE_EXTRA;
     if (_grab) api.release();else api.close();
   }
 }

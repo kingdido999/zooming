@@ -27,7 +27,7 @@ const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
-const defaultScaleExtra = options.scaleExtra
+const DEFAULT_SCALE_EXTRA = options.scaleExtra
 
 // -----------------------------------------------------------------------------
 
@@ -279,6 +279,8 @@ function processTouches (touches, cb) {
   const total = touches.length
   let i = touches.length
   let [xs, ys] = [0, 0]
+
+  // keep track of the min and max of touch positions
   let minX = touches[0].clientX
   let minY = touches[0].clientY
   let maxX = touches[0].clientX
@@ -291,16 +293,17 @@ function processTouches (touches, cb) {
     xs += x
     ys += y
 
-    if (total > 1) {
-      if (x < minX) minX = x
-      else if (x > maxX) maxX = x
+    if (total === 0) continue
 
-      if (y < minY) minY = y
-      else if (y > maxY) maxY = y
-    }
+    if (x < minX) minX = x
+    else if (x > maxX) maxX = x
+
+    if (y < minY) minY = y
+    else if (y > maxY) maxY = y
   }
 
   if (total > 1) {
+    // change scaleExtra dynamically
     const [distX, distY] = [maxX - minX, maxY - minY]
     if (distX > distY) options.scaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
     else options.scaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
@@ -368,7 +371,7 @@ function touchendHandler (e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer)
     press = false
-    options.scaleExtra = defaultScaleExtra
+    options.scaleExtra = DEFAULT_SCALE_EXTRA
     if (grab) api.release()
     else api.close()
   }
