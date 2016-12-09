@@ -1,10 +1,11 @@
 # Zooming
 
-Pure JavaScript image zoom that can be customized and invoked programmatically.
+Image zoom that makes sense.
 
-- Click to zoom in
-- Press on the image for extra zoom-in and try moving around!
-- Zoom into a higher resolution image if supplied
+- Pure JavaScript & built with mobile in mind.
+- Smooth animations with intuitive gestures.
+- Zoom into a hi-res image if supplied.
+- Easy to integrate & customizable.
 
 [Demo](http://desmonding.me/zooming/)
 
@@ -31,7 +32,7 @@ Alternatively, download and include a script tag in your page.
 Any image with attribute `data-action="zoom"` is zoomable by default, for example:
 
 ```html
-<img src="img/sample.jpg" data-action="zoom" />
+<img src="img/journey.jpg" data-action="zoom" />
 ```
 
 You can also define zoomable images in JavaScript:
@@ -44,7 +45,7 @@ Zooming.listen(element)
 Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ```html
-<img src="img/thumbnail.jpg" data-action="zoom" data-original="img/original.jpg" />
+<img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
 ```
 
 ## Development
@@ -59,7 +60,7 @@ Under project folder:
 
 `yarn watch`
 
-Now open up `index.html` and play around with it!
+Now open up `docs/index.html` and play around with it!
 
 ## Methods
 

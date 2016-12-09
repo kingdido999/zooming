@@ -3,7 +3,7 @@ import eslint from 'rollup-plugin-eslint'
 
 export default {
   entry: `src/zooming.js`,
-  dest: `docs/js/zooming.js`,
+  dest: `build/zooming.js`,
   format: 'umd',
   moduleName: 'Zooming',
   sourceMap: true,

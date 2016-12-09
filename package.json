@@ -1,7 +1,7 @@
 {
   "name": "zooming",
   "version": "0.5.4",
-  "description": "Image zoom with pure JavaScript.",
+  "description": "Image zoom that makes sense.",
   "main": "src/zooming.js",
   "repository": {
     "type": "git",
@@ -14,7 +14,8 @@
   ],
   "dependencies": {},
   "scripts": {
-    "watch": "rollup -c --watch",
+    "watch": "rollup -c -w",
+    "build": "rollup -c rollup.config.build.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
