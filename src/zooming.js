@@ -35,7 +35,12 @@ const api = {
 
   listen: (el) => {
     if (typeof el === 'string') {
-      document.querySelectorAll(el).forEach(e => api.listen(e))
+      let els = document.querySelectorAll(el), i = els.length
+
+      while (i--) {
+        api.listen(els[i])
+      }
+
       return this
     }
 
@@ -147,13 +152,14 @@ const api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target)
 
-    const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
+    // const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
+    const [dx, dy] = [window.innerWidth / 2 - x, window.innerHeight / 2 - y]
     const transform = target.style.transform
       .replace(/translate\(.*?\)/i, `translate(${translate.x + dx}px, ${translate.y + dy}px)`)
       .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + options.scaleExtra})`)
 
     setStyle(target, {
-      cursor: `${prefix} grabbing`,
+      cursor: 'move',
       transition: `${transformCssProp} ${start
         ? options.transitionDuration + ' ' + options.transitionTimingFunction
         : 'ease'}`,

@@ -120,9 +120,13 @@ var api = {
 
   listen: function listen(el) {
     if (typeof el === 'string') {
-      document.querySelectorAll(el).forEach(function (e) {
-        return api.listen(e);
-      });
+      var els = document.querySelectorAll(el),
+          i = els.length;
+
+      while (i--) {
+        api.listen(els[i]);
+      }
+
       return _this;
     }
 
@@ -237,13 +241,14 @@ var api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target);
 
-    var dx = x - window.innerWidth / 2,
-        dy = y - window.innerHeight / 2;
+    // const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
+    var dx = window.innerWidth / 2 - x,
+        dy = window.innerHeight / 2 - y;
 
     var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + options.scaleExtra) + ')');
 
     setStyle$1(target, {
-      cursor: prefix + ' grabbing',
+      cursor: 'move',
       transition: transformCssProp + ' ' + (start ? options.transitionDuration + ' ' + options.transitionTimingFunction : 'ease'),
       transform: transform
     });
