@@ -7,7 +7,7 @@
 // webkit prefix
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 8;
+var TOUCH_SCALE_FACTOR = 4;
 
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -86,7 +86,6 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
