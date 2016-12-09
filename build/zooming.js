@@ -394,7 +394,7 @@ function processTouches(touches, cb) {
     var distX = maxX - minX,
         distY = maxY - minY;
 
-    if (distX > distY) options.scaleExtra = distX / window.innerWidth;else options.scaleExtra = distY / window.innerHeight;
+    if (distX > distY) options.scaleExtra = distX / window.innerWidth * 2;else options.scaleExtra = distY / window.innerHeight * 2;
   }
 
   cb(xs / touches.length, ys / touches.length);

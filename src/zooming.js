@@ -302,8 +302,8 @@ function processTouches (touches, cb) {
 
   if (total > 1) {
     const [distX, distY] = [maxX - minX, maxY - minY]
-    if (distX > distY) options.scaleExtra = distX / window.innerWidth
-    else options.scaleExtra = distY / window.innerHeight
+    if (distX > distY) options.scaleExtra = (distX / window.innerWidth) * 2
+    else options.scaleExtra = (distY / window.innerHeight) * 2
   }
 
   cb(xs/touches.length, ys/touches.length)
