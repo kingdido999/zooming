@@ -417,7 +417,7 @@ function touchstartHandler(e) {
 
   pressTimer = setTimeout(function () {
     press = true;
-    calculateTouchCenter(e.targetTouches, function (pos) {
+    calculateTouchCenter(e.touches, function (pos) {
       return api.grab(pos.x, pos.y, true);
     });
   }, pressDelay);
@@ -425,7 +425,7 @@ function touchstartHandler(e) {
 
 function touchmoveHandler(e) {
   if (press) {
-    calculateTouchCenter(e.targetTouches, function (pos) {
+    calculateTouchCenter(e.touches, function (pos) {
       return api.grab(pos.x, pos.y);
     });
   }

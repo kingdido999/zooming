@@ -330,13 +330,13 @@ function touchstartHandler (e) {
 
   pressTimer = setTimeout(function() {
     press = true
-    calculateTouchCenter(e.targetTouches, (pos) => api.grab(pos.x, pos.y, true))
+    calculateTouchCenter(e.touches, (pos) => api.grab(pos.x, pos.y, true))
   }, pressDelay)
 }
 
 function touchmoveHandler (e) {
   if (press) {
-    calculateTouchCenter(e.targetTouches, (pos) => api.grab(pos.x, pos.y))
+    calculateTouchCenter(e.touches, (pos) => api.grab(pos.x, pos.y))
   }
 }
 
