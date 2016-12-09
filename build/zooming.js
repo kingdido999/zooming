@@ -115,12 +115,12 @@ var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
 
 // -----------------------------------------------------------------------------
 
-var api$1 = {
+var api = {
 
   listen: function listen(el) {
     if (typeof el === 'string') {
       document.querySelectorAll(el).forEach(function (e) {
-        return api$1.listen(e);
+        return api.listen(e);
       });
       return _this;
     }
@@ -130,7 +130,7 @@ var api$1 = {
     el.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (shown) api$1.close();else api$1.open(el);
+      if (shown) api.close();else api.open(el);
     });
 
     return _this;
@@ -239,7 +239,7 @@ var api$1 = {
     var dx = x - window.innerWidth / 2,
         dy = y - window.innerHeight / 2;
 
-    var transform = target.style.transform.replace(/translate3d\(.*?\)/i, 'translate3d(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px, 0)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + options.scaleExtra) + ')');
+    var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + options.scaleExtra) + ')');
 
     setStyle$1(target, {
       cursor: prefix + ' grabbing',
@@ -343,7 +343,7 @@ function calculateTransform() {
   // scaling horizontally and scaling vertically
   scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically);
 
-  return 'translate3d(' + translate.x + 'px, ' + translate.y + 'px, 0) scale(' + scale + ')';
+  return 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')';
 }
 
 function addGrabListeners(el) {
@@ -375,13 +375,13 @@ function scrollHandler() {
 
   if (Math.abs(deltaY) >= options.scrollThreshold) {
     lastScrollPosition = null;
-    api$1.close();
+    api.close();
   }
 }
 
 function keydownHandler(e) {
   var code = e.key || e.code;
-  if (code === 'Escape' || e.keyCode === 27) api$1.close();
+  if (code === 'Escape' || e.keyCode === 27) api.close();
 }
 
 function mousedownHandler(e) {
@@ -389,18 +389,18 @@ function mousedownHandler(e) {
 
   pressTimer = setTimeout(function () {
     press = true;
-    api$1.grab(e.clientX, e.clientY, true);
+    api.grab(e.clientX, e.clientY, true);
   }, pressDelay);
 }
 
 function mousemoveHandler(e) {
-  if (press) api$1.grab(e.clientX, e.clientY);
+  if (press) api.grab(e.clientX, e.clientY);
 }
 
 function mouseupHandler() {
   clearTimeout(pressTimer);
   press = false;
-  api$1.release();
+  api.release();
 }
 
 function touchstartHandler(e) {
@@ -409,21 +409,21 @@ function touchstartHandler(e) {
   pressTimer = setTimeout(function () {
     press = true;
     var touch = e.touches[0];
-    api$1.grab(touch.clientX, touch.clientY, true);
+    api.grab(touch.clientX, touch.clientY, true);
   }, pressDelay);
 }
 
 function touchmoveHandler(e) {
   if (press) {
     var touch = e.touches[0];
-    api$1.grab(touch.clientX, touch.clientY);
+    api.grab(touch.clientX, touch.clientY);
   }
 }
 
 function touchendHandler() {
   clearTimeout(pressTimer);
   press = false;
-  if (_grab) api$1.release();else api$1.close();
+  if (_grab) api.release();else api.close();
 }
 
 // init ------------------------------------------------------------------------
@@ -439,11 +439,10 @@ setStyle$1(overlay, {
   transition: 'opacity\n    ' + options.transitionDuration + '\n    ' + options.transitionTimingFunction
 });
 
-overlay.addEventListener('click', api$1.close);
+overlay.addEventListener('click', api.close);
+document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable));
 
-document.addEventListener('DOMContentLoaded', api$1.listen(options.defaultZoomable));
-
-return api$1;
+return api;
 
 })));
 //# sourceMappingURL=zooming.js.map

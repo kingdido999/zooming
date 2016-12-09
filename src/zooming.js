@@ -148,7 +148,7 @@ const api = {
 
     const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
     const transform = target.style.transform
-      .replace(/translate3d\(.*?\)/i, `translate3d(${translate.x + dx}px, ${translate.y + dy}px, 0)`)
+      .replace(/translate\(.*?\)/i, `translate(${translate.x + dx}px, ${translate.y + dy}px)`)
       .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + options.scaleExtra})`)
 
     setStyle(target, {
@@ -253,7 +253,7 @@ function calculateTransform () {
   // scaling horizontally and scaling vertically
   scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
-  return `translate3d(${translate.x}px, ${translate.y}px, 0) scale(${scale})`
+  return `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
 }
 
 function addGrabListeners (el) {
@@ -354,5 +354,6 @@ setStyle(overlay, {
 })
 
 overlay.addEventListener('click', api.close)
+document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
 
 export default api
