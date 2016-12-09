@@ -60,7 +60,7 @@ Under project folder:
 
 `yarn watch`
 
-Now open up `docs/index.html` and play around with it!
+Now open up `index.html` and play around with it!
 
 ## Methods
 
