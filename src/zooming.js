@@ -274,14 +274,15 @@ function removeGrabListeners (el) {
   el.removeEventListener('touchend', touchendHandler)
 }
 
-function calculateTouchCenter (touches) {
+function calculateTouchCenter (touches, cb) {
   const touchPos = touches.length > 1
-    ? [
-      (touches[0].clientX + touches[1].clientX) / 2,
-      (touches[0].clientY + touches[1].clientY) / 2]
-    : [touches[0].clientX, touches[0].clientY]
+    ? {
+      x: (touches[0].clientX + touches[1].clientX) / 2,
+      y: (touches[0].clientY + touches[1].clientY) / 2
+    }
+    : { x: touches[0].clientX, y: touches[0].clientY }
 
-  return touchPos
+  cb(touchPos)
 }
 
 // listeners -----------------------------------------------------------------
@@ -329,20 +330,18 @@ function touchstartHandler (e) {
 
   pressTimer = setTimeout(function() {
     press = true
-    const [x, y] = calculateTouchCenter(e.touches)
-    api.grab(x, y, true)
+    calculateTouchCenter(e.targetTouches, (pos) => api.grab(pos.x, pos.y, true))
   }, pressDelay)
 }
 
 function touchmoveHandler (e) {
   if (press) {
-    const [x, y] = calculateTouchCenter(e.touches)
-    api.grab(x, y)
+    calculateTouchCenter(e.targetTouches, (pos) => api.grab(pos.x, pos.y))
   }
 }
 
 function touchendHandler (e) {
-  if (e.touches.length === 0) {
+  if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer)
     press = false
     if (grab) api.release()
