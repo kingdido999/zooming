@@ -275,14 +275,15 @@ function removeGrabListeners (el) {
 }
 
 function calculateTouchCenter (touches, cb) {
-  const touchPos = touches.length > 1
-    ? {
-      x: (touches[0].clientX + touches[1].clientX) / 2,
-      y: (touches[0].clientY + touches[1].clientY) / 2
-    }
-    : { x: touches[0].clientX, y: touches[0].clientY }
+  let i = touches.length
+  let [xs, ys] = [0, 0]
 
-  cb(touchPos)
+  while (i--) {
+    xs += touches[i].clientX
+    ys += touches[i].clientY
+  }
+
+  cb(xs/touches.length, ys/touches.length)
 }
 
 // listeners -----------------------------------------------------------------
@@ -330,13 +331,13 @@ function touchstartHandler (e) {
 
   pressTimer = setTimeout(function() {
     press = true
-    calculateTouchCenter(e.touches, (pos) => api.grab(pos.x, pos.y, true))
+    calculateTouchCenter(e.touches, (x, y) => api.grab(x, y, true))
   }, pressDelay)
 }
 
 function touchmoveHandler (e) {
   if (press) {
-    calculateTouchCenter(e.touches, (pos) => api.grab(pos.x, pos.y))
+    calculateTouchCenter(e.touches, (x, y) => api.grab(x, y))
   }
 }
 
