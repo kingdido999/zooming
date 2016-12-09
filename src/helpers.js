@@ -1,7 +1,7 @@
 // webkit prefix
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 const PRESS_DELAY = 200
-const TOUCH_SCALE_FACTOR = 4
+const TOUCH_SCALE_FACTOR = 2
 
 const options = {
   defaultZoomable: 'img[data-action="zoom"]',

@@ -7,7 +7,7 @@
 // webkit prefix
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 4;
+var TOUCH_SCALE_FACTOR = 2;
 
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
