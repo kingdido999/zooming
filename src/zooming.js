@@ -3,31 +3,27 @@ import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, chec
 // elements
 const body    = document.body
 const overlay = document.createElement('div')
-let target
-let parent
+let target, parent
 
 // state
 let shown = false
 let lock  = false
 let press = false
 let grab  = false
+let multitouch = false
 let lastScrollPosition = null
+let translate, scale, imgRect, srcThumbnail, pressTimer, dynamicScaleExtra
 
 // style
-let originalStyles
-let openStyles
-let translate
-let scale
-
-let srcThumbnail
-let imgRect
-let pressTimer
+const style = {
+  close: null,
+  open: null
+}
 
 const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
-const DEFAULT_SCALE_EXTRA = options.scaleExtra
 
 // -----------------------------------------------------------------------------
 
@@ -90,8 +86,39 @@ const api = {
     parent = target.parentNode
 
     const img = new Image()
-    img.onload = imgOnload()
     img.src = target.getAttribute('src')
+    img.onload = () => {
+      imgRect = target.getBoundingClientRect()
+
+      // upgrade source if possible
+      if (target.hasAttribute('data-original')) {
+        srcThumbnail = target.getAttribute('src')
+
+        setStyle(target, {
+          width: `${imgRect.width}px`,
+          height: `${imgRect.height}px`
+        })
+
+        target.setAttribute('src', target.getAttribute('data-original'))
+      }
+
+      // force layout update
+      target.offsetWidth
+
+      style.open = {
+        position: 'relative',
+        zIndex: 999,
+        cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+        transition: `${transformCssProp}
+          ${options.transitionDuration}s
+          ${options.transitionTimingFunction}`,
+        transform: calculateTransform()
+      }
+
+      // trigger transition
+      style.close = setStyle(target, style.open, true)
+    }
+
 
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
@@ -133,7 +160,7 @@ const api = {
       lock = false
       grab = false
 
-      setStyle(target, originalStyles)
+      setStyle(target, style.close)
       parent.removeChild(overlay)
 
       // downgrade source if possible
@@ -152,11 +179,11 @@ const api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target)
 
-    // const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
     const [dx, dy] = [window.innerWidth / 2 - x, window.innerHeight / 2 - y]
+    const scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra
     const transform = target.style.transform
       .replace(/translate\(.*?\)/i, `translate(${translate.x + dx}px, ${translate.y + dy}px)`)
-      .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + options.scaleExtra})`)
+      .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + scaleExtra})`)
 
     setStyle(target, {
       cursor: 'move',
@@ -178,7 +205,7 @@ const api = {
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target)
 
-    setStyle(target, openStyles)
+    setStyle(target, style.open)
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
@@ -194,38 +221,6 @@ const api = {
 
 function setStyle(el, styles, remember) {
   return setStyleHelper(el, styles, remember)
-}
-
-function imgOnload () {
-  imgRect = target.getBoundingClientRect()
-
-  // upgrade source if possible
-  if (target.hasAttribute('data-original')) {
-    srcThumbnail = target.getAttribute('src')
-
-    setStyle(target, {
-      width: `${imgRect.width}px`,
-      height: `${imgRect.height}px`
-    })
-
-    target.setAttribute('src', target.getAttribute('data-original'))
-  }
-
-  // force layout update
-  target.offsetWidth
-
-  openStyles = {
-    position: 'relative',
-    zIndex: 999,
-    cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
-    transition: `${transformCssProp}
-      ${options.transitionDuration}s
-      ${options.transitionTimingFunction}`,
-    transform: calculateTransform()
-  }
-
-  // trigger transition
-  originalStyles = setStyle(target, openStyles, true)
 }
 
 function calculateTransform () {
@@ -283,6 +278,9 @@ function removeGrabListeners (el) {
 
 function processTouches (touches, cb) {
   const total = touches.length
+
+  multitouch = total > 1
+
   let i = touches.length
   let [xs, ys] = [0, 0]
 
@@ -299,7 +297,7 @@ function processTouches (touches, cb) {
     xs += x
     ys += y
 
-    if (total > 1) {
+    if (multitouch) {
       if (x < minX) minX = x
       else if (x > maxX) maxX = x
 
@@ -308,11 +306,11 @@ function processTouches (touches, cb) {
     }
   }
 
-  if (total > 1) {
+  if (multitouch) {
     // change scaleExtra dynamically
     const [distX, distY] = [maxX - minX, maxY - minY]
-    if (distX > distY) options.scaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
-    else options.scaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
+    if (distX > distY) dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
+    else dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
   }
 
   cb(xs/touches.length, ys/touches.length)
@@ -377,7 +375,6 @@ function touchendHandler (e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer)
     press = false
-    options.scaleExtra = DEFAULT_SCALE_EXTRA
     if (grab) api.release()
     else api.close()
   }

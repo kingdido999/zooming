@@ -97,23 +97,25 @@ var shown = false;
 var lock = false;
 var press = false;
 var _grab = false;
+var multitouch = false;
 var lastScrollPosition = null;
-
-// style
-var originalStyles = void 0;
-var openStyles = void 0;
 var translate = void 0;
 var scale = void 0;
-
-var srcThumbnail = void 0;
 var imgRect = void 0;
+var srcThumbnail = void 0;
 var pressTimer = void 0;
+var dynamicScaleExtra = void 0;
+
+// style
+var style = {
+  close: null,
+  open: null
+};
 
 var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
-var DEFAULT_SCALE_EXTRA = options.scaleExtra;
 
 // -----------------------------------------------------------------------------
 
@@ -174,8 +176,36 @@ var api = {
     parent = target.parentNode;
 
     var img = new Image();
-    img.onload = imgOnload();
     img.src = target.getAttribute('src');
+    img.onload = function () {
+      imgRect = target.getBoundingClientRect();
+
+      // upgrade source if possible
+      if (target.hasAttribute('data-original')) {
+        srcThumbnail = target.getAttribute('src');
+
+        setStyle$1(target, {
+          width: imgRect.width + 'px',
+          height: imgRect.height + 'px'
+        });
+
+        target.setAttribute('src', target.getAttribute('data-original'));
+      }
+
+      // force layout update
+      target.offsetWidth;
+
+      style.open = {
+        position: 'relative',
+        zIndex: 999,
+        cursor: '' + prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
+        transition: transformCssProp + '\n          ' + options.transitionDuration + 's\n          ' + options.transitionTimingFunction,
+        transform: calculateTransform()
+      };
+
+      // trigger transition
+      style.close = setStyle$1(target, style.open, true);
+    };
 
     parent.appendChild(overlay);
     setTimeout(function () {
@@ -221,7 +251,7 @@ var api = {
       lock = false;
       _grab = false;
 
-      setStyle$1(target, originalStyles);
+      setStyle$1(target, style.close);
       parent.removeChild(overlay);
 
       // downgrade source if possible
@@ -242,11 +272,11 @@ var api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target);
 
-    // const [dx, dy] = [x - window.innerWidth / 2, y - window.innerHeight / 2]
     var dx = window.innerWidth / 2 - x,
         dy = window.innerHeight / 2 - y;
 
-    var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + options.scaleExtra) + ')');
+    var scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra;
+    var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + scaleExtra) + ')');
 
     setStyle$1(target, {
       cursor: 'move',
@@ -268,7 +298,7 @@ var api = {
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target);
 
-    setStyle$1(target, openStyles);
+    setStyle$1(target, style.open);
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -284,36 +314,6 @@ var api = {
 
 function setStyle$1(el, styles, remember) {
   return setStyleHelper(el, styles, remember);
-}
-
-function imgOnload() {
-  imgRect = target.getBoundingClientRect();
-
-  // upgrade source if possible
-  if (target.hasAttribute('data-original')) {
-    srcThumbnail = target.getAttribute('src');
-
-    setStyle$1(target, {
-      width: imgRect.width + 'px',
-      height: imgRect.height + 'px'
-    });
-
-    target.setAttribute('src', target.getAttribute('data-original'));
-  }
-
-  // force layout update
-  target.offsetWidth;
-
-  openStyles = {
-    position: 'relative',
-    zIndex: 999,
-    cursor: '' + prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
-    transition: transformCssProp + '\n      ' + options.transitionDuration + 's\n      ' + options.transitionTimingFunction,
-    transform: calculateTransform()
-  };
-
-  // trigger transition
-  originalStyles = setStyle$1(target, openStyles, true);
 }
 
 function calculateTransform() {
@@ -373,6 +373,9 @@ function removeGrabListeners(el) {
 
 function processTouches(touches, cb) {
   var total = touches.length;
+
+  multitouch = total > 1;
+
   var i = touches.length;
   var xs = 0,
       ys = 0;
@@ -391,19 +394,19 @@ function processTouches(touches, cb) {
     xs += x;
     ys += y;
 
-    if (total > 1) {
+    if (multitouch) {
       if (x < minX) minX = x;else if (x > maxX) maxX = x;
 
       if (y < minY) minY = y;else if (y > maxY) maxY = y;
     }
   }
 
-  if (total > 1) {
+  if (multitouch) {
     // change scaleExtra dynamically
     var distX = maxX - minX,
         distY = maxY - minY;
 
-    if (distX > distY) options.scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else options.scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+    if (distX > distY) dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
   }
 
   cb(xs / touches.length, ys / touches.length);
@@ -471,7 +474,6 @@ function touchendHandler(e) {
   if (e.targetTouches.length === 0) {
     clearTimeout(pressTimer);
     press = false;
-    options.scaleExtra = DEFAULT_SCALE_EXTRA;
     if (_grab) api.release();else api.close();
   }
 }
