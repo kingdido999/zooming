@@ -237,7 +237,7 @@ var api = {
     // onBeforeClose event
     if (options.onBeforeClose) options.onBeforeClose(target);
     overlay.style.opacity = 0;
-    target.style.transform = '';
+    setStyle$1(target, { transform: '' });
 
     document.removeEventListener('scroll', scrollHandler);
     document.removeEventListener('keydown', keydownHandler);
