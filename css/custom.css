@@ -1,5 +1,5 @@
 .container {
-  max-width: 800px;
+  max-width: 600px;
 }
 
 .header {
@@ -28,6 +28,6 @@ img {
 }
 
 .button.button-primary {
-  background-color: #fcd082 !important;
-  border-color: #fcd082 !important;
+  background-color: #ce7338 !important;
+  border-color: #ce7338 !important;
 }
