@@ -25,7 +25,7 @@ Then load this module, e.g., via Browserify:
 var Zooming = require('zooming')
 ```
 
-Alternatively, download and include a script tag in your page.
+Alternatively, [download](https://github.com/kingdido999/zooming/releases) and include `build/zooming.js` in your page.
 
 ## Usage
 
