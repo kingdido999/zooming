@@ -19,10 +19,14 @@ Install with your package manager:
 
 `bower install zooming --save`
 
-Then load this module, e.g., via Browserify:
+Then load this module:
 
 ```javascript
+// e.g., via Browserify
 var Zooming = require('zooming')
+
+// or with ES6 syntax
+import Zooming from 'zooming'
 ```
 
 Alternatively, [download](https://github.com/kingdido999/zooming/releases) and include `build/zooming.js` in your page.
@@ -113,4 +117,4 @@ Takes an options object. Available options:
 
 ## Credit
 
-Inspired by [zoom.js](https://github.com/fat/zoom.js) and [zoomerang](https://github.com/yyx990803/zoomerang).
+Inspired by [zoom.js](https://github.com/fat/zoom.js) and [zoomerang](https://github.com/yyx990803/zoomerang). First demo image from [Journey](http://thatgamecompany.com/games/journey/). Second demo image source unknown.
