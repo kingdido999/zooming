@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.5.11",
+  "version": "0.5.12",
   "description": "Image zoom that makes sense.",
   "main": "src/zooming.js",
   "repository": {
@@ -15,6 +15,7 @@
   "dependencies": {},
   "scripts": {
     "watch": "rollup -c -w",
+    "uglify": "rollup -c rollup.config.uglify.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
@@ -28,6 +29,7 @@
     "rollup": "^0.36.4",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-eslint": "^3.0.0",
+    "rollup-plugin-uglify": "^1.0.1",
     "rollup-watch": "^2.5.0"
   }
 }
