@@ -12,7 +12,7 @@ var TOUCH_SCALE_FACTOR = 2;
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
-  transitionDuration: '.4s',
+  transitionDuration: 0.4,
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',
   bgOpacity: 1,
@@ -151,7 +151,7 @@ var api = {
 
     setStyle$1(overlay, {
       backgroundColor: options.bgColor,
-      transition: 'opacity\n        ' + options.transitionDuration + '\n        ' + options.transitionTimingFunction
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
     });
 
     return _this;
@@ -250,7 +250,7 @@ var api = {
 
     setStyle$1(target, {
       cursor: 'move',
-      transition: transformCssProp + ' ' + (start ? options.transitionDuration + ' ' + options.transitionTimingFunction : 'ease'),
+      transition: transformCssProp + ' ' + (start ? options.transitionDuration + 's ' + options.transitionTimingFunction : 'ease'),
       transform: transform
     });
 
@@ -308,7 +308,7 @@ function imgOnload() {
     position: 'relative',
     zIndex: 999,
     cursor: '' + prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
-    transition: transformCssProp + '\n      ' + options.transitionDuration + '\n      ' + options.transitionTimingFunction,
+    transition: transformCssProp + '\n      ' + options.transitionDuration + 's\n      ' + options.transitionTimingFunction,
     transform: calculateTransform()
   };
 
@@ -486,7 +486,7 @@ setStyle$1(overlay, {
   right: 0,
   bottom: 0,
   opacity: 0,
-  transition: 'opacity\n    ' + options.transitionDuration + '\n    ' + options.transitionTimingFunction
+  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
 });
 
 overlay.addEventListener('click', api.close);

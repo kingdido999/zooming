@@ -66,7 +66,7 @@ const api = {
     setStyle(overlay, {
       backgroundColor: options.bgColor,
       transition: `opacity
-        ${options.transitionDuration}
+        ${options.transitionDuration}s
         ${options.transitionTimingFunction}`
     })
 
@@ -161,7 +161,7 @@ const api = {
     setStyle(target, {
       cursor: 'move',
       transition: `${transformCssProp} ${start
-        ? options.transitionDuration + ' ' + options.transitionTimingFunction
+        ? options.transitionDuration + 's ' + options.transitionTimingFunction
         : 'ease'}`,
       transform: transform
     })
@@ -219,7 +219,7 @@ function imgOnload () {
     zIndex: 999,
     cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
     transition: `${transformCssProp}
-      ${options.transitionDuration}
+      ${options.transitionDuration}s
       ${options.transitionTimingFunction}`,
     transform: calculateTransform()
   }
@@ -394,7 +394,7 @@ setStyle(overlay, {
   bottom: 0,
   opacity: 0,
   transition: `opacity
-    ${options.transitionDuration}
+    ${options.transitionDuration}s
     ${options.transitionTimingFunction}`
 })
 

@@ -6,7 +6,7 @@ const TOUCH_SCALE_FACTOR = 2
 const options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
-  transitionDuration: '.4s',
+  transitionDuration: 0.4,
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',
   bgOpacity: 1,

@@ -54,20 +54,80 @@
         <li>Easy to integrate &amp; customizable.</li>
       </ul>
 
-
       <div class="value-img">
         <img src="img/journey_thumbnail.jpg" alt="journey_thumbnail"
         data-action="zoom"
         data-original="img/journey.jpg" />
       </div>
 
-      <a class="button" href="https://github.com/kingdido999/zooming">start journey</a>
+      <div class="row">
+        <a class="button" id="btn-fast" onclick="fast()">faster!</a>
+        <a class="button" id="btn-slow" onclick="slow()">slow down!</a>
+        <a class="button" id="btn-dark" onclick="dark()">make it dark</a>
+        <a class="button" id="btn-no-grab" onclick="noGrab()">no grab</a>
+        <a class="button" id="btn-reset" onclick="reset()">reset</a>
+      </div>
+
+      <hr>
+
+      <a class="button button-primary" href="https://github.com/kingdido999/zooming">start journey</a>
     </section>
 
     <br>
   </div>
 
   <script src="build/zooming.js"></script>
+  <script type="text/javascript">
+    var btnFast = document.getElementById('btn-fast')
+    var btnSlow = document.getElementById('btn-slow')
+    var btnDark = document.getElementById('btn-dark')
+    var btnNoGrab = document.getElementById('btn-no-grab')
+    var btnReset = document.getElementById('btn-reset')
+    var activeClass= 'button-primary'
+
+    function toggleClass (el) {
+      if (el.classList.contains(activeClass)) {
+        el.classList.remove(activeClass)
+      } else {
+        el.classList.add(activeClass)
+      }
+    }
+
+    function fast () {
+      Zooming.config({ transitionDuration: 0.2 })
+      btnFast.classList.add(activeClass)
+      btnSlow.classList.remove(activeClass)
+    }
+
+    function slow () {
+      Zooming.config({ transitionDuration: 1.0 })
+      btnFast.classList.remove(activeClass)
+      btnSlow.classList.add(activeClass)
+    }
+
+    function dark() {
+      Zooming.config({ bgColor: '#000' })
+      btnDark.classList.add(activeClass)
+    }
+
+    function noGrab() {
+      Zooming.config({ enableGrab: false })
+      btnNoGrab.classList.add(activeClass)
+    }
+
+    function reset () {
+      Zooming.config({
+        transitionDuration: 0.4,
+        bgColor: '#fff',
+        enableGrab: true
+      })
+      btnFast.classList.remove(activeClass)
+      btnSlow.classList.remove(activeClass)
+      btnDark.classList.remove(activeClass)
+      btnNoGrab.classList.remove(activeClass)
+    }
+
+  </script>
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
