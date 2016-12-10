@@ -21,11 +21,7 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
-  <link rel="stylesheet" href="css/custom.css">
-
-  <!-- Favicon
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <!-- <link rel="icon" type="image/png" href="images/favicon.png"> -->
+  <link rel="stylesheet" href="demo/css/custom.css">
 
 </head>
 <body>
@@ -33,20 +29,21 @@
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container">
-    <section class="header">
 
+    <section class="header">
       <h2>Zooming</h2>
 
       <div class="value-img">
-        <img src="img/journey_start_thumbnail.jpg" alt="journey_start_thumbnail"
+        <img src="demo/img/journey_start_thumbnail.jpg"
         data-action="zoom"
-        data-original="img/journey_start.jpg" />
+        data-original="demo/img/journey_start.jpg"
+        alt="journey_start_thumbnail" />
       </div>
-
-      <h4>Image zoom that makes sense.</h4>
     </section>
 
-    <section class="intro">
+    <section class="content">
+      <h4>Image zoom that makes sense.</h4>
+
       <ul>
         <li>Pure JavaScript &amp; built with mobile in mind.</li>
         <li>Smooth animations with intuitive gestures.</li>
@@ -55,9 +52,10 @@
       </ul>
 
       <div class="value-img">
-        <img src="img/journey_thumbnail.jpg" alt="journey_thumbnail"
+        <img src="demo/img/journey_thumbnail.jpg"
         data-action="zoom"
-        data-original="img/journey.jpg" />
+        data-original="demo/img/journey.jpg"
+        alt="journey_thumbnail" />
       </div>
 
       <p>
@@ -82,77 +80,10 @@
     <br>
   </div>
 
+  <!-- Scripts
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <script src="build/zooming.js"></script>
-  <script type="text/javascript">
-    var btnFast = document.getElementById('btn-fast')
-    var btnSlow = document.getElementById('btn-slow')
-    var btnDark = document.getElementById('btn-dark')
-    var btnNoGrab = document.getElementById('btn-no-grab')
-    var activeClass= 'button-primary'
-
-    function toggleClass (el) {
-      if (el.classList.contains(activeClass)) {
-        el.classList.remove(activeClass)
-      } else {
-        el.classList.add(activeClass)
-      }
-    }
-
-    function fast () {
-      var t
-      if (btnFast.classList.contains(activeClass)) {
-        t = 0.4
-        btnFast.classList.remove(activeClass)
-      } else {
-        t = 0.2
-        btnFast.classList.add(activeClass)
-        btnSlow.classList.remove(activeClass)
-      }
-
-      Zooming.config({ transitionDuration: t })
-    }
-
-    function slow () {
-      var t
-      if (btnSlow.classList.contains(activeClass)) {
-        t = 0.4
-        btnSlow.classList.remove(activeClass)
-      } else {
-        t = 1.0
-        btnSlow.classList.add(activeClass)
-        btnFast.classList.remove(activeClass)
-      }
-
-      Zooming.config({ transitionDuration: t })
-    }
-
-    function dark() {
-      var c
-      if (btnDark.classList.contains(activeClass)) {
-        c = '#fff'
-        btnDark.classList.remove(activeClass)
-      } else {
-        c = '#000'
-        btnDark.classList.add(activeClass)
-      }
-
-      Zooming.config({ bgColor: c })
-    }
-
-    function noGrab() {
-      var enable
-      if (btnNoGrab.classList.contains(activeClass)) {
-        enable = true
-        btnNoGrab.classList.remove(activeClass)
-      } else {
-        enable = false
-        btnNoGrab.classList.add(activeClass)
-      }
-
-      Zooming.config({ enableGrab: enable })
-    }
-
-  </script>
+  <script src="demo/js/custom.js"></script>
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>

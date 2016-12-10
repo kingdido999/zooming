@@ -1,13 +1,11 @@
 # Zooming
 
-Image zoom that makes sense.
+Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 
 - Pure JavaScript & built with mobile in mind.
 - Smooth animations with intuitive gestures.
 - Zoom into a hi-res image if supplied.
 - Easy to integrate & customizable.
-
-[Demo](http://desmonding.me/zooming/)
 
 ## Install
 

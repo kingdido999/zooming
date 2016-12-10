@@ -2,12 +2,12 @@
   max-width: 600px;
 }
 
-.header {
+section.header {
   margin-top: 4rem;
   text-align: center;
 }
 
-.intro {
+section.content {
   text-align: center;
 }
 
