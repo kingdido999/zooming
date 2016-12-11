@@ -91,6 +91,7 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
