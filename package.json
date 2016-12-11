@@ -15,7 +15,6 @@
   "dependencies": {},
   "scripts": {
     "watch": "rollup -c -w",
-    "uglify": "rollup -c rollup.config.uglify.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",

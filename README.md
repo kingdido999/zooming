@@ -27,7 +27,7 @@ var Zooming = require('zooming')
 import Zooming from 'zooming'
 ```
 
-Alternatively, [download](https://github.com/kingdido999/zooming/releases) and include `build/zooming.js` in your page.
+Alternatively, [download](https://github.com/kingdido999/zooming/releases) and include `build/zooming.min.js` in your page.
 
 ## Usage
 
