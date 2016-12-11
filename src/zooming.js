@@ -162,14 +162,14 @@ const api = {
       // force layout update
       target.offsetWidth
 
-      const img = new Image()
-      img.onload = () => {
-        // downgrade source if possible
-        if (target.hasAttribute('data-original')) target.setAttribute('src', srcThumbnail)
-        setStyle(target, style.close)
+      // downgrade source if possible
+      if (target.hasAttribute('data-original')) {
+        const img = new Image()
+        img.onload = () => target.setAttribute('src', srcThumbnail)
+        img.src = srcThumbnail
       }
-      img.src = srcThumbnail
 
+      setStyle(target, style.close)
       parent.removeChild(overlay)
 
       if (cb) cb(target)
