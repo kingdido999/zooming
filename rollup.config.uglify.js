@@ -1,9 +1,10 @@
 import babel from 'rollup-plugin-babel'
 import eslint from 'rollup-plugin-eslint'
+import uglify from 'rollup-plugin-uglify'
 
 export default {
   entry: `src/zooming.js`,
-  dest: `build/zooming.js`,
+  dest: `build/zooming.min.js`,
   format: 'umd',
   moduleName: 'Zooming',
   sourceMap: true,
@@ -11,6 +12,7 @@ export default {
     babel({
       exclude: 'node_modules/**'
     }),
-    eslint({})
+    eslint({}),
+    uglify()
   ]
 }
