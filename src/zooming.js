@@ -395,7 +395,7 @@ setStyle(overlay, {
     ${options.transitionTimingFunction}`
 })
 
-overlay.addEventListener('click', api.close)
-document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable))
+overlay.addEventListener('click', () => api.close())
+document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
 
 export default api

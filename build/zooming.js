@@ -491,8 +491,12 @@ setStyle$1(overlay, {
   transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
 });
 
-overlay.addEventListener('click', api.close);
-document.addEventListener('DOMContentLoaded', api.listen(options.defaultZoomable));
+overlay.addEventListener('click', function () {
+  return api.close();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  return api.listen(options.defaultZoomable);
+});
 
 return api;
 
