@@ -78,4 +78,21 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
-export { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans }
+const updateSrc = (el, src) => {
+  const oldSrc = el.getAttribute('src')
+  const img = new Image()
+  img.onload = () => el.setAttribute('src', src)
+  img.src = src
+
+  return oldSrc
+}
+
+export {
+  prefix,
+  PRESS_DELAY,
+  TOUCH_SCALE_FACTOR,
+  options,
+  sniffTransition,
+  checkTrans,
+  updateSrc
+}

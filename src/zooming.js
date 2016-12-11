@@ -1,4 +1,4 @@
-import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans } from './helpers'
+import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans, updateSrc } from './helpers'
 
 // elements
 const body    = document.body
@@ -90,12 +90,7 @@ const api = {
 
     // upgrade source if possible
     if (target.hasAttribute('data-original')) {
-      srcThumbnail = target.getAttribute('src')
-      const img = new Image()
-      img.onload = () => {
-        target.setAttribute('src', target.getAttribute('data-original'))
-      }
-      img.src = target.getAttribute('data-original')
+      srcThumbnail = updateSrc(target, target.getAttribute('data-original'))
     }
 
     style.open = {
@@ -155,11 +150,7 @@ const api = {
       target.offsetWidth
 
       // downgrade source if possible
-      if (target.hasAttribute('data-original')) {
-        const img = new Image()
-        img.onload = () => target.setAttribute('src', srcThumbnail)
-        img.src = srcThumbnail
-      }
+      if (target.hasAttribute('data-original')) updateSrc(target, srcThumbnail)
 
       setStyle(target, style.close)
       parent.removeChild(overlay)
