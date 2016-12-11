@@ -132,7 +132,7 @@ const api = {
     // onBeforeClose event
     if (options.onBeforeClose) options.onBeforeClose(target)
     overlay.style.opacity = 0
-    setStyle(target, { transform: '' })
+    setStyle(target, { transform: 'none' })
 
     document.removeEventListener('scroll', scrollHandler)
     document.removeEventListener('keydown', keydownHandler)
