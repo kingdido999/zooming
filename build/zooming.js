@@ -12,6 +12,7 @@ var TOUCH_SCALE_FACTOR = 2;
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
+  preloadImage: true,
   transitionDuration: 0.4,
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',
@@ -84,15 +85,8 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
   };
 };
 
-var updateSrc = function updateSrc(el, src) {
-  var oldSrc = el.getAttribute('src');
-  var img = new Image();
-  img.onload = function () {
-    return el.setAttribute('src', src);
-  };
-  img.src = src;
-
-  return oldSrc;
+var preloadImage = function preloadImage(url) {
+  return new Image().src = url;
 };
 
 var _this = undefined;
@@ -142,6 +136,8 @@ var api = {
       return _this;
     }
 
+    if (el.tagName !== 'IMG') return;
+
     el.style.cursor = prefix + 'zoom-in';
 
     el.addEventListener('click', function (e) {
@@ -149,6 +145,10 @@ var api = {
 
       if (!shown) api.open(el);
     });
+
+    if (options.preloadImage && el.hasAttribute('data-original')) {
+      preloadImage(el.getAttribute('data-original'));
+    }
 
     return _this;
   },
@@ -187,11 +187,6 @@ var api = {
     // force layout update
     target.offsetWidth;
 
-    // upgrade source if possible
-    if (target.hasAttribute('data-original')) {
-      srcThumbnail = updateSrc(target, target.getAttribute('data-original'));
-    }
-
     style.open = {
       position: 'relative',
       zIndex: 999,
@@ -218,6 +213,12 @@ var api = {
 
       lock = false;
 
+      // upgrade source if possible
+      if (target.hasAttribute('data-original')) {
+        srcThumbnail = target.getAttribute('src');
+        target.setAttribute('src', target.getAttribute('data-original'));
+      }
+
       if (cb) cb(target);
     });
 
@@ -232,6 +233,10 @@ var api = {
 
     // onBeforeClose event
     if (options.onBeforeClose) options.onBeforeClose(target);
+
+    // force layout update
+    target.offsetWidth;
+
     overlay.style.opacity = 0;
     setStyle$1(target, { transform: 'none' });
 
@@ -246,11 +251,10 @@ var api = {
       shown = false;
       lock = false;
 
-      // force layout update
-      target.offsetWidth;
-
       // downgrade source if possible
-      if (target.hasAttribute('data-original')) updateSrc(target, srcThumbnail);
+      if (target.hasAttribute('data-original')) {
+        target.setAttribute('src', srcThumbnail);
+      }
 
       setStyle$1(target, style.close);
       parent.removeChild(overlay);

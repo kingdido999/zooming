@@ -1,4 +1,4 @@
-import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans, updateSrc } from './helpers'
+import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans, preloadImage } from './helpers'
 
 // elements
 const body    = document.body
@@ -40,6 +40,8 @@ const api = {
       return this
     }
 
+    if (el.tagName !== 'IMG') return
+
     el.style.cursor = `${prefix}zoom-in`
 
     el.addEventListener('click', (e) => {
@@ -47,6 +49,10 @@ const api = {
 
       if (!shown) api.open(el)
     })
+
+    if (options.preloadImage && el.hasAttribute('data-original')) {
+      preloadImage(el.getAttribute('data-original'))
+    }
 
     return this
   },
@@ -87,11 +93,6 @@ const api = {
     // force layout update
     target.offsetWidth
 
-    // upgrade source if possible
-    if (target.hasAttribute('data-original')) {
-      srcThumbnail = updateSrc(target, target.getAttribute('data-original'))
-    }
-
     style.open = {
       position: 'relative',
       zIndex: 999,
@@ -118,6 +119,12 @@ const api = {
 
       lock = false
 
+      // upgrade source if possible
+      if (target.hasAttribute('data-original')) {
+        srcThumbnail = target.getAttribute('src')
+        target.setAttribute('src', target.getAttribute('data-original'))
+      }
+
       if (cb) cb(target)
     })
 
@@ -130,6 +137,10 @@ const api = {
 
     // onBeforeClose event
     if (options.onBeforeClose) options.onBeforeClose(target)
+
+    // force layout update
+    target.offsetWidth
+
     overlay.style.opacity = 0
     setStyle(target, { transform: 'none' })
 
@@ -144,11 +155,10 @@ const api = {
       shown = false
       lock = false
 
-      // force layout update
-      target.offsetWidth
-
       // downgrade source if possible
-      if (target.hasAttribute('data-original')) updateSrc(target, srcThumbnail)
+      if (target.hasAttribute('data-original')) {
+        target.setAttribute('src', srcThumbnail)
+      }
 
       setStyle(target, style.close)
       parent.removeChild(overlay)

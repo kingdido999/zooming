@@ -6,6 +6,7 @@ const TOUCH_SCALE_FACTOR = 2
 const options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
+  preloadImage: true,
   transitionDuration: 0.4,
   transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
   bgColor: '#fff',
@@ -78,14 +79,7 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
-const updateSrc = (el, src) => {
-  const oldSrc = el.getAttribute('src')
-  const img = new Image()
-  img.onload = () => el.setAttribute('src', src)
-  img.src = src
-
-  return oldSrc
-}
+const preloadImage = (url) => (new Image()).src = url
 
 export {
   prefix,
@@ -94,5 +88,5 @@ export {
   options,
   sniffTransition,
   checkTrans,
-  updateSrc
+  preloadImage
 }
