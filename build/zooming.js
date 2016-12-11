@@ -88,7 +88,7 @@ var updateSrc = function updateSrc(el, src) {
   var oldSrc = el.getAttribute('src');
   var img = new Image();
   img.onload = function () {
-    return el.setAttribute('src', src);
+    return el.setAttribute('src', img.src);
   };
   img.src = src;
 
@@ -97,7 +97,6 @@ var updateSrc = function updateSrc(el, src) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
