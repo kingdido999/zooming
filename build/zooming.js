@@ -148,7 +148,7 @@ var api = {
     el.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (shown) api.close();else api.open(el);
+      if (!shown) api.open(el);
     });
 
     return _this;
@@ -172,7 +172,7 @@ var api = {
   open: function open(el) {
     var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options.onOpen;
 
-    if (shown || lock || _grab) return;
+    if (shown || lock) return;
 
     target = typeof el === 'string' ? document.querySelector(el) : el;
 
@@ -228,7 +228,7 @@ var api = {
   close: function close() {
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onClose;
 
-    if (!shown || lock || _grab) return;
+    if (!shown || lock) return;
     lock = true;
 
     // onBeforeClose event
@@ -246,7 +246,6 @@ var api = {
 
       shown = false;
       lock = false;
-      _grab = false;
 
       // force layout update
       target.offsetWidth;
@@ -449,7 +448,7 @@ function mousemoveHandler(e) {
 function mouseupHandler() {
   clearTimeout(pressTimer);
   press = false;
-  api.release();
+  if (_grab) api.release();else api.close();
 }
 
 function touchstartHandler(e) {

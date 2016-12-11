@@ -45,8 +45,7 @@ const api = {
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
-      if (shown) api.close()
-      else api.open(el)
+      if (!shown) api.open(el)
     })
 
     return this
@@ -70,7 +69,7 @@ const api = {
   },
 
   open: (el, cb = options.onOpen) => {
-    if (shown || lock || grab) return
+    if (shown || lock) return
 
     target = typeof el === 'string'
       ? document.querySelector(el)
@@ -126,7 +125,7 @@ const api = {
   },
 
   close: (cb = options.onClose) => {
-    if (!shown || lock || grab) return
+    if (!shown || lock) return
     lock = true
 
     // onBeforeClose event
@@ -144,7 +143,6 @@ const api = {
 
       shown = false
       lock = false
-      grab = false
 
       // force layout update
       target.offsetWidth
@@ -161,7 +159,7 @@ const api = {
     return this
   },
 
-  grab: function(x, y, start, cb = options.onGrab) {
+  grab: (x, y, start, cb = options.onGrab) => {
     if (!shown || lock) return
     grab = true
 
@@ -330,7 +328,7 @@ function keydownHandler (e) {
 function mousedownHandler (e) {
   e.preventDefault()
 
-  pressTimer = setTimeout(function() {
+  pressTimer = setTimeout(() => {
     press = true
     api.grab(e.clientX, e.clientY, true)
   }, PRESS_DELAY)
@@ -343,13 +341,14 @@ function mousemoveHandler (e) {
 function mouseupHandler () {
   clearTimeout(pressTimer)
   press = false
-  api.release()
+  if (grab) api.release()
+  else api.close()
 }
 
 function touchstartHandler (e) {
   e.preventDefault()
 
-  pressTimer = setTimeout(function() {
+  pressTimer = setTimeout(() => {
     press = true
     processTouches(e.touches, (x, y) => api.grab(x, y, true))
   }, PRESS_DELAY)
