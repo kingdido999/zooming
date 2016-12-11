@@ -85,8 +85,10 @@ const api = {
     lock = true
     parent = target.parentNode
 
+    // force layout update
+    target.offsetWidth
+
     const img = new Image()
-    img.src = target.getAttribute('src')
     img.onload = () => {
       imgRect = target.getBoundingClientRect()
 
@@ -102,9 +104,6 @@ const api = {
         target.setAttribute('src', target.getAttribute('data-original'))
       }
 
-      // force layout update
-      target.offsetWidth
-
       style.open = {
         position: 'relative',
         zIndex: 999,
@@ -118,7 +117,7 @@ const api = {
       // trigger transition
       style.close = setStyle(target, style.open, true)
     }
-
+    img.src = target.getAttribute('src')
 
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
@@ -160,11 +159,18 @@ const api = {
       lock = false
       grab = false
 
-      setStyle(target, style.close)
-      parent.removeChild(overlay)
+      // force layout update
+      target.offsetWidth
 
-      // downgrade source if possible
-      if (target.hasAttribute('data-original')) target.setAttribute('src', srcThumbnail)
+      const img = new Image()
+      img.onload = () => {
+        // downgrade source if possible
+        if (target.hasAttribute('data-original')) target.setAttribute('src', srcThumbnail)
+        setStyle(target, style.close)
+      }
+      img.src = srcThumbnail
+
+      parent.removeChild(overlay)
 
       if (cb) cb(target)
     })
