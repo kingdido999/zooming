@@ -12,7 +12,7 @@ let press = false
 let grab  = false
 let multitouch = false
 let lastScrollPosition = null
-let translate, scale, imgRect, srcThumbnail, pressTimer, dynamicScaleExtra
+let translate, scale, srcThumbnail, pressTimer, dynamicScaleExtra
 
 // style
 const style = {
@@ -88,36 +88,28 @@ const api = {
     // force layout update
     target.offsetWidth
 
-    const img = new Image()
-    img.onload = () => {
-      imgRect = target.getBoundingClientRect()
-
-      // upgrade source if possible
-      if (target.hasAttribute('data-original')) {
-        srcThumbnail = target.getAttribute('src')
-
-        setStyle(target, {
-          width: `${imgRect.width}px`,
-          height: `${imgRect.height}px`
-        })
-
+    // upgrade source if possible
+    if (target.hasAttribute('data-original')) {
+      srcThumbnail = target.getAttribute('src')
+      const img = new Image()
+      img.onload = () => {
         target.setAttribute('src', target.getAttribute('data-original'))
       }
-
-      style.open = {
-        position: 'relative',
-        zIndex: 999,
-        cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
-        transition: `${transformCssProp}
-          ${options.transitionDuration}s
-          ${options.transitionTimingFunction}`,
-        transform: calculateTransform()
-      }
-
-      // trigger transition
-      style.close = setStyle(target, style.open, true)
+      img.src = target.getAttribute('data-original')
     }
-    img.src = target.getAttribute('src')
+
+    style.open = {
+      position: 'relative',
+      zIndex: 999,
+      cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+      transition: `${transformCssProp}
+        ${options.transitionDuration}s
+        ${options.transitionTimingFunction}`,
+      transform: calculateTransform()
+    }
+
+    // trigger transition
+    style.close = setStyle(target, style.open, true)
 
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
@@ -230,6 +222,7 @@ function setStyle(el, styles, remember) {
 }
 
 function calculateTransform () {
+  const imgRect = target.getBoundingClientRect()
   const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
 
   const imgCenter = {
