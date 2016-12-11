@@ -81,7 +81,7 @@ const checkTrans = (transitionProp, transformProp) => {
 const updateSrc = (el, src) => {
   const oldSrc = el.getAttribute('src')
   const img = new Image()
-  img.onload = () => el.setAttribute('src', img.src)
+  img.onload = () => el.setAttribute('src', src)
   img.src = src
 
   return oldSrc
