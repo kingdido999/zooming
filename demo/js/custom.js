@@ -1,26 +1,38 @@
-var btnFast = document.getElementById('btn-fast')
-var btnSlow = document.getElementById('btn-slow')
-var btnDark = document.getElementById('btn-dark')
-var btnNoGrab = document.getElementById('btn-no-grab')
-var activeClass= 'button-primary'
+var config = Zooming.config(),
+    TRANSITION_DURATION_DEFAULT = config.transitionDuration,
+    TRANSITION_DURATION_SLOW    = 1.0,
+    TRANSITION_DURATION_FAST    = 0.2,
+    BG_COLOR_DEFAULT            = config.bgColor,
+    BG_COLOR_DARK               = '#000',
+    ENABLE_GRAB_DEFAULT         = config.enableGrab,
+    ACTIVE_CLASS                = 'button-primary',
 
-function toggleClass (el) {
-  if (el.classList.contains(activeClass)) {
-    el.classList.remove(activeClass)
-  } else {
-    el.classList.add(activeClass)
-  }
+    btnFast = document.getElementById('btn-fast'),
+    btnSlow = document.getElementById('btn-slow'),
+    btnDark = document.getElementById('btn-dark'),
+    btnNoGrab = document.getElementById('btn-no-grab')
+
+function isActive (el) {
+  return el.classList.contains(ACTIVE_CLASS)
+}
+
+function activate (el) {
+  el.classList.add(ACTIVE_CLASS)
+}
+
+function deactivate (el) {
+  el.classList.remove(ACTIVE_CLASS)
 }
 
 function fast () {
   var t
-  if (btnFast.classList.contains(activeClass)) {
-    t = 0.4
-    btnFast.classList.remove(activeClass)
+  if (isActive(btnFast)) {
+    t = TRANSITION_DURATION_DEFAULT
+    deactivate(btnFast)
   } else {
-    t = 0.2
-    btnFast.classList.add(activeClass)
-    btnSlow.classList.remove(activeClass)
+    t = TRANSITION_DURATION_FAST
+    activate(btnFast)
+    deactivate(btnSlow)
   }
 
   Zooming.config({ transitionDuration: t })
@@ -28,13 +40,13 @@ function fast () {
 
 function slow () {
   var t
-  if (btnSlow.classList.contains(activeClass)) {
-    t = 0.4
-    btnSlow.classList.remove(activeClass)
+  if (isActive(btnSlow)) {
+    t = TRANSITION_DURATION_DEFAULT
+    deactivate(btnSlow)
   } else {
-    t = 1.0
-    btnSlow.classList.add(activeClass)
-    btnFast.classList.remove(activeClass)
+    t = TRANSITION_DURATION_SLOW
+    activate(btnSlow)
+    deactivate(btnFast)
   }
 
   Zooming.config({ transitionDuration: t })
@@ -42,12 +54,12 @@ function slow () {
 
 function dark() {
   var c
-  if (btnDark.classList.contains(activeClass)) {
-    c = '#fff'
-    btnDark.classList.remove(activeClass)
+  if (isActive(btnDark)) {
+    c = BG_COLOR_DEFAULT
+    deactivate(btnDark)
   } else {
-    c = '#000'
-    btnDark.classList.add(activeClass)
+    c = BG_COLOR_DARK
+    activate(btnDark)
   }
 
   Zooming.config({ bgColor: c })
@@ -55,12 +67,12 @@ function dark() {
 
 function noGrab() {
   var enable
-  if (btnNoGrab.classList.contains(activeClass)) {
-    enable = true
-    btnNoGrab.classList.remove(activeClass)
+  if (isActive(btnNoGrab)) {
+    enable = ENABLE_GRAB_DEFAULT
+    deactivate(btnNoGrab)
   } else {
-    enable = false
-    btnNoGrab.classList.add(activeClass)
+    enable = !ENABLE_GRAB_DEFAULT
+    activate(btnNoGrab)
   }
 
   Zooming.config({ enableGrab: enable })

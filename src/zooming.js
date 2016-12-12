@@ -221,7 +221,8 @@ const api = {
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
-      if (!shown) api.open(el)
+      if (shown) api.close()
+      else api.open(el)
     })
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
