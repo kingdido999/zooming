@@ -1,12 +1,5 @@
 import { prefix, options, sniffTransition, checkTrans, toggleListeners, preloadImage } from './helpers'
 
-const PRESS_DELAY = 200
-const TOUCH_SCALE_FACTOR = 2
-const GRAB_EVENT_TYPES = [
-  'mousedown', 'mousemove', 'mouseup',
-  'touchstart', 'touchmove', 'touchend'
-]
-
 // elements
 const body    = document.body
 const overlay = document.createElement('div')
@@ -31,6 +24,13 @@ const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
+
+const PRESS_DELAY = 200
+const TOUCH_SCALE_FACTOR = 2
+const GRAB_EVENT_TYPES = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
 
 // helpers ---------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ const processTouches = (touches, cb) => {
 }
 
 const eventHandler = {
-  
+
   scroll: function () {
     const scrollTop = window.pageYOffset ||
       (document.documentElement || body.parentNode || body).scrollTop
@@ -180,7 +180,26 @@ const eventHandler = {
   }
 }
 
-// -----------------------------------------------------------------------------
+// init ------------------------------------------------------------------------
+
+setStyle(overlay, {
+  zIndex: 998,
+  background: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: `opacity
+    ${options.transitionDuration}s
+    ${options.transitionTimingFunction}`
+})
+
+overlay.addEventListener('click', () => api.close())
+document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
+
+// API -------------------------------------------------------------------------
 
 const api = {
 
@@ -368,23 +387,5 @@ const api = {
     return this
   }
 }
-
-// init ------------------------------------------------------------------------
-setStyle(overlay, {
-  zIndex: 998,
-  background: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: `opacity
-    ${options.transitionDuration}s
-    ${options.transitionTimingFunction}`
-})
-
-overlay.addEventListener('click', () => api.close())
-document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
 
 export default api

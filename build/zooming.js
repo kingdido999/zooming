@@ -100,10 +100,6 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
-var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 2;
-var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
 // elements
 var body = document.body;
 var overlay = document.createElement('div');
@@ -133,6 +129,10 @@ var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+
+var PRESS_DELAY = 200;
+var TOUCH_SCALE_FACTOR = 2;
+var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
 // helpers ---------------------------------------------------------------------
 
@@ -286,7 +286,28 @@ var eventHandler = {
   }
 };
 
-// -----------------------------------------------------------------------------
+// init ------------------------------------------------------------------------
+
+setStyle$1(overlay, {
+  zIndex: 998,
+  background: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
+});
+
+overlay.addEventListener('click', function () {
+  return api.close();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  return api.listen(options.defaultZoomable);
+});
+
+// API -------------------------------------------------------------------------
 
 var api = {
 
@@ -477,26 +498,6 @@ var api = {
     return _this;
   }
 };
-
-// init ------------------------------------------------------------------------
-setStyle$1(overlay, {
-  zIndex: 998,
-  background: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
-});
-
-overlay.addEventListener('click', function () {
-  return api.close();
-});
-document.addEventListener('DOMContentLoaded', function () {
-  return api.listen(options.defaultZoomable);
-});
 
 return api;
 
