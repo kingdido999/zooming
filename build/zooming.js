@@ -107,10 +107,9 @@ var target = void 0;
 var parent = void 0;
 
 // state
-var shown = false;
-var lock = false;
-var press = false;
-var _grab = false;
+var shown = false; // image is open
+var lock = false; // image is in transform
+var released = true; // mouse/finger is not pressing down
 var multitouch = false;
 var lastScrollPosition = null;
 var translate = void 0;
@@ -243,26 +242,23 @@ var eventHandler = {
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
-      press = true;
       api.grab(e.clientX, e.clientY, true);
     }, PRESS_DELAY);
   },
 
   mousemove: function mousemove(e) {
-    if (press) api.grab(e.clientX, e.clientY);
+    if (!released) api.grab(e.clientX, e.clientY);
   },
 
   mouseup: function mouseup() {
     clearTimeout(pressTimer);
-    press = false;
-    if (_grab) api.release();else api.close();
+    api.release();
   },
 
   touchstart: function touchstart(e) {
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
-      press = true;
       processTouches(e.touches, function (x, y) {
         return api.grab(x, y, true);
       });
@@ -270,7 +266,7 @@ var eventHandler = {
   },
 
   touchmove: function touchmove(e) {
-    if (press) {
+    if (!released) {
       processTouches(e.touches, function (x, y) {
         return api.grab(x, y);
       });
@@ -280,8 +276,7 @@ var eventHandler = {
   touchend: function touchend(e) {
     if (e.targetTouches.length === 0) {
       clearTimeout(pressTimer);
-      press = false;
-      if (_grab) api.release();else api.close();
+      api.release();
     }
   }
 };
@@ -330,7 +325,7 @@ var api = {
     el.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (shown) api.close();else api.open(el);
+      if (shown && released) api.close();else api.open(el);
     });
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
@@ -456,7 +451,7 @@ var api = {
     var cb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : options.onGrab;
 
     if (!shown || lock) return;
-    _grab = true;
+    released = false;
 
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target);
@@ -482,7 +477,7 @@ var api = {
   release: function release() {
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onRelease;
 
-    if (!shown || lock || !_grab) return;
+    if (!shown || lock) return;
 
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target);
@@ -491,7 +486,9 @@ var api = {
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
-      _grab = false;
+
+      released = true;
+
       if (cb) cb(target);
     });
 

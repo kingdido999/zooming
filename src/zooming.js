@@ -6,10 +6,9 @@ const overlay = document.createElement('div')
 let target, parent
 
 // state
-let shown = false
-let lock  = false
-let press = false
-let grab  = false
+let shown = false       // image is open
+let lock  = false       // image is in transform
+let released = true     // mouse/finger is not pressing down
 let multitouch = false
 let lastScrollPosition = null
 let translate, scale, srcThumbnail, pressTimer, dynamicScaleExtra
@@ -139,33 +138,29 @@ const eventHandler = {
     e.preventDefault()
 
     pressTimer = setTimeout(function () {
-      press = true
       api.grab(e.clientX, e.clientY, true)
     }, PRESS_DELAY)
   },
 
   mousemove: function (e) {
-    if (press) api.grab(e.clientX, e.clientY)
+    if (!released) api.grab(e.clientX, e.clientY)
   },
 
   mouseup: function () {
     clearTimeout(pressTimer)
-    press = false
-    if (grab) api.release()
-    else api.close()
+    api.release()
   },
 
   touchstart: function (e) {
     e.preventDefault()
 
     pressTimer = setTimeout(() => {
-      press = true
       processTouches(e.touches, (x, y) => api.grab(x, y, true))
     }, PRESS_DELAY)
   },
 
   touchmove: function (e) {
-    if (press) {
+    if (!released) {
       processTouches(e.touches, (x, y) => api.grab(x, y))
     }
   },
@@ -173,9 +168,7 @@ const eventHandler = {
   touchend: function (e) {
     if (e.targetTouches.length === 0) {
       clearTimeout(pressTimer)
-      press = false
-      if (grab) api.release()
-      else api.close()
+      api.release()
     }
   }
 }
@@ -221,7 +214,7 @@ const api = {
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
-      if (shown) api.close()
+      if (shown && released) api.close()
       else api.open(el)
     })
 
@@ -346,7 +339,7 @@ const api = {
 
   grab: (x, y, start, cb = options.onGrab) => {
     if (!shown || lock) return
-    grab = true
+    released = false
 
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target)
@@ -372,7 +365,7 @@ const api = {
   },
 
   release: (cb = options.onRelease) => {
-    if (!shown || lock || !grab) return
+    if (!shown || lock) return
 
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target)
@@ -381,7 +374,9 @@ const api = {
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
-      grab = false
+
+      released = true
+
       if (cb) cb(target)
     })
 
