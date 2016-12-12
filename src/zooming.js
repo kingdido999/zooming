@@ -1,4 +1,11 @@
-import { prefix, PRESS_DELAY, TOUCH_SCALE_FACTOR, options, sniffTransition, checkTrans, preloadImage } from './helpers'
+import { prefix, options, sniffTransition, checkTrans, toggleListeners, preloadImage } from './helpers'
+
+const PRESS_DELAY = 200
+const TOUCH_SCALE_FACTOR = 2
+const GRAB_EVENT_TYPES = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
 
 // elements
 const body    = document.body
@@ -24,6 +31,154 @@ const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
 const transEndEvent = trans.transEndEvent
 const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
+
+// helpers ---------------------------------------------------------------------
+
+const setStyle = (el, styles, remember) => {
+  return setStyleHelper(el, styles, remember)
+}
+
+const calculateTransform = () => {
+  const imgRect = target.getBoundingClientRect()
+  const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
+
+  const imgCenter = {
+    x: imgRect.left + imgHalfWidth,
+    y: imgRect.top + imgHalfHeight
+  }
+
+  const windowCenter = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  }
+
+  // The distance between image edge and window edge
+  const distFromImageEdgeToWindowEdge = {
+    x: windowCenter.x - imgHalfWidth,
+    y: windowCenter.y - imgHalfHeight
+  }
+
+  const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
+  const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
+
+  // The vector to translate image to the window center
+  translate = {
+    x: windowCenter.x - imgCenter.x,
+    y: windowCenter.y - imgCenter.y
+  }
+
+  // The additional scale is based on the smaller value of
+  // scaling horizontally and scaling vertically
+  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
+
+  return `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
+}
+
+const processTouches = (touches, cb) => {
+  const total = touches.length
+
+  multitouch = total > 1
+
+  let i = touches.length
+  let [xs, ys] = [0, 0]
+
+  // keep track of the min and max of touch positions
+  let minX = touches[0].clientX
+  let minY = touches[0].clientY
+  let maxX = touches[0].clientX
+  let maxY = touches[0].clientY
+
+  while (i--) {
+    const t = touches[i]
+    const x = t.clientX
+    const y = t.clientY
+    xs += x
+    ys += y
+
+    if (multitouch) {
+      if (x < minX) minX = x
+      else if (x > maxX) maxX = x
+
+      if (y < minY) minY = y
+      else if (y > maxY) maxY = y
+    }
+  }
+
+  if (multitouch) {
+    // change scaleExtra dynamically
+    const [distX, distY] = [maxX - minX, maxY - minY]
+    if (distX > distY) dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
+    else dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
+  }
+
+  cb(xs/touches.length, ys/touches.length)
+}
+
+const eventHandler = {
+  
+  scroll: function () {
+    const scrollTop = window.pageYOffset ||
+      (document.documentElement || body.parentNode || body).scrollTop
+
+    if (lastScrollPosition === null) lastScrollPosition = scrollTop
+
+    const deltaY = lastScrollPosition - scrollTop
+
+    if (Math.abs(deltaY) >= options.scrollThreshold) {
+      lastScrollPosition = null
+      api.close()
+    }
+  },
+
+  keydown: function (e) {
+    const code = e.key || e.code
+    if (code === 'Escape' || e.keyCode === 27) api.close()
+  },
+
+  mousedown: function (e) {
+    e.preventDefault()
+
+    pressTimer = setTimeout(function () {
+      press = true
+      api.grab(e.clientX, e.clientY, true)
+    }, PRESS_DELAY)
+  },
+
+  mousemove: function (e) {
+    if (press) api.grab(e.clientX, e.clientY)
+  },
+
+  mouseup: function () {
+    clearTimeout(pressTimer)
+    press = false
+    if (grab) api.release()
+    else api.close()
+  },
+
+  touchstart: function (e) {
+    e.preventDefault()
+
+    pressTimer = setTimeout(() => {
+      press = true
+      processTouches(e.touches, (x, y) => api.grab(x, y, true))
+    }, PRESS_DELAY)
+  },
+
+  touchmove: function (e) {
+    if (press) {
+      processTouches(e.touches, (x, y) => api.grab(x, y))
+    }
+  },
+
+  touchend: function (e) {
+    if (e.targetTouches.length === 0) {
+      clearTimeout(pressTimer)
+      press = false
+      if (grab) api.release()
+      else api.close()
+    }
+  }
+}
 
 // -----------------------------------------------------------------------------
 
@@ -109,13 +264,13 @@ const api = {
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
 
-    document.addEventListener('scroll', scrollHandler)
-    document.addEventListener('keydown', keydownHandler)
+    document.addEventListener('scroll', eventHandler['scroll'])
+    document.addEventListener('keydown', eventHandler['keydown'])
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) addGrabListeners(target)
+      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, true)
 
       lock = false
 
@@ -144,13 +299,13 @@ const api = {
     overlay.style.opacity = 0
     setStyle(target, { transform: 'none' })
 
-    document.removeEventListener('scroll', scrollHandler)
-    document.removeEventListener('keydown', keydownHandler)
+    document.removeEventListener('scroll', eventHandler['scroll'])
+    document.removeEventListener('keydown', eventHandler['keydown'])
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) removeGrabListeners(target)
+      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, false)
 
       shown = false
       lock = false
@@ -211,171 +366,6 @@ const api = {
     })
 
     return this
-  }
-}
-
-// -----------------------------------------------------------------------------
-
-function setStyle(el, styles, remember) {
-  return setStyleHelper(el, styles, remember)
-}
-
-function calculateTransform () {
-  const imgRect = target.getBoundingClientRect()
-  const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
-
-  const imgCenter = {
-    x: imgRect.left + imgHalfWidth,
-    y: imgRect.top + imgHalfHeight
-  }
-
-  const windowCenter = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  }
-
-  // The distance between image edge and window edge
-  const distFromImageEdgeToWindowEdge = {
-    x: windowCenter.x - imgHalfWidth,
-    y: windowCenter.y - imgHalfHeight
-  }
-
-  const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
-  const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
-
-  // The vector to translate image to the window center
-  translate = {
-    x: windowCenter.x - imgCenter.x,
-    y: windowCenter.y - imgCenter.y
-  }
-
-  // The additional scale is based on the smaller value of
-  // scaling horizontally and scaling vertically
-  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
-
-  return `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
-}
-
-function addGrabListeners (el) {
-  el.addEventListener('mousedown', mousedownHandler)
-  el.addEventListener('mousemove', mousemoveHandler)
-  el.addEventListener('mouseup', mouseupHandler)
-  el.addEventListener('touchstart', touchstartHandler)
-  el.addEventListener('touchmove', touchmoveHandler)
-  el.addEventListener('touchend', touchendHandler)
-}
-
-function removeGrabListeners (el) {
-  el.removeEventListener('mousedown', mousedownHandler)
-  el.removeEventListener('mousemove', mousemoveHandler)
-  el.removeEventListener('mouseup', mouseupHandler)
-  el.removeEventListener('touchstart', touchstartHandler)
-  el.removeEventListener('touchmove', touchmoveHandler)
-  el.removeEventListener('touchend', touchendHandler)
-}
-
-function processTouches (touches, cb) {
-  const total = touches.length
-
-  multitouch = total > 1
-
-  let i = touches.length
-  let [xs, ys] = [0, 0]
-
-  // keep track of the min and max of touch positions
-  let minX = touches[0].clientX
-  let minY = touches[0].clientY
-  let maxX = touches[0].clientX
-  let maxY = touches[0].clientY
-
-  while (i--) {
-    const t = touches[i]
-    const x = t.clientX
-    const y = t.clientY
-    xs += x
-    ys += y
-
-    if (multitouch) {
-      if (x < minX) minX = x
-      else if (x > maxX) maxX = x
-
-      if (y < minY) minY = y
-      else if (y > maxY) maxY = y
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    const [distX, distY] = [maxX - minX, maxY - minY]
-    if (distX > distY) dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
-    else dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
-  }
-
-  cb(xs/touches.length, ys/touches.length)
-}
-
-// listeners -----------------------------------------------------------------
-
-function scrollHandler () {
-  const scrollTop = window.pageYOffset ||
-    (document.documentElement || body.parentNode || body).scrollTop
-
-  if (lastScrollPosition === null) lastScrollPosition = scrollTop
-
-  const deltaY = lastScrollPosition - scrollTop
-
-  if (Math.abs(deltaY) >= options.scrollThreshold) {
-    lastScrollPosition = null
-    api.close()
-  }
-}
-
-function keydownHandler (e) {
-  const code = e.key || e.code
-  if (code === 'Escape' || e.keyCode === 27) api.close()
-}
-
-function mousedownHandler (e) {
-  e.preventDefault()
-
-  pressTimer = setTimeout(() => {
-    press = true
-    api.grab(e.clientX, e.clientY, true)
-  }, PRESS_DELAY)
-}
-
-function mousemoveHandler (e) {
-  if (press) api.grab(e.clientX, e.clientY)
-}
-
-function mouseupHandler () {
-  clearTimeout(pressTimer)
-  press = false
-  if (grab) api.release()
-  else api.close()
-}
-
-function touchstartHandler (e) {
-  e.preventDefault()
-
-  pressTimer = setTimeout(() => {
-    press = true
-    processTouches(e.touches, (x, y) => api.grab(x, y, true))
-  }, PRESS_DELAY)
-}
-
-function touchmoveHandler (e) {
-  if (press) {
-    processTouches(e.touches, (x, y) => api.grab(x, y))
-  }
-}
-
-function touchendHandler (e) {
-  if (e.targetTouches.length === 0) {
-    clearTimeout(pressTimer)
-    press = false
-    if (grab) api.release()
-    else api.close()
   }
 }
 

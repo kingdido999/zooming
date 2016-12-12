@@ -1,7 +1,5 @@
 // webkit prefix
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
-const PRESS_DELAY = 200
-const TOUCH_SCALE_FACTOR = 2
 
 const options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -79,14 +77,23 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
+const toggleListeners = (el, types, handler, add = true) => {
+  let i = types.length
+
+  while (i--) {
+    const t = types[i]
+    if (add) el.addEventListener(t, handler[t])
+    else el.removeEventListener(t, handler[t])
+  }
+}
+
 const preloadImage = (url) => (new Image()).src = url
 
 export {
   prefix,
-  PRESS_DELAY,
-  TOUCH_SCALE_FACTOR,
   options,
   sniffTransition,
   checkTrans,
+  toggleListeners,
   preloadImage
 }

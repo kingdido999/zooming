@@ -6,8 +6,6 @@
 
 // webkit prefix
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
-var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 2;
 
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -85,11 +83,26 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
   };
 };
 
+var toggleListeners = function toggleListeners(el, types, handler) {
+  var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+  var i = types.length;
+
+  while (i--) {
+    var t = types[i];
+    if (add) el.addEventListener(t, handler[t]);else el.removeEventListener(t, handler[t]);
+  }
+};
+
 var preloadImage = function preloadImage(url) {
   return new Image().src = url;
 };
 
 var _this = undefined;
+
+var PRESS_DELAY = 200;
+var TOUCH_SCALE_FACTOR = 2;
+var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
 // elements
 var body = document.body;
@@ -120,6 +133,158 @@ var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+
+// helpers ---------------------------------------------------------------------
+
+var setStyle$1 = function setStyle$1(el, styles, remember) {
+  return setStyleHelper(el, styles, remember);
+};
+
+var calculateTransform = function calculateTransform() {
+  var imgRect = target.getBoundingClientRect();
+  var imgHalfWidth = imgRect.width / 2,
+      imgHalfHeight = imgRect.height / 2;
+
+
+  var imgCenter = {
+    x: imgRect.left + imgHalfWidth,
+    y: imgRect.top + imgHalfHeight
+  };
+
+  var windowCenter = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  };
+
+  // The distance between image edge and window edge
+  var distFromImageEdgeToWindowEdge = {
+    x: windowCenter.x - imgHalfWidth,
+    y: windowCenter.y - imgHalfHeight
+  };
+
+  var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth;
+  var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight;
+
+  // The vector to translate image to the window center
+  translate = {
+    x: windowCenter.x - imgCenter.x,
+    y: windowCenter.y - imgCenter.y
+  };
+
+  // The additional scale is based on the smaller value of
+  // scaling horizontally and scaling vertically
+  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+  return 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')';
+};
+
+var processTouches = function processTouches(touches, cb) {
+  var total = touches.length;
+
+  multitouch = total > 1;
+
+  var i = touches.length;
+  var xs = 0,
+      ys = 0;
+
+  // keep track of the min and max of touch positions
+
+  var minX = touches[0].clientX;
+  var minY = touches[0].clientY;
+  var maxX = touches[0].clientX;
+  var maxY = touches[0].clientY;
+
+  while (i--) {
+    var t = touches[i];
+    var x = t.clientX;
+    var y = t.clientY;
+    xs += x;
+    ys += y;
+
+    if (multitouch) {
+      if (x < minX) minX = x;else if (x > maxX) maxX = x;
+
+      if (y < minY) minY = y;else if (y > maxY) maxY = y;
+    }
+  }
+
+  if (multitouch) {
+    // change scaleExtra dynamically
+    var distX = maxX - minX,
+        distY = maxY - minY;
+
+    if (distX > distY) dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+  }
+
+  cb(xs / touches.length, ys / touches.length);
+};
+
+var eventHandler = {
+
+  scroll: function scroll() {
+    var scrollTop = window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
+
+    if (lastScrollPosition === null) lastScrollPosition = scrollTop;
+
+    var deltaY = lastScrollPosition - scrollTop;
+
+    if (Math.abs(deltaY) >= options.scrollThreshold) {
+      lastScrollPosition = null;
+      api.close();
+    }
+  },
+
+  keydown: function keydown(e) {
+    var code = e.key || e.code;
+    if (code === 'Escape' || e.keyCode === 27) api.close();
+  },
+
+  mousedown: function mousedown(e) {
+    e.preventDefault();
+
+    pressTimer = setTimeout(function () {
+      press = true;
+      api.grab(e.clientX, e.clientY, true);
+    }, PRESS_DELAY);
+  },
+
+  mousemove: function mousemove(e) {
+    if (press) api.grab(e.clientX, e.clientY);
+  },
+
+  mouseup: function mouseup() {
+    clearTimeout(pressTimer);
+    press = false;
+    if (_grab) api.release();else api.close();
+  },
+
+  touchstart: function touchstart(e) {
+    e.preventDefault();
+
+    pressTimer = setTimeout(function () {
+      press = true;
+      processTouches(e.touches, function (x, y) {
+        return api.grab(x, y, true);
+      });
+    }, PRESS_DELAY);
+  },
+
+  touchmove: function touchmove(e) {
+    if (press) {
+      processTouches(e.touches, function (x, y) {
+        return api.grab(x, y);
+      });
+    }
+  },
+
+  touchend: function touchend(e) {
+    if (e.targetTouches.length === 0) {
+      clearTimeout(pressTimer);
+      press = false;
+      if (_grab) api.release();else api.close();
+    }
+  }
+};
 
 // -----------------------------------------------------------------------------
 
@@ -204,13 +369,13 @@ var api = {
       return overlay.style.opacity = options.bgOpacity;
     }, 30);
 
-    document.addEventListener('scroll', scrollHandler);
-    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('scroll', eventHandler['scroll']);
+    document.addEventListener('keydown', eventHandler['keydown']);
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) addGrabListeners(target);
+      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, true);
 
       lock = false;
 
@@ -241,13 +406,13 @@ var api = {
     overlay.style.opacity = 0;
     setStyle$1(target, { transform: 'none' });
 
-    document.removeEventListener('scroll', scrollHandler);
-    document.removeEventListener('keydown', keydownHandler);
+    document.removeEventListener('scroll', eventHandler['scroll']);
+    document.removeEventListener('keydown', eventHandler['keydown']);
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) removeGrabListeners(target);
+      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, false);
 
       shown = false;
       lock = false;
@@ -312,175 +477,6 @@ var api = {
     return _this;
   }
 };
-
-// -----------------------------------------------------------------------------
-
-function setStyle$1(el, styles, remember) {
-  return setStyleHelper(el, styles, remember);
-}
-
-function calculateTransform() {
-  var imgRect = target.getBoundingClientRect();
-  var imgHalfWidth = imgRect.width / 2,
-      imgHalfHeight = imgRect.height / 2;
-
-
-  var imgCenter = {
-    x: imgRect.left + imgHalfWidth,
-    y: imgRect.top + imgHalfHeight
-  };
-
-  var windowCenter = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  };
-
-  // The distance between image edge and window edge
-  var distFromImageEdgeToWindowEdge = {
-    x: windowCenter.x - imgHalfWidth,
-    y: windowCenter.y - imgHalfHeight
-  };
-
-  var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth;
-  var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight;
-
-  // The vector to translate image to the window center
-  translate = {
-    x: windowCenter.x - imgCenter.x,
-    y: windowCenter.y - imgCenter.y
-  };
-
-  // The additional scale is based on the smaller value of
-  // scaling horizontally and scaling vertically
-  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-  return 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')';
-}
-
-function addGrabListeners(el) {
-  el.addEventListener('mousedown', mousedownHandler);
-  el.addEventListener('mousemove', mousemoveHandler);
-  el.addEventListener('mouseup', mouseupHandler);
-  el.addEventListener('touchstart', touchstartHandler);
-  el.addEventListener('touchmove', touchmoveHandler);
-  el.addEventListener('touchend', touchendHandler);
-}
-
-function removeGrabListeners(el) {
-  el.removeEventListener('mousedown', mousedownHandler);
-  el.removeEventListener('mousemove', mousemoveHandler);
-  el.removeEventListener('mouseup', mouseupHandler);
-  el.removeEventListener('touchstart', touchstartHandler);
-  el.removeEventListener('touchmove', touchmoveHandler);
-  el.removeEventListener('touchend', touchendHandler);
-}
-
-function processTouches(touches, cb) {
-  var total = touches.length;
-
-  multitouch = total > 1;
-
-  var i = touches.length;
-  var xs = 0,
-      ys = 0;
-
-  // keep track of the min and max of touch positions
-
-  var minX = touches[0].clientX;
-  var minY = touches[0].clientY;
-  var maxX = touches[0].clientX;
-  var maxY = touches[0].clientY;
-
-  while (i--) {
-    var t = touches[i];
-    var x = t.clientX;
-    var y = t.clientY;
-    xs += x;
-    ys += y;
-
-    if (multitouch) {
-      if (x < minX) minX = x;else if (x > maxX) maxX = x;
-
-      if (y < minY) minY = y;else if (y > maxY) maxY = y;
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    var distX = maxX - minX,
-        distY = maxY - minY;
-
-    if (distX > distY) dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
-  }
-
-  cb(xs / touches.length, ys / touches.length);
-}
-
-// listeners -----------------------------------------------------------------
-
-function scrollHandler() {
-  var scrollTop = window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
-
-  if (lastScrollPosition === null) lastScrollPosition = scrollTop;
-
-  var deltaY = lastScrollPosition - scrollTop;
-
-  if (Math.abs(deltaY) >= options.scrollThreshold) {
-    lastScrollPosition = null;
-    api.close();
-  }
-}
-
-function keydownHandler(e) {
-  var code = e.key || e.code;
-  if (code === 'Escape' || e.keyCode === 27) api.close();
-}
-
-function mousedownHandler(e) {
-  e.preventDefault();
-
-  pressTimer = setTimeout(function () {
-    press = true;
-    api.grab(e.clientX, e.clientY, true);
-  }, PRESS_DELAY);
-}
-
-function mousemoveHandler(e) {
-  if (press) api.grab(e.clientX, e.clientY);
-}
-
-function mouseupHandler() {
-  clearTimeout(pressTimer);
-  press = false;
-  if (_grab) api.release();else api.close();
-}
-
-function touchstartHandler(e) {
-  e.preventDefault();
-
-  pressTimer = setTimeout(function () {
-    press = true;
-    processTouches(e.touches, function (x, y) {
-      return api.grab(x, y, true);
-    });
-  }, PRESS_DELAY);
-}
-
-function touchmoveHandler(e) {
-  if (press) {
-    processTouches(e.touches, function (x, y) {
-      return api.grab(x, y);
-    });
-  }
-}
-
-function touchendHandler(e) {
-  if (e.targetTouches.length === 0) {
-    clearTimeout(pressTimer);
-    press = false;
-    if (_grab) api.release();else api.close();
-  }
-}
 
 // init ------------------------------------------------------------------------
 setStyle$1(overlay, {
