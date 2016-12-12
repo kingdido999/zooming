@@ -276,7 +276,7 @@ var eventHandler = {
   touchend: function touchend(e) {
     if (e.targetTouches.length === 0) {
       clearTimeout(pressTimer);
-      api.release();
+      if (released) api.close();else api.release();
     }
   }
 };

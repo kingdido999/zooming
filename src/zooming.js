@@ -168,7 +168,8 @@ const eventHandler = {
   touchend: function (e) {
     if (e.targetTouches.length === 0) {
       clearTimeout(pressTimer)
-      api.release()
+      if (released) api.close()
+      else api.release()
     }
   }
 }
