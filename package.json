@@ -16,7 +16,7 @@
   "scripts": {
     "watch": "rollup -c -w",
     "uglify": "rollup -c rollup.config.uglify.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
   "license": "MIT",
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.2.0",
+    "mocha": "^3.2.0",
     "rollup": "^0.36.4",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-eslint": "^3.0.0",
