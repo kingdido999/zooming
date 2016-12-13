@@ -78,7 +78,7 @@ Open (zoom in) the matched image. Fires optional callback when the transition is
 
 Close (zoom out) if currently zoomed-in.
 
-#### `.grab(x, y [, start] [, callback])`
+#### `.grab(x, y [, start])`
 
 Grab the current image given a mouse/touch position and apply extra zoom in.
 
@@ -107,7 +107,6 @@ Takes an options object. Available options:
 | scrollThreshold          | Number           | 40                        | How much scrolling it takes before closing out. |
 | onOpen                   | Function         | null                      | A callback function that will be called when a target is opened and transition has ended. It will get the target element as the argument. |
 | onClose                  | Function         | null                      | Same as above, except fired when closed. |
-| onGrab                   | Function         | null                      | Same as above, except fired when grabbed. |
 | onRelease                | Function         | null                      | Same as above, except fired when released. |
 | onBeforeOpen             | Function         | null                      | A callback function that will be called before open. |
 | onBeforeClose            | Function         | null                      | A callback function that will be called before close. |

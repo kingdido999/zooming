@@ -20,7 +20,6 @@ var options = {
   scrollThreshold: 40,
   onOpen: null,
   onClose: null,
-  onGrab: null,
   onRelease: null,
   onBeforeOpen: null,
   onBeforeClose: null,
@@ -100,6 +99,7 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;

@@ -14,7 +14,6 @@ const options = {
   scrollThreshold: 40,
   onOpen: null,
   onClose: null,
-  onGrab: null,
   onRelease: null,
   onBeforeOpen: null,
   onBeforeClose: null,
