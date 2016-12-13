@@ -75,42 +75,40 @@ const calculateTransform = () => {
 
 const processTouches = (touches, cb) => {
   const total = touches.length
-
-  multitouch = total > 1
+  const firstTouch = touches[0]
 
   let i = touches.length
   let [xs, ys] = [0, 0]
 
   // keep track of the min and max of touch positions
-  let minX = touches[0].clientX
-  let minY = touches[0].clientY
-  let maxX = touches[0].clientX
-  let maxY = touches[0].clientY
+  let min = { x: firstTouch.clientX, y: firstTouch.clientY }
+  let max = { x: firstTouch.clientX, y: firstTouch.clientY }
+
+  multitouch = total > 1
 
   while (i--) {
     const t = touches[i]
-    const x = t.clientX
-    const y = t.clientY
+    const [x, y] = [t.clientX, t.clientY]
     xs += x
     ys += y
 
     if (multitouch) {
-      if (x < minX) minX = x
-      else if (x > maxX) maxX = x
+      if (x < min.x) min.x = x
+      else if (x > max.x) max.x = x
 
-      if (y < minY) minY = y
-      else if (y > maxY) maxY = y
+      if (y < min.y) min.y = y
+      else if (y > max.y) max.y = y
     }
   }
 
   if (multitouch) {
     // change scaleExtra dynamically
-    const [distX, distY] = [maxX - minX, maxY - minY]
+    const [distX, distY] = [max.x - min.x, max.y - min.y]
     if (distX > distY) dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
     else dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
   }
 
-  cb(xs/touches.length, ys/touches.length)
+  cb(xs / total, ys / total)
 }
 
 const eventHandler = {
@@ -148,7 +146,6 @@ const eventHandler = {
 
   mouseup: function () {
     clearTimeout(pressTimer)
-    api.release()
   },
 
   touchstart: function (e) {
@@ -215,8 +212,12 @@ const api = {
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
-      if (shown && released) api.close()
-      else api.open(el)
+      if (shown) {
+        if (released) api.close()
+        else api.release()
+      } else {
+        api.open(el)
+      }
     })
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
@@ -278,8 +279,8 @@ const api = {
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
 
-    document.addEventListener('scroll', eventHandler['scroll'])
-    document.addEventListener('keydown', eventHandler['keydown'])
+    document.addEventListener('scroll', eventHandler.scroll)
+    document.addEventListener('keydown', eventHandler.keydown)
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
@@ -313,8 +314,8 @@ const api = {
     overlay.style.opacity = 0
     setStyle(target, { transform: 'none' })
 
-    document.removeEventListener('scroll', eventHandler['scroll'])
-    document.removeEventListener('keydown', eventHandler['keydown'])
+    document.removeEventListener('scroll', eventHandler.scroll)
+    document.removeEventListener('keydown', eventHandler.keydown)
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
@@ -338,7 +339,7 @@ const api = {
     return this
   },
 
-  grab: (x, y, start, cb = options.onGrab) => {
+  grab: (x, y, start) => {
     if (!shown || lock) return
     released = false
 
@@ -358,15 +359,11 @@ const api = {
         : 'ease'}`,
       transform: transform
     })
-
-    target.addEventListener(transEndEvent, function onEnd () {
-      target.removeEventListener(transEndEvent, onEnd)
-      if (cb) cb(target)
-    })
   },
 
   release: (cb = options.onRelease) => {
     if (!shown || lock) return
+    lock = true
 
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target)
@@ -376,6 +373,7 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
+      lock = false
       released = true
 
       if (cb) cb(target)

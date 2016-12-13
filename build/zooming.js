@@ -100,7 +100,6 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -179,8 +178,7 @@ var calculateTransform = function calculateTransform() {
 
 var processTouches = function processTouches(touches, cb) {
   var total = touches.length;
-
-  multitouch = total > 1;
+  var firstTouch = touches[0];
 
   var i = touches.length;
   var xs = 0,
@@ -188,34 +186,36 @@ var processTouches = function processTouches(touches, cb) {
 
   // keep track of the min and max of touch positions
 
-  var minX = touches[0].clientX;
-  var minY = touches[0].clientY;
-  var maxX = touches[0].clientX;
-  var maxY = touches[0].clientY;
+  var min = { x: firstTouch.clientX, y: firstTouch.clientY };
+  var max = { x: firstTouch.clientX, y: firstTouch.clientY };
+
+  multitouch = total > 1;
 
   while (i--) {
     var t = touches[i];
-    var x = t.clientX;
-    var y = t.clientY;
+    var _ref = [t.clientX, t.clientY],
+        x = _ref[0],
+        y = _ref[1];
+
     xs += x;
     ys += y;
 
     if (multitouch) {
-      if (x < minX) minX = x;else if (x > maxX) maxX = x;
+      if (x < min.x) min.x = x;else if (x > max.x) max.x = x;
 
-      if (y < minY) minY = y;else if (y > maxY) maxY = y;
+      if (y < min.y) min.y = y;else if (y > max.y) max.y = y;
     }
   }
 
   if (multitouch) {
     // change scaleExtra dynamically
-    var distX = maxX - minX,
-        distY = maxY - minY;
+    var distX = max.x - min.x,
+        distY = max.y - min.y;
 
     if (distX > distY) dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
   }
 
-  cb(xs / touches.length, ys / touches.length);
+  cb(xs / total, ys / total);
 };
 
 var eventHandler = {
@@ -252,7 +252,6 @@ var eventHandler = {
 
   mouseup: function mouseup() {
     clearTimeout(pressTimer);
-    api.release();
   },
 
   touchstart: function touchstart(e) {
@@ -325,7 +324,11 @@ var api = {
     el.addEventListener('click', function (e) {
       e.preventDefault();
 
-      if (shown && released) api.close();else api.open(el);
+      if (shown) {
+        if (released) api.close();else api.release();
+      } else {
+        api.open(el);
+      }
     });
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
@@ -385,8 +388,8 @@ var api = {
       return overlay.style.opacity = options.bgOpacity;
     }, 30);
 
-    document.addEventListener('scroll', eventHandler['scroll']);
-    document.addEventListener('keydown', eventHandler['keydown']);
+    document.addEventListener('scroll', eventHandler.scroll);
+    document.addEventListener('keydown', eventHandler.keydown);
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -422,8 +425,8 @@ var api = {
     overlay.style.opacity = 0;
     setStyle$1(target, { transform: 'none' });
 
-    document.removeEventListener('scroll', eventHandler['scroll']);
-    document.removeEventListener('keydown', eventHandler['keydown']);
+    document.removeEventListener('scroll', eventHandler.scroll);
+    document.removeEventListener('keydown', eventHandler.keydown);
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -448,8 +451,6 @@ var api = {
   },
 
   grab: function grab(x, y, start) {
-    var cb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : options.onGrab;
-
     if (!shown || lock) return;
     released = false;
 
@@ -467,17 +468,13 @@ var api = {
       transition: transformCssProp + ' ' + (start ? options.transitionDuration + 's ' + options.transitionTimingFunction : 'ease'),
       transform: transform
     });
-
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(target);
-    });
   },
 
   release: function release() {
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onRelease;
 
     if (!shown || lock) return;
+    lock = true;
 
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target);
@@ -487,6 +484,7 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
+      lock = false;
       released = true;
 
       if (cb) cb(target);
