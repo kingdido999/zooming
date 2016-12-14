@@ -85,12 +85,13 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
 var toggleListeners = function toggleListeners(el, types, handler) {
   var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
 
-  var i = types.length;
-
-  while (i--) {
-    var t = types[i];
-    if (add) el.addEventListener(t, handler[t]);else el.removeEventListener(t, handler[t]);
-  }
+  types.forEach(function (t) {
+    if (add) {
+      el.addEventListener(t, handler[t]);
+    } else {
+      el.removeEventListener(t, handler[t]);
+    }
+  });
 };
 
 var preloadImage = function preloadImage(url) {
@@ -99,7 +100,6 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -247,7 +247,8 @@ var eventHandler = {
   },
 
   mousemove: function mousemove(e) {
-    if (!released) api.grab(e.clientX, e.clientY);
+    if (released) return;
+    api.grab(e.clientX, e.clientY);
   },
 
   mouseup: function mouseup() {
@@ -265,17 +266,20 @@ var eventHandler = {
   },
 
   touchmove: function touchmove(e) {
-    if (!released) {
-      processTouches(e.touches, function (x, y) {
-        return api.grab(x, y);
-      });
-    }
+    if (released) return;
+    processTouches(e.touches, function (x, y) {
+      return api.grab(x, y);
+    });
   },
 
   touchend: function touchend(e) {
-    if (e.targetTouches.length === 0) {
-      clearTimeout(pressTimer);
-      if (released) api.close();else api.release();
+    if (e.targetTouches.length > 0) return;
+    clearTimeout(pressTimer);
+
+    if (released) {
+      api.close();
+    } else {
+      api.release();
     }
   }
 };
@@ -325,7 +329,11 @@ var api = {
       e.preventDefault();
 
       if (shown) {
-        if (released) api.close();else api.release();
+        if (released) {
+          api.close();
+        } else {
+          api.release();
+        }
       } else {
         api.open(el);
       }

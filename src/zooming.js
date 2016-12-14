@@ -141,7 +141,8 @@ const eventHandler = {
   },
 
   mousemove: function (e) {
-    if (!released) api.grab(e.clientX, e.clientY)
+    if (released) return
+    api.grab(e.clientX, e.clientY)
   },
 
   mouseup: function () {
@@ -157,16 +158,18 @@ const eventHandler = {
   },
 
   touchmove: function (e) {
-    if (!released) {
-      processTouches(e.touches, (x, y) => api.grab(x, y))
-    }
+    if (released) return
+    processTouches(e.touches, (x, y) => api.grab(x, y))
   },
 
   touchend: function (e) {
-    if (e.targetTouches.length === 0) {
-      clearTimeout(pressTimer)
-      if (released) api.close()
-      else api.release()
+    if (e.targetTouches.length > 0) return
+    clearTimeout(pressTimer)
+
+    if (released) {
+      api.close()
+    } else {
+      api.release()
     }
   }
 }
@@ -213,8 +216,11 @@ const api = {
       e.preventDefault()
 
       if (shown) {
-        if (released) api.close()
-        else api.release()
+        if (released) {
+          api.close()
+        } else {
+          api.release()
+        }
       } else {
         api.open(el)
       }

@@ -77,13 +77,13 @@ const checkTrans = (transitionProp, transformProp) => {
 }
 
 const toggleListeners = (el, types, handler, add = true) => {
-  let i = types.length
-
-  while (i--) {
-    const t = types[i]
-    if (add) el.addEventListener(t, handler[t])
-    else el.removeEventListener(t, handler[t])
-  }
+  types.forEach(t => {
+    if (add) {
+      el.addEventListener(t, handler[t])
+    } else {
+      el.removeEventListener(t, handler[t])
+    }
+  })
 }
 
 const preloadImage = (url) => (new Image()).src = url
