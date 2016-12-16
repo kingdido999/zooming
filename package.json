@@ -26,6 +26,7 @@
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "babel-preset-es2015-rollup": "^1.2.0",
+    "chai": "^3.5.0",
     "mocha": "^3.2.0",
     "rollup": "^0.36.4",
     "rollup-plugin-babel": "^2.6.1",
