@@ -100,6 +100,7 @@ var preloadImage = function preloadImage(url) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -458,7 +459,7 @@ var api = {
     return _this;
   },
 
-  grab: function grab(x, y, start) {
+  grab: function grab(x, y, start, cb) {
     if (!shown || lock) return;
     released = false;
 
@@ -475,6 +476,11 @@ var api = {
       cursor: 'move',
       transition: transformCssProp + ' ' + (start ? options.transitionDuration + 's ' + options.transitionTimingFunction : 'ease'),
       transform: transform
+    });
+
+    target.addEventListener(transEndEvent, function onEnd() {
+      target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(target);
     });
   },
 

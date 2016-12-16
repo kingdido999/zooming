@@ -345,7 +345,7 @@ const api = {
     return this
   },
 
-  grab: (x, y, start) => {
+  grab: (x, y, start, cb) => {
     if (!shown || lock) return
     released = false
 
@@ -365,6 +365,11 @@ const api = {
         : 'ease'}`,
       transform: transform
     })
+
+    target.addEventListener(transEndEvent, function onEnd () {
+     target.removeEventListener(transEndEvent, onEnd)
+     if (cb) cb(target)
+   })
   },
 
   release: (cb = options.onRelease) => {

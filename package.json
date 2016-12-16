@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Image zoom that makes sense.",
   "main": "src/zooming.js",
   "repository": {
@@ -15,8 +15,7 @@
   "dependencies": {},
   "scripts": {
     "watch": "rollup -c -w",
-    "uglify": "rollup -c rollup.config.uglify.js",
-    "test": "mocha"
+    "uglify": "rollup -c rollup.config.uglify.js"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
   "license": "MIT",

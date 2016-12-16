@@ -78,7 +78,7 @@ Open (zoom in) the matched image. Fires optional callback when the transition is
 
 Close (zoom out) if currently zoomed-in.
 
-#### `.grab(x, y [, start])`
+#### `.grab(x, y [, start] [, callback])`
 
 Grab the current image given a mouse/touch position and apply extra zoom in.
 
