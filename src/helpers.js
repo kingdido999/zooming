@@ -1,26 +1,6 @@
 // webkit prefix
 const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 
-const options = {
-  defaultZoomable: 'img[data-action="zoom"]',
-  enableGrab: true,
-  preloadImage: true,
-  transitionDuration: 0.4,
-  transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
-  bgColor: '#fff',
-  bgOpacity: 1,
-  scaleBase: 1.0,
-  scaleExtra: 0.5,
-  scrollThreshold: 40,
-  onOpen: null,
-  onClose: null,
-  onRelease: null,
-  onBeforeOpen: null,
-  onBeforeClose: null,
-  onBeforeGrab: null,
-  onBeforeRelease: null
-}
-
 const sniffTransition = (el) => {
   let ret     = {}
   const trans = ['webkitTransition', 'transition', 'mozTransition']
@@ -90,7 +70,6 @@ const preloadImage = (url) => (new Image()).src = url
 
 export {
   prefix,
-  options,
   sniffTransition,
   checkTrans,
   toggleListeners,

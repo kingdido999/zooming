@@ -4,10 +4,11 @@ var expect = chai.expect
 var should = chai.should()
 
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
-var options = Zooming.config()
+var defaultOpts = Object.assign({}, Zooming.config())
 
 describe('API', function() {
-  var els = document.querySelectorAll('img[data-action="zoom"]')
+  var els = document.querySelectorAll(defaultOpts.defaultZoomable)
+  var el = els[0]
   var i = els.length
 
   describe('listen()', function() {
@@ -19,18 +20,65 @@ describe('API', function() {
     })
   })
 
-  describe('open()', function() {
-    var el = els[0]
+  describe('config()', function() {
+    var opts = {
+      defaultZoomable: 'img[data-action="open"]',
+      enableGrab: false,
+      preloadImage: false,
+      transitionDuration: 0.2,
+      transitionTimingFunction: 'ease',
+      bgColor: '#000',
+      bgOpacity: 0.8,
+      scaleBase: 0.8,
+      scaleExtra: 0.3,
+      scrollThreshold: 50,
+      onOpen: function() { return 'onOpen' },
+      onClose: function() { return 'onClose' },
+      onRelease: function() { return 'onRelease' },
+      onBeforeOpen: function() { return 'onBeforeOpen' },
+      onBeforeClose: function() { return 'onBeforeClose' },
+      onBeforeGrab: function() { return 'onBeforeGrab' },
+      onBeforeRelease: function() { return 'onBeforeRelease' }
+    }
 
+    before(function() {
+      Zooming.config(opts)
+    })
+
+    it('should update options correctly', function() {
+      expect(Zooming.config()).to.deep.equal(opts)
+    })
+
+    after(function() {
+      Zooming.config(defaultOpts)
+    })
+  })
+
+  describe('open()', function() {
     it('should open up the image', function(done) {
       Zooming.open(el, function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
-        expect(target.style.cursor).to.equal(prefix + (options.enableGrab ? 'grab': 'zoom-out'))
+        expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
         done()
       })
+    })
+
+    it('should insert the overlay', function() {
+      var overlay = el.parentNode.lastChild
+      var style = overlay.style
+      expect(overlay.getAttribute('id')).to.equal('zoom-overlay')
+      expect(style.zIndex).to.equal('998')
+      expect(style.backgroundColor).to.equal(defaultOpts.bgColor)
+      expect(style.position).to.equal('fixed')
+      expect(style.top).to.equal('0px')
+      expect(style.left).to.equal('0px')
+      expect(style.right).to.equal('0px')
+      expect(style.bottom).to.equal('0px')
+      expect(style.opacity).to.equal(defaultOpts.bgOpacity.toString())
+      expect(style.transition).to.not.be.empty
     })
   })
 
@@ -53,7 +101,7 @@ describe('API', function() {
       Zooming.release(function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
-        expect(target.style.cursor).to.equal(prefix + (options.enableGrab ? 'grab': 'zoom-out'))
+        expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
         done()
@@ -71,6 +119,11 @@ describe('API', function() {
         expect(target.style.transform).to.be.empty
         done()
       })
+    })
+
+    it('should remove the overlay', function() {
+      var overlay = document.querySelector('#zoom-overlay')
+      expect(overlay).to.not.exist
     })
   })
 })

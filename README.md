@@ -62,11 +62,11 @@ Under project folder:
 
 `yarn watch`
 
-Now open up `index.html` and play around with it!
+Open up `index.html` and play around with it!
 
 ## Test
 
-Open up `test.html` for browser testing.
+Open up `test.html` for browser testing (keep your cursor away from the browser window).
 
 ## Methods
 
@@ -103,8 +103,8 @@ Takes an options object. Available options:
 | enableGrab               | Boolean          | true                      | To be able to grab and drag the image for extra zoom-in. |
 | preloadImage             | Boolean          | true                      | Preload images with attribute `data-original`. |
 | transitionDuration       | Number           | 0.4                       | Transition duration in seconds. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration) |
-| transitionTimingFunction | String           | 'cubic-bezier(.4,0,0,1)'  | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
-| bgColor                  | String           | '#fff'                    | Overlay background color. |
+| transitionTimingFunction | String           | 'cubic-bezier(0.4, 0, 0, 1)' | Transition timing function. [More](https://developer.mozilla.org/en-US/docs/Web/CSS/single-transition-timing-function) |
+| bgColor                  | String           | 'rgb(255, 255, 255)'      | Overlay background color. |
 | bgOpacity                | Number           | 1                         | Overlay background capacity. |
 | scaleBase                | Number           | 1.0                       | The base scale factor for zooming. By default scale to fit the window. |
 | scaleExtra               | Number           | 0.5                       | The extra scale factor when grabbing the image. |

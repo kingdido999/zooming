@@ -1,4 +1,5 @@
-import { prefix, options, sniffTransition, checkTrans, toggleListeners, preloadImage } from './helpers'
+import { prefix, sniffTransition, checkTrans, toggleListeners, preloadImage } from './helpers'
+import { options } from './options'
 
 // elements
 const body    = document.body
@@ -176,9 +177,10 @@ const eventHandler = {
 
 // init ------------------------------------------------------------------------
 
+overlay.setAttribute('id', 'zoom-overlay')
 setStyle(overlay, {
   zIndex: 998,
-  background: options.bgColor,
+  backgroundColor: options.bgColor,
   position: 'fixed',
   top: 0,
   left: 0,

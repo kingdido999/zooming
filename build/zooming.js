@@ -7,26 +7,6 @@
 // webkit prefix
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 
-var options = {
-  defaultZoomable: 'img[data-action="zoom"]',
-  enableGrab: true,
-  preloadImage: true,
-  transitionDuration: 0.4,
-  transitionTimingFunction: 'cubic-bezier(.4,0,0,1)',
-  bgColor: '#fff',
-  bgOpacity: 1,
-  scaleBase: 1.0,
-  scaleExtra: 0.5,
-  scrollThreshold: 40,
-  onOpen: null,
-  onClose: null,
-  onRelease: null,
-  onBeforeOpen: null,
-  onBeforeClose: null,
-  onBeforeGrab: null,
-  onBeforeRelease: null
-};
-
 var sniffTransition = function sniffTransition(el) {
   var ret = {};
   var trans = ['webkitTransition', 'transition', 'mozTransition'];
@@ -98,9 +78,28 @@ var preloadImage = function preloadImage(url) {
   return new Image().src = url;
 };
 
+var options = {
+  defaultZoomable: 'img[data-action="zoom"]',
+  enableGrab: true,
+  preloadImage: true,
+  transitionDuration: 0.4,
+  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+  bgColor: 'rgb(255, 255, 255)',
+  bgOpacity: 1,
+  scaleBase: 1.0,
+  scaleExtra: 0.5,
+  scrollThreshold: 40,
+  onOpen: null,
+  onClose: null,
+  onRelease: null,
+  onBeforeOpen: null,
+  onBeforeClose: null,
+  onBeforeGrab: null,
+  onBeforeRelease: null
+};
+
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -287,9 +286,10 @@ var eventHandler = {
 
 // init ------------------------------------------------------------------------
 
+overlay.setAttribute('id', 'zoom-overlay');
 setStyle$1(overlay, {
   zIndex: 998,
-  background: options.bgColor,
+  backgroundColor: options.bgColor,
   position: 'fixed',
   top: 0,
   left: 0,
