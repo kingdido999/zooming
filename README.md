@@ -64,6 +64,10 @@ Under project folder:
 
 Now open up `index.html` and play around with it!
 
+## Test
+
+Open up `test.html` for browser testing.
+
 ## Methods
 
 #### `.listen(selector | element)`
