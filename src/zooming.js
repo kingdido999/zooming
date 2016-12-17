@@ -1,4 +1,4 @@
-import { prefix, sniffTransition, checkTrans, toggleListeners, preloadImage } from './helpers'
+import { prefix, sniffTransition, checkTrans, toggleListeners, preloadImage, half, getWindowCenter } from './helpers'
 import { options } from './options'
 
 // elements
@@ -20,11 +20,6 @@ const style = {
   open: null
 }
 
-const trans = sniffTransition(overlay)
-const transformCssProp = trans.transformCssProp
-const transEndEvent = trans.transEndEvent
-const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
-
 const PRESS_DELAY = 200
 const TOUCH_SCALE_FACTOR = 2
 const GRAB_EVENT_TYPES = [
@@ -32,46 +27,48 @@ const GRAB_EVENT_TYPES = [
   'touchstart', 'touchmove', 'touchend'
 ]
 
-// helpers ---------------------------------------------------------------------
+// Helpers ---------------------------------------------------------------------
+
+const trans = sniffTransition(overlay)
+const transformCssProp = trans.transformCssProp
+const transEndEvent = trans.transEndEvent
+const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
 
 const setStyle = (el, styles, remember) => {
   return setStyleHelper(el, styles, remember)
 }
 
-const calculateTransform = () => {
-  const imgRect = target.getBoundingClientRect()
-  const [imgHalfWidth, imgHalfHeight] = [imgRect.width / 2, imgRect.height / 2]
-
-  const imgCenter = {
-    x: imgRect.left + imgHalfWidth,
-    y: imgRect.top + imgHalfHeight
+const calculateTranslate = (rect) => {
+  const windowCenter = getWindowCenter()
+  const targetCenter = {
+    x: rect.left + half(rect.width),
+    y: rect.top + half(rect.height)
   }
-
-  const windowCenter = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  }
-
-  // The distance between image edge and window edge
-  const distFromImageEdgeToWindowEdge = {
-    x: windowCenter.x - imgHalfWidth,
-    y: windowCenter.y - imgHalfHeight
-  }
-
-  const scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth
-  const scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight
 
   // The vector to translate image to the window center
-  translate = {
-    x: windowCenter.x - imgCenter.x,
-    y: windowCenter.y - imgCenter.y
+  return {
+    x: windowCenter.x - targetCenter.x,
+    y: windowCenter.y - targetCenter.y
   }
+}
+
+const calculateScale = (rect, scaleBase) => {
+  const targetHalfWidth = half(rect.width)
+  const targetHalfHeight = half(rect.height)
+  const windowCenter = getWindowCenter()
+
+  // The distance between target edge and window edge
+  const targetEdgeToWindowEdge = {
+    x: windowCenter.x - targetHalfWidth,
+    y: windowCenter.y - targetHalfHeight
+  }
+
+  const scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth
+  const scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight
 
   // The additional scale is based on the smaller value of
   // scaling horizontally and scaling vertically
-  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically)
-
-  return `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
+  return scaleBase + Math.min(scaleHorizontally, scaleVertically)
 }
 
 const processTouches = (touches, cb) => {
@@ -105,12 +102,18 @@ const processTouches = (touches, cb) => {
   if (multitouch) {
     // change scaleExtra dynamically
     const [distX, distY] = [max.x - min.x, max.y - min.y]
-    if (distX > distY) dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
-    else dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
+
+    if (distX > distY) {
+      dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
+    } else {
+      dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
+    }
   }
 
   cb(xs / total, ys / total)
 }
+
+// Event handler ---------------------------------------------------------------
 
 const eventHandler = {
 
@@ -174,26 +177,6 @@ const eventHandler = {
     }
   }
 }
-
-// init ------------------------------------------------------------------------
-
-overlay.setAttribute('id', 'zoom-overlay')
-setStyle(overlay, {
-  zIndex: 998,
-  backgroundColor: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: `opacity
-    ${options.transitionDuration}s
-    ${options.transitionTimingFunction}`
-})
-
-overlay.addEventListener('click', () => api.close())
-document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
 
 // API -------------------------------------------------------------------------
 
@@ -268,6 +251,10 @@ const api = {
     lock = true
     parent = target.parentNode
 
+    const rect = target.getBoundingClientRect()
+    translate = calculateTranslate(rect)
+    scale = calculateScale(rect, options.scaleBase)
+
     // force layout update
     target.offsetWidth
 
@@ -278,7 +265,7 @@ const api = {
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
-      transform: calculateTransform()
+      transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
     }
 
     // trigger transition
@@ -354,7 +341,8 @@ const api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target)
 
-    const [dx, dy] = [window.innerWidth / 2 - x, window.innerHeight / 2 - y]
+    const windowCenter = getWindowCenter()
+    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
     const scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra
     const transform = target.style.transform
       .replace(/translate\(.*?\)/i, `translate(${translate.x + dx}px, ${translate.y + dy}px)`)
@@ -395,5 +383,25 @@ const api = {
     return this
   }
 }
+
+// Init ------------------------------------------------------------------------
+
+overlay.setAttribute('id', 'zoom-overlay')
+setStyle(overlay, {
+  zIndex: 998,
+  backgroundColor: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: `opacity
+    ${options.transitionDuration}s
+    ${options.transitionTimingFunction}`
+})
+
+overlay.addEventListener('click', () => api.close())
+document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
 
 export default api

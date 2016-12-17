@@ -68,10 +68,27 @@ const toggleListeners = (el, types, handler, add = true) => {
 
 const preloadImage = (url) => (new Image()).src = url
 
+const divide = (denominator) => {
+  return (numerator) => {
+    return numerator / denominator
+  }
+}
+
+const half = divide(2)
+
+const getWindowCenter = () => {
+  return {
+    x: half(window.innerWidth),
+    y: half(window.innerHeight)
+  }
+}
+
 export {
   prefix,
   sniffTransition,
   checkTrans,
   toggleListeners,
-  preloadImage
+  preloadImage,
+  half,
+  getWindowCenter
 }

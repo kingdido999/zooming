@@ -78,6 +78,21 @@ var preloadImage = function preloadImage(url) {
   return new Image().src = url;
 };
 
+var divide = function divide(denominator) {
+  return function (numerator) {
+    return numerator / denominator;
+  };
+};
+
+var half = divide(2);
+
+var getWindowCenter = function getWindowCenter() {
+  return {
+    x: half(window.innerWidth),
+    y: half(window.innerHeight)
+  };
+};
+
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
@@ -100,6 +115,7 @@ var options = {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -123,57 +139,52 @@ var style = {
   open: null
 };
 
+var PRESS_DELAY = 200;
+var TOUCH_SCALE_FACTOR = 2;
+var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
+
+// Helpers ---------------------------------------------------------------------
+
 var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
 var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
 
-var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 2;
-var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
-// helpers ---------------------------------------------------------------------
-
 var setStyle$1 = function setStyle$1(el, styles, remember) {
   return setStyleHelper(el, styles, remember);
 };
 
-var calculateTransform = function calculateTransform() {
-  var imgRect = target.getBoundingClientRect();
-  var imgHalfWidth = imgRect.width / 2,
-      imgHalfHeight = imgRect.height / 2;
-
-
-  var imgCenter = {
-    x: imgRect.left + imgHalfWidth,
-    y: imgRect.top + imgHalfHeight
+var calculateTranslate = function calculateTranslate(rect) {
+  var windowCenter = getWindowCenter();
+  var targetCenter = {
+    x: rect.left + half(rect.width),
+    y: rect.top + half(rect.height)
   };
-
-  var windowCenter = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  };
-
-  // The distance between image edge and window edge
-  var distFromImageEdgeToWindowEdge = {
-    x: windowCenter.x - imgHalfWidth,
-    y: windowCenter.y - imgHalfHeight
-  };
-
-  var scaleHorizontally = distFromImageEdgeToWindowEdge.x / imgHalfWidth;
-  var scaleVertically = distFromImageEdgeToWindowEdge.y / imgHalfHeight;
 
   // The vector to translate image to the window center
-  translate = {
-    x: windowCenter.x - imgCenter.x,
-    y: windowCenter.y - imgCenter.y
+  return {
+    x: windowCenter.x - targetCenter.x,
+    y: windowCenter.y - targetCenter.y
   };
+};
+
+var calculateScale = function calculateScale(rect, scaleBase) {
+  var targetHalfWidth = half(rect.width);
+  var targetHalfHeight = half(rect.height);
+  var windowCenter = getWindowCenter();
+
+  // The distance between target edge and window edge
+  var targetEdgeToWindowEdge = {
+    x: windowCenter.x - targetHalfWidth,
+    y: windowCenter.y - targetHalfHeight
+  };
+
+  var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+  var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
 
   // The additional scale is based on the smaller value of
   // scaling horizontally and scaling vertically
-  scale = options.scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-  return 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')';
+  return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
 var processTouches = function processTouches(touches, cb) {
@@ -212,11 +223,18 @@ var processTouches = function processTouches(touches, cb) {
     var distX = max.x - min.x,
         distY = max.y - min.y;
 
-    if (distX > distY) dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;else dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+
+    if (distX > distY) {
+      dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
+    } else {
+      dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+    }
   }
 
   cb(xs / total, ys / total);
 };
+
+// Event handler ---------------------------------------------------------------
 
 var eventHandler = {
 
@@ -283,28 +301,6 @@ var eventHandler = {
     }
   }
 };
-
-// init ------------------------------------------------------------------------
-
-overlay.setAttribute('id', 'zoom-overlay');
-setStyle$1(overlay, {
-  zIndex: 998,
-  backgroundColor: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
-});
-
-overlay.addEventListener('click', function () {
-  return api.close();
-});
-document.addEventListener('DOMContentLoaded', function () {
-  return api.listen(options.defaultZoomable);
-});
 
 // API -------------------------------------------------------------------------
 
@@ -378,6 +374,10 @@ var api = {
     lock = true;
     parent = target.parentNode;
 
+    var rect = target.getBoundingClientRect();
+    translate = calculateTranslate(rect);
+    scale = calculateScale(rect, options.scaleBase);
+
     // force layout update
     target.offsetWidth;
 
@@ -386,7 +386,7 @@ var api = {
       zIndex: 999,
       cursor: '' + prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
-      transform: calculateTransform()
+      transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
     };
 
     // trigger transition
@@ -466,8 +466,9 @@ var api = {
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target);
 
-    var dx = window.innerWidth / 2 - x,
-        dy = window.innerHeight / 2 - y;
+    var windowCenter = getWindowCenter();
+    var dx = windowCenter.x - x,
+        dy = windowCenter.y - y;
 
     var scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra;
     var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + scaleExtra) + ')');
@@ -507,6 +508,28 @@ var api = {
     return _this;
   }
 };
+
+// Init ------------------------------------------------------------------------
+
+overlay.setAttribute('id', 'zoom-overlay');
+setStyle$1(overlay, {
+  zIndex: 998,
+  backgroundColor: options.bgColor,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  opacity: 0,
+  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
+});
+
+overlay.addEventListener('click', function () {
+  return api.close();
+});
+document.addEventListener('DOMContentLoaded', function () {
+  return api.listen(options.defaultZoomable);
+});
 
 return api;
 
