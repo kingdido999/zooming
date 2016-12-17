@@ -1,14 +1,15 @@
-import { prefix, sniffTransition, checkTrans, toggleListeners, preloadImage, half, getWindowCenter } from './helpers'
-import { options } from './options'
+import { webkitPrefix, half, preloadImage, scrollTop, getWindowCenter,
+  toggleListeners, sniffTransition, checkTrans } from './helpers'
+
+import { PRESS_DELAY, TOUCH_SCALE_FACTOR, EVENT_TYPES_GRAB, options } from './defaults'
 
 // elements
-const body    = document.body
 const overlay = document.createElement('div')
 let target, parent
 
 // state
-let shown = false       // image is open
-let lock  = false       // image is in transform
+let shown = false       // target is open
+let lock  = false       // target is in transform
 let released = true     // mouse/finger is not pressing down
 let multitouch = false
 let lastScrollPosition = null
@@ -19,13 +20,6 @@ const style = {
   close: null,
   open: null
 }
-
-const PRESS_DELAY = 200
-const TOUCH_SCALE_FACTOR = 2
-const GRAB_EVENT_TYPES = [
-  'mousedown', 'mousemove', 'mouseup',
-  'touchstart', 'touchmove', 'touchend'
-]
 
 // Helpers ---------------------------------------------------------------------
 
@@ -53,9 +47,9 @@ const calculateTranslate = (rect) => {
 }
 
 const calculateScale = (rect, scaleBase) => {
+  const windowCenter = getWindowCenter()
   const targetHalfWidth = half(rect.width)
   const targetHalfHeight = half(rect.height)
-  const windowCenter = getWindowCenter()
 
   // The distance between target edge and window edge
   const targetEdgeToWindowEdge = {
@@ -90,12 +84,18 @@ const processTouches = (touches, cb) => {
     xs += x
     ys += y
 
-    if (multitouch) {
-      if (x < min.x) min.x = x
-      else if (x > max.x) max.x = x
+    if (!multitouch) continue
 
-      if (y < min.y) min.y = y
-      else if (y > max.y) max.y = y
+    if (x < min.x) {
+      min.x = x
+    } else if (x > max.x) {
+      max.x = x
+    }
+
+    if (y < min.y) {
+      min.y = y
+    } else if (y > max.y) {
+      max.y = y
     }
   }
 
@@ -118,12 +118,13 @@ const processTouches = (touches, cb) => {
 const eventHandler = {
 
   scroll: function () {
-    const scrollTop = window.pageYOffset ||
-      (document.documentElement || body.parentNode || body).scrollTop
+    const st = scrollTop()
 
-    if (lastScrollPosition === null) lastScrollPosition = scrollTop
+    if (lastScrollPosition === null) {
+      lastScrollPosition = st
+    }
 
-    const deltaY = lastScrollPosition - scrollTop
+    const deltaY = lastScrollPosition - st
 
     if (Math.abs(deltaY) >= options.scrollThreshold) {
       lastScrollPosition = null
@@ -170,11 +171,8 @@ const eventHandler = {
     if (e.targetTouches.length > 0) return
     clearTimeout(pressTimer)
 
-    if (released) {
-      api.close()
-    } else {
-      api.release()
-    }
+    if (released) api.close()
+    else api.release()
   }
 }
 
@@ -195,17 +193,14 @@ const api = {
 
     if (el.tagName !== 'IMG') return
 
-    el.style.cursor = `${prefix}zoom-in`
+    el.style.cursor = `${webkitPrefix}zoom-in`
 
     el.addEventListener('click', (e) => {
       e.preventDefault()
 
       if (shown) {
-        if (released) {
-          api.close()
-        } else {
-          api.release()
-        }
+        if (released) api.close()
+        else api.release()
       } else {
         api.open(el)
       }
@@ -261,7 +256,7 @@ const api = {
     style.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: `${prefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+      cursor: `${webkitPrefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
@@ -271,6 +266,7 @@ const api = {
     // trigger transition
     style.close = setStyle(target, style.open, true)
 
+    // insert overlay
     parent.appendChild(overlay)
     setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
 
@@ -280,12 +276,12 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, true)
+      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, true)
 
       lock = false
 
-      // upgrade source if possible
       if (target.hasAttribute('data-original')) {
+        // upgrade source
         srcThumbnail = target.getAttribute('src')
         target.setAttribute('src', target.getAttribute('data-original'))
       }
@@ -315,17 +311,20 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, false)
+      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, false)
 
       shown = false
       lock = false
 
-      // downgrade source if possible
       if (target.hasAttribute('data-original')) {
+        // downgrade source
         target.setAttribute('src', srcThumbnail)
       }
 
+      // trigger transition
       setStyle(target, style.close)
+
+      // remove overlay
       parent.removeChild(overlay)
 
       if (cb) cb(target)
@@ -387,6 +386,7 @@ const api = {
 // Init ------------------------------------------------------------------------
 
 overlay.setAttribute('id', 'zoom-overlay')
+
 setStyle(overlay, {
   zIndex: 998,
   backgroundColor: options.bgColor,

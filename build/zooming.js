@@ -4,8 +4,43 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-// webkit prefix
-var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
+var body = document.body;
+var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
+
+var divide = function divide(denominator) {
+  return function (numerator) {
+    return numerator / denominator;
+  };
+};
+
+var half = divide(2);
+
+var preloadImage = function preloadImage(url) {
+  return new Image().src = url;
+};
+
+var scrollTop = function scrollTop() {
+  return window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
+};
+
+var getWindowCenter = function getWindowCenter() {
+  return {
+    x: half(window.innerWidth),
+    y: half(window.innerHeight)
+  };
+};
+
+var toggleListeners = function toggleListeners(el, types, handler) {
+  var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+  types.forEach(function (t) {
+    if (add) {
+      el.addEventListener(t, handler[t]);
+    } else {
+      el.removeEventListener(t, handler[t]);
+    }
+  });
+};
 
 var sniffTransition = function sniffTransition(el) {
   var ret = {};
@@ -62,36 +97,11 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
   };
 };
 
-var toggleListeners = function toggleListeners(el, types, handler) {
-  var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+var PRESS_DELAY = 200;
 
-  types.forEach(function (t) {
-    if (add) {
-      el.addEventListener(t, handler[t]);
-    } else {
-      el.removeEventListener(t, handler[t]);
-    }
-  });
-};
+var TOUCH_SCALE_FACTOR = 2;
 
-var preloadImage = function preloadImage(url) {
-  return new Image().src = url;
-};
-
-var divide = function divide(denominator) {
-  return function (numerator) {
-    return numerator / denominator;
-  };
-};
-
-var half = divide(2);
-
-var getWindowCenter = function getWindowCenter() {
-  return {
-    x: half(window.innerWidth),
-    y: half(window.innerHeight)
-  };
-};
+var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
@@ -116,14 +126,13 @@ var options = {
 var _this = undefined;
 
 // elements
-var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
 var parent = void 0;
 
 // state
-var shown = false; // image is open
-var lock = false; // image is in transform
+var shown = false; // target is open
+var lock = false; // target is in transform
 var released = true; // mouse/finger is not pressing down
 var multitouch = false;
 var lastScrollPosition = null;
@@ -138,10 +147,6 @@ var style = {
   close: null,
   open: null
 };
-
-var PRESS_DELAY = 200;
-var TOUCH_SCALE_FACTOR = 2;
-var GRAB_EVENT_TYPES = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
 // Helpers ---------------------------------------------------------------------
 
@@ -169,9 +174,9 @@ var calculateTranslate = function calculateTranslate(rect) {
 };
 
 var calculateScale = function calculateScale(rect, scaleBase) {
+  var windowCenter = getWindowCenter();
   var targetHalfWidth = half(rect.width);
   var targetHalfHeight = half(rect.height);
-  var windowCenter = getWindowCenter();
 
   // The distance between target edge and window edge
   var targetEdgeToWindowEdge = {
@@ -211,10 +216,18 @@ var processTouches = function processTouches(touches, cb) {
     xs += x;
     ys += y;
 
-    if (multitouch) {
-      if (x < min.x) min.x = x;else if (x > max.x) max.x = x;
+    if (!multitouch) continue;
 
-      if (y < min.y) min.y = y;else if (y > max.y) max.y = y;
+    if (x < min.x) {
+      min.x = x;
+    } else if (x > max.x) {
+      max.x = x;
+    }
+
+    if (y < min.y) {
+      min.y = y;
+    } else if (y > max.y) {
+      max.y = y;
     }
   }
 
@@ -239,11 +252,13 @@ var processTouches = function processTouches(touches, cb) {
 var eventHandler = {
 
   scroll: function scroll() {
-    var scrollTop = window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
+    var st = scrollTop();
 
-    if (lastScrollPosition === null) lastScrollPosition = scrollTop;
+    if (lastScrollPosition === null) {
+      lastScrollPosition = st;
+    }
 
-    var deltaY = lastScrollPosition - scrollTop;
+    var deltaY = lastScrollPosition - st;
 
     if (Math.abs(deltaY) >= options.scrollThreshold) {
       lastScrollPosition = null;
@@ -294,11 +309,7 @@ var eventHandler = {
     if (e.targetTouches.length > 0) return;
     clearTimeout(pressTimer);
 
-    if (released) {
-      api.close();
-    } else {
-      api.release();
-    }
+    if (released) api.close();else api.release();
   }
 };
 
@@ -320,17 +331,13 @@ var api = {
 
     if (el.tagName !== 'IMG') return;
 
-    el.style.cursor = prefix + 'zoom-in';
+    el.style.cursor = webkitPrefix + 'zoom-in';
 
     el.addEventListener('click', function (e) {
       e.preventDefault();
 
       if (shown) {
-        if (released) {
-          api.close();
-        } else {
-          api.release();
-        }
+        if (released) api.close();else api.release();
       } else {
         api.open(el);
       }
@@ -384,7 +391,7 @@ var api = {
     style.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: '' + prefix + (options.enableGrab ? 'grab' : 'zoom-out'),
+      cursor: '' + webkitPrefix + (options.enableGrab ? 'grab' : 'zoom-out'),
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
       transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
     };
@@ -392,6 +399,7 @@ var api = {
     // trigger transition
     style.close = setStyle$1(target, style.open, true);
 
+    // insert overlay
     parent.appendChild(overlay);
     setTimeout(function () {
       return overlay.style.opacity = options.bgOpacity;
@@ -403,12 +411,12 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, true);
+      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, true);
 
       lock = false;
 
-      // upgrade source if possible
       if (target.hasAttribute('data-original')) {
+        // upgrade source
         srcThumbnail = target.getAttribute('src');
         target.setAttribute('src', target.getAttribute('data-original'));
       }
@@ -440,17 +448,20 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) toggleListeners(target, GRAB_EVENT_TYPES, eventHandler, false);
+      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, false);
 
       shown = false;
       lock = false;
 
-      // downgrade source if possible
       if (target.hasAttribute('data-original')) {
+        // downgrade source
         target.setAttribute('src', srcThumbnail);
       }
 
+      // trigger transition
       setStyle$1(target, style.close);
+
+      // remove overlay
       parent.removeChild(overlay);
 
       if (cb) cb(target);
@@ -512,6 +523,7 @@ var api = {
 // Init ------------------------------------------------------------------------
 
 overlay.setAttribute('id', 'zoom-overlay');
+
 setStyle$1(overlay, {
   zIndex: 998,
   backgroundColor: options.bgColor,

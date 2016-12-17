@@ -1,4 +1,13 @@
-export const options = {
+const PRESS_DELAY = 200
+
+const TOUCH_SCALE_FACTOR = 2
+
+const EVENT_TYPES_GRAB = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
+
+const options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
   preloadImage: true,
@@ -16,4 +25,11 @@ export const options = {
   onBeforeClose: null,
   onBeforeGrab: null,
   onBeforeRelease: null
+}
+
+export {
+  PRESS_DELAY,
+  TOUCH_SCALE_FACTOR,
+  EVENT_TYPES_GRAB,
+  options
 }

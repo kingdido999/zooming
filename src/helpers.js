@@ -1,5 +1,37 @@
-// webkit prefix
-const prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+const body = document.body
+const webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+
+const divide = (denominator) => {
+  return (numerator) => {
+    return numerator / denominator
+  }
+}
+
+const half = divide(2)
+
+const preloadImage = (url) => (new Image()).src = url
+
+const scrollTop = () => {
+  return window.pageYOffset ||
+    (document.documentElement || body.parentNode || body).scrollTop
+}
+
+const getWindowCenter = () => {
+  return {
+    x: half(window.innerWidth),
+    y: half(window.innerHeight)
+  }
+}
+
+const toggleListeners = (el, types, handler, add = true) => {
+  types.forEach(t => {
+    if (add) {
+      el.addEventListener(t, handler[t])
+    } else {
+      el.removeEventListener(t, handler[t])
+    }
+  })
+}
 
 const sniffTransition = (el) => {
   let ret     = {}
@@ -56,39 +88,13 @@ const checkTrans = (transitionProp, transformProp) => {
   }
 }
 
-const toggleListeners = (el, types, handler, add = true) => {
-  types.forEach(t => {
-    if (add) {
-      el.addEventListener(t, handler[t])
-    } else {
-      el.removeEventListener(t, handler[t])
-    }
-  })
-}
-
-const preloadImage = (url) => (new Image()).src = url
-
-const divide = (denominator) => {
-  return (numerator) => {
-    return numerator / denominator
-  }
-}
-
-const half = divide(2)
-
-const getWindowCenter = () => {
-  return {
-    x: half(window.innerWidth),
-    y: half(window.innerHeight)
-  }
-}
-
 export {
-  prefix,
-  sniffTransition,
-  checkTrans,
-  toggleListeners,
-  preloadImage,
+  webkitPrefix,
   half,
-  getWindowCenter
+  preloadImage,
+  scrollTop,
+  getWindowCenter,
+  toggleListeners,
+  sniffTransition,
+  checkTrans
 }
