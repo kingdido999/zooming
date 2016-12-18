@@ -29,6 +29,17 @@ const setStyle = (el, styles, remember) => {
 
 const eventHandler = {
 
+  click: function (e) {
+    e.preventDefault()
+
+    if (shown) {
+      if (released) api.close()
+      else api.release()
+    } else {
+      api.open(e.currentTarget)
+    }
+  },
+
   scroll: function () {
     const st = scrollTop()
 
@@ -115,16 +126,7 @@ const api = {
 
     el.style.cursor = style.cursor.zoomIn
 
-    el.addEventListener('click', (e) => {
-      e.preventDefault()
-
-      if (shown) {
-        if (released) api.close()
-        else api.release()
-      } else {
-        api.open(el)
-      }
-    })
+    el.addEventListener('click', eventHandler.click)
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
       preloadImage(el.getAttribute('data-original'))
