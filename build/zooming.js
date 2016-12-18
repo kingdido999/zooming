@@ -66,6 +66,7 @@ var options = {
   onBeforeOpen: null,
   onBeforeClose: null,
   onBeforeGrab: null,
+  onBeforeMove: null,
   onBeforeRelease: null
 };
 
@@ -189,7 +190,7 @@ var processTouches = function processTouches(touches, cb) {
   var firstTouch = touches[0];
   var multitouch = total > 1;
 
-  var scaleExtra = void 0;
+  var scaleExtra = options.scaleExtra;
   var i = touches.length;
   var xs = 0,
       ys = 0;
@@ -236,7 +237,7 @@ var processTouches = function processTouches(touches, cb) {
     }
   }
 
-  cb(xs / total, ys / total, multitouch, scaleExtra);
+  cb(xs / total, ys / total, scaleExtra);
 };
 
 var _this = undefined;
@@ -251,15 +252,11 @@ var parent = void 0;
 var shown = false; // target is open
 var lock = false; // target is in transform
 var released = true; // mouse/finger is not pressing down
-var multitouch = false;
 var lastScrollPosition = null;
 var translate = void 0;
 var scale = void 0;
 var srcThumbnail = void 0;
 var pressTimer = void 0;
-var dynamicScaleExtra = void 0;
-
-// Helpers ---------------------------------------------------------------------
 
 var trans = sniffTransition(overlay);
 var transformCssProp = trans.transformCssProp;
@@ -298,13 +295,13 @@ var eventHandler = {
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
-      api.grab(e.clientX, e.clientY, true);
+      api.grab(e.clientX, e.clientY);
     }, PRESS_DELAY);
   },
 
   mousemove: function mousemove(e) {
     if (released) return;
-    api.grab(e.clientX, e.clientY);
+    api.move(e.clientX, e.clientY);
   },
 
   mouseup: function mouseup() {
@@ -317,10 +314,8 @@ var eventHandler = {
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
-      processTouches(e.touches, function (x, y, multi, scaleExtra) {
-        multitouch = multi;
-        dynamicScaleExtra = scaleExtra;
-        api.grab(x, y, true);
+      processTouches(e.touches, function (x, y, scaleExtra) {
+        api.grab(x, y, scaleExtra);
       });
     }, PRESS_DELAY);
   },
@@ -328,10 +323,8 @@ var eventHandler = {
   touchmove: function touchmove(e) {
     if (released) return;
 
-    processTouches(e.touches, function (x, y, multi, scaleExtra) {
-      multitouch = multi;
-      dynamicScaleExtra = scaleExtra;
-      api.grab(x, y);
+    processTouches(e.touches, function (x, y, scaleExtra) {
+      api.move(x, y, scaleExtra);
     });
   },
 
@@ -389,7 +382,7 @@ var api = {
 
     setStyle$1(overlay, {
       backgroundColor: options.bgColor,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+      transition: 'opacity ' + options.transitionDuration + 's ' + options.transitionTimingFunction
     });
 
     return _this;
@@ -422,7 +415,7 @@ var api = {
       position: 'relative',
       zIndex: 999,
       cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
-      transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
+      transition: transformCssProp + ' ' + options.transitionDuration + 's ' + options.transitionTimingFunction,
       transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
     };
 
@@ -501,7 +494,10 @@ var api = {
     return _this;
   },
 
-  grab: function grab(x, y, start, cb) {
+  grab: function grab(x, y) {
+    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
+    var cb = arguments[3];
+
     if (!shown || lock) return;
     released = false;
 
@@ -512,14 +508,40 @@ var api = {
     var dx = windowCenter.x - x,
         dy = windowCenter.y - y;
 
-    var scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra;
-    var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + scaleExtra) + ')');
 
     setStyle$1(target, {
       cursor: style.cursor.move,
-      transition: transformCssProp + ' ' + (start ? options.transitionDuration + 's ' + options.transitionTimingFunction : 'ease'),
-      transform: transform
+      transition: transformCssProp + ' ' + options.transitionDuration + 's ' + options.transitionTimingFunction,
+      transform: 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px) scale(' + (scale + scaleExtra) + ')'
     });
+
+    target.addEventListener(transEndEvent, function onEnd() {
+      target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(target);
+    });
+  },
+
+  move: function move(x, y) {
+    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
+    var cb = arguments[3];
+
+    if (!shown || lock) return;
+    released = false;
+
+    // onBeforeMove event
+    if (options.onBeforeMove) options.onBeforeMove(target);
+
+    var windowCenter = getWindowCenter();
+    var dx = windowCenter.x - x,
+        dy = windowCenter.y - y;
+
+
+    setStyle$1(target, {
+      cursor: style.cursor.move,
+      transition: transformCssProp + ' ease',
+      transform: 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px) scale(' + (scale + scaleExtra) + ')'
+    });
+
     body.style.cursor = style.cursor.move;
 
     target.addEventListener(transEndEvent, function onEnd() {

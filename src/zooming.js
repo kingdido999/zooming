@@ -13,11 +13,8 @@ let target, parent
 let shown = false       // target is open
 let lock  = false       // target is in transform
 let released = true     // mouse/finger is not pressing down
-let multitouch = false
 let lastScrollPosition = null
-let translate, scale, srcThumbnail, pressTimer, dynamicScaleExtra
-
-// Helpers ---------------------------------------------------------------------
+let translate, scale, srcThumbnail, pressTimer
 
 const trans = sniffTransition(overlay)
 const transformCssProp = trans.transformCssProp
@@ -56,13 +53,13 @@ const eventHandler = {
     e.preventDefault()
 
     pressTimer = setTimeout(function () {
-      api.grab(e.clientX, e.clientY, true)
+      api.grab(e.clientX, e.clientY)
     }, PRESS_DELAY)
   },
 
   mousemove: function (e) {
     if (released) return
-    api.grab(e.clientX, e.clientY)
+    api.move(e.clientX, e.clientY)
   },
 
   mouseup: function () {
@@ -76,10 +73,8 @@ const eventHandler = {
     e.preventDefault()
 
     pressTimer = setTimeout(() => {
-      processTouches(e.touches, (x, y, multi, scaleExtra) => {
-        multitouch = multi
-        dynamicScaleExtra = scaleExtra
-        api.grab(x, y, true)
+      processTouches(e.touches, (x, y, scaleExtra) => {
+        api.grab(x, y, scaleExtra)
       })
     }, PRESS_DELAY)
   },
@@ -87,10 +82,8 @@ const eventHandler = {
   touchmove: function (e) {
     if (released) return
 
-    processTouches(e.touches, (x, y, multi, scaleExtra) => {
-      multitouch = multi
-      dynamicScaleExtra = scaleExtra
-      api.grab(x, y)
+    processTouches(e.touches, (x, y, scaleExtra) => {
+      api.move(x, y, scaleExtra)
     })
   },
 
@@ -149,9 +142,7 @@ const api = {
 
     setStyle(overlay, {
       backgroundColor: options.bgColor,
-      transition: `opacity
-        ${options.transitionDuration}s
-        ${options.transitionTimingFunction}`
+      transition: `opacity ${options.transitionDuration}s ${options.transitionTimingFunction}`
     })
 
     return this
@@ -184,9 +175,7 @@ const api = {
       position: 'relative',
       zIndex: 999,
       cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
-      transition: `${transformCssProp}
-        ${options.transitionDuration}s
-        ${options.transitionTimingFunction}`,
+      transition: `${transformCssProp} ${options.transitionDuration}s ${options.transitionTimingFunction}`,
       transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
     }
 
@@ -261,7 +250,7 @@ const api = {
     return this
   },
 
-  grab: (x, y, start, cb) => {
+  grab: (x, y, scaleExtra = options.scaleExtra, cb) => {
     if (!shown || lock) return
     released = false
 
@@ -270,24 +259,41 @@ const api = {
 
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
-    const scaleExtra = multitouch ? dynamicScaleExtra : options.scaleExtra
-    const transform = target.style.transform
-      .replace(/translate\(.*?\)/i, `translate(${translate.x + dx}px, ${translate.y + dy}px)`)
-      .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + scaleExtra})`)
 
     setStyle(target, {
       cursor: style.cursor.move,
-      transition: `${transformCssProp} ${start
-        ? options.transitionDuration + 's ' + options.transitionTimingFunction
-        : 'ease'}`,
-      transform: transform
+      transition: `${transformCssProp} ${options.transitionDuration}s ${options.transitionTimingFunction}`,
+      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px) scale(${scale + scaleExtra})`
     })
+
+    target.addEventListener(transEndEvent, function onEnd () {
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
+    })
+  },
+
+  move: (x, y, scaleExtra = options.scaleExtra, cb) => {
+    if (!shown || lock) return
+    released = false
+
+    // onBeforeMove event
+    if (options.onBeforeMove) options.onBeforeMove(target)
+
+    const windowCenter = getWindowCenter()
+    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
+
+    setStyle(target, {
+      cursor: style.cursor.move,
+      transition: `${transformCssProp} ease`,
+      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px) scale(${scale + scaleExtra})`
+    })
+
     body.style.cursor = style.cursor.move
 
     target.addEventListener(transEndEvent, function onEnd () {
-     target.removeEventListener(transEndEvent, onEnd)
-     if (cb) cb(target)
-   })
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
+    })
   },
 
   release: (cb = options.onRelease) => {

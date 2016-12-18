@@ -1,11 +1,11 @@
-import { TOUCH_SCALE_FACTOR } from './defaults'
+import { TOUCH_SCALE_FACTOR, options } from './defaults'
 
 const processTouches = (touches, cb) => {
   const total = touches.length
   const firstTouch = touches[0]
   const multitouch = total > 1
 
-  let scaleExtra
+  let scaleExtra = options.scaleExtra
   let i = touches.length
   let [xs, ys] = [0, 0]
 
@@ -45,7 +45,7 @@ const processTouches = (touches, cb) => {
     }
   }
 
-  cb(xs / total, ys / total, multitouch, scaleExtra)
+  cb(xs / total, ys / total, scaleExtra)
 }
 
 export {

@@ -82,12 +82,16 @@ Open (zoom in) the matched image. Fires optional callback when the transition is
 
 Close (zoom out) if currently zoomed-in.
 
-#### `.grab(x, y [, start] [, callback])`
+#### `.grab(x, y [, scaleExtra] [, callback])`
 
-Grab the current image given a mouse/touch position and apply extra zoom in.
+Grab the current image given a mouse/touch position and apply extra zoom-in.
 
 - `x`, `y`: Number. The point where the press happened.
-- `start`: Boolean. Indicate whether this is the initial grab (press mouse/finger down) or not.
+- `scaleExtra`: Number. Extra zoom-in to apply. Default to `scaleExtra` value in options.
+
+#### `.move(x, y [, scaleExtra] [, callback])`
+
+Move the current image given a mouse/touch position and apply extra zoom-in.
 
 #### `.release([callback])`
 
@@ -115,6 +119,7 @@ Takes an options object. Available options:
 | onBeforeOpen             | Function         | null                      | A callback function that will be called before open. |
 | onBeforeClose            | Function         | null                      | A callback function that will be called before close. |
 | onBeforeGrab             | Function         | null                      | A callback function that will be called before grab. |
+| onBeforeMove             | Function         | null                      | A callback function that will be called before move. |
 | onBeforeRelease          | Function         | null                      | A callback function that will be called before release. |
 
 ## Credit

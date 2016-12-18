@@ -38,6 +38,7 @@ describe('API', function() {
       onBeforeOpen: function() { return 'onBeforeOpen' },
       onBeforeClose: function() { return 'onBeforeClose' },
       onBeforeGrab: function() { return 'onBeforeGrab' },
+      onBeforeMove: function() { return 'onBeforeMove' },
       onBeforeRelease: function() { return 'onBeforeRelease' }
     }
 
@@ -87,7 +88,7 @@ describe('API', function() {
     var y = window.innerHeight / 2
 
     it('should grab the image', function(done) {
-      Zooming.grab(x, y, true, function(target) {
+      Zooming.grab(x, y, defaultOpts.scaleExtra, function(target) {
         expect(target.style.cursor).to.equal('move')
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
