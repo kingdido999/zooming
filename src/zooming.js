@@ -1,9 +1,11 @@
-import { webkitPrefix, half, preloadImage, scrollTop, getWindowCenter,
-  toggleListeners, sniffTransition, checkTrans } from './helpers'
-
-import { PRESS_DELAY, TOUCH_SCALE_FACTOR, EVENT_TYPES_GRAB, options } from './defaults'
+import style from './style'
+import { PRESS_DELAY, EVENT_TYPES_GRAB, options } from './defaults'
+import { preloadImage, scrollTop, getWindowCenter, toggleListeners } from './helpers'
+import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './trans'
+import { processTouches } from './touch'
 
 // elements
+const body = document.body
 const overlay = document.createElement('div')
 let target, parent
 
@@ -15,12 +17,6 @@ let multitouch = false
 let lastScrollPosition = null
 let translate, scale, srcThumbnail, pressTimer, dynamicScaleExtra
 
-// style
-const style = {
-  close: null,
-  open: null
-}
-
 // Helpers ---------------------------------------------------------------------
 
 const trans = sniffTransition(overlay)
@@ -30,87 +26,6 @@ const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
 
 const setStyle = (el, styles, remember) => {
   return setStyleHelper(el, styles, remember)
-}
-
-const calculateTranslate = (rect) => {
-  const windowCenter = getWindowCenter()
-  const targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
-  }
-
-  // The vector to translate image to the window center
-  return {
-    x: windowCenter.x - targetCenter.x,
-    y: windowCenter.y - targetCenter.y
-  }
-}
-
-const calculateScale = (rect, scaleBase) => {
-  const windowCenter = getWindowCenter()
-  const targetHalfWidth = half(rect.width)
-  const targetHalfHeight = half(rect.height)
-
-  // The distance between target edge and window edge
-  const targetEdgeToWindowEdge = {
-    x: windowCenter.x - targetHalfWidth,
-    y: windowCenter.y - targetHalfHeight
-  }
-
-  const scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth
-  const scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight
-
-  // The additional scale is based on the smaller value of
-  // scaling horizontally and scaling vertically
-  return scaleBase + Math.min(scaleHorizontally, scaleVertically)
-}
-
-const processTouches = (touches, cb) => {
-  const total = touches.length
-  const firstTouch = touches[0]
-
-  let i = touches.length
-  let [xs, ys] = [0, 0]
-
-  // keep track of the min and max of touch positions
-  let min = { x: firstTouch.clientX, y: firstTouch.clientY }
-  let max = { x: firstTouch.clientX, y: firstTouch.clientY }
-
-  multitouch = total > 1
-
-  while (i--) {
-    const t = touches[i]
-    const [x, y] = [t.clientX, t.clientY]
-    xs += x
-    ys += y
-
-    if (!multitouch) continue
-
-    if (x < min.x) {
-      min.x = x
-    } else if (x > max.x) {
-      max.x = x
-    }
-
-    if (y < min.y) {
-      min.y = y
-    } else if (y > max.y) {
-      max.y = y
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    const [distX, distY] = [max.x - min.x, max.y - min.y]
-
-    if (distX > distY) {
-      dynamicScaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
-    } else {
-      dynamicScaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
-    }
-  }
-
-  cb(xs / total, ys / total)
 }
 
 // Event handler ---------------------------------------------------------------
@@ -152,19 +67,31 @@ const eventHandler = {
 
   mouseup: function () {
     clearTimeout(pressTimer)
+
+    if (released) api.close()
+    else api.release()
   },
 
   touchstart: function (e) {
     e.preventDefault()
 
     pressTimer = setTimeout(() => {
-      processTouches(e.touches, (x, y) => api.grab(x, y, true))
+      processTouches(e.touches, (x, y, multi, scaleExtra) => {
+        multitouch = multi
+        dynamicScaleExtra = scaleExtra
+        api.grab(x, y, true)
+      })
     }, PRESS_DELAY)
   },
 
   touchmove: function (e) {
     if (released) return
-    processTouches(e.touches, (x, y) => api.grab(x, y))
+
+    processTouches(e.touches, (x, y, multi, scaleExtra) => {
+      multitouch = multi
+      dynamicScaleExtra = scaleExtra
+      api.grab(x, y)
+    })
   },
 
   touchend: function (e) {
@@ -193,7 +120,7 @@ const api = {
 
     if (el.tagName !== 'IMG') return
 
-    el.style.cursor = `${webkitPrefix}zoom-in`
+    el.style.cursor = style.cursor.zoomIn
 
     el.addEventListener('click', (e) => {
       e.preventDefault()
@@ -253,10 +180,10 @@ const api = {
     // force layout update
     target.offsetWidth
 
-    style.open = {
+    style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: `${webkitPrefix}${options.enableGrab ? 'grab' : 'zoom-out'}`,
+      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
@@ -264,7 +191,7 @@ const api = {
     }
 
     // trigger transition
-    style.close = setStyle(target, style.open, true)
+    style.target.close = setStyle(target, style.target.open, true)
 
     // insert overlay
     parent.appendChild(overlay)
@@ -276,7 +203,7 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, true)
+      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true)
 
       lock = false
 
@@ -302,6 +229,7 @@ const api = {
     // force layout update
     target.offsetWidth
 
+    body.style.cursor = style.cursor.default
     overlay.style.opacity = 0
     setStyle(target, { transform: 'none' })
 
@@ -311,7 +239,7 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, false)
+      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, false)
 
       shown = false
       lock = false
@@ -322,7 +250,7 @@ const api = {
       }
 
       // trigger transition
-      setStyle(target, style.close)
+      setStyle(target, style.target.close)
 
       // remove overlay
       parent.removeChild(overlay)
@@ -348,12 +276,13 @@ const api = {
       .replace(/scale\([0-9|\.]*\)/i, `scale(${scale + scaleExtra})`)
 
     setStyle(target, {
-      cursor: 'move',
+      cursor: style.cursor.move,
       transition: `${transformCssProp} ${start
         ? options.transitionDuration + 's ' + options.transitionTimingFunction
         : 'ease'}`,
       transform: transform
     })
+    body.style.cursor = style.cursor.move
 
     target.addEventListener(transEndEvent, function onEnd () {
      target.removeEventListener(transEndEvent, onEnd)
@@ -368,7 +297,8 @@ const api = {
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target)
 
-    setStyle(target, style.open)
+    setStyle(target, style.target.open)
+    body.style.cursor = style.cursor.default
 
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
@@ -386,20 +316,7 @@ const api = {
 // Init ------------------------------------------------------------------------
 
 overlay.setAttribute('id', 'zoom-overlay')
-
-setStyle(overlay, {
-  zIndex: 998,
-  backgroundColor: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: `opacity
-    ${options.transitionDuration}s
-    ${options.transitionTimingFunction}`
-})
+setStyle(overlay, style.overlay.init)
 
 overlay.addEventListener('click', () => api.close())
 document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))

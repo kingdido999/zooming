@@ -4,7 +4,6 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-var body = document.body;
 var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 
 var divide = function divide(denominator) {
@@ -20,6 +19,8 @@ var preloadImage = function preloadImage(url) {
 };
 
 var scrollTop = function scrollTop() {
+  var body = document.body;
+
   return window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
 };
 
@@ -40,6 +41,59 @@ var toggleListeners = function toggleListeners(el, types, handler) {
       el.removeEventListener(t, handler[t]);
     }
   });
+};
+
+var PRESS_DELAY = 200;
+
+var TOUCH_SCALE_FACTOR = 2;
+
+var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
+
+var options = {
+  defaultZoomable: 'img[data-action="zoom"]',
+  enableGrab: true,
+  preloadImage: true,
+  transitionDuration: 0.4,
+  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+  bgColor: 'rgb(255, 255, 255)',
+  bgOpacity: 1,
+  scaleBase: 1.0,
+  scaleExtra: 0.5,
+  scrollThreshold: 40,
+  onOpen: null,
+  onClose: null,
+  onRelease: null,
+  onBeforeOpen: null,
+  onBeforeClose: null,
+  onBeforeGrab: null,
+  onBeforeRelease: null
+};
+
+var style = {
+  target: {
+    close: null,
+    open: null
+  },
+  overlay: {
+    init: {
+      zIndex: 998,
+      backgroundColor: options.bgColor,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    }
+  },
+  cursor: {
+    default: 'auto',
+    zoomIn: webkitPrefix + 'zoom-in',
+    zoomOut: webkitPrefix + 'zoom-out',
+    grab: webkitPrefix + 'grab',
+    move: 'move'
+  }
 };
 
 var sniffTransition = function sniffTransition(el) {
@@ -97,68 +151,6 @@ var checkTrans = function checkTrans(transitionProp, transformProp) {
   };
 };
 
-var PRESS_DELAY = 200;
-
-var TOUCH_SCALE_FACTOR = 2;
-
-var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
-var options = {
-  defaultZoomable: 'img[data-action="zoom"]',
-  enableGrab: true,
-  preloadImage: true,
-  transitionDuration: 0.4,
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
-  bgColor: 'rgb(255, 255, 255)',
-  bgOpacity: 1,
-  scaleBase: 1.0,
-  scaleExtra: 0.5,
-  scrollThreshold: 40,
-  onOpen: null,
-  onClose: null,
-  onRelease: null,
-  onBeforeOpen: null,
-  onBeforeClose: null,
-  onBeforeGrab: null,
-  onBeforeRelease: null
-};
-
-var _this = undefined;
-
-// elements
-var overlay = document.createElement('div');
-var target = void 0;
-var parent = void 0;
-
-// state
-var shown = false; // target is open
-var lock = false; // target is in transform
-var released = true; // mouse/finger is not pressing down
-var multitouch = false;
-var lastScrollPosition = null;
-var translate = void 0;
-var scale = void 0;
-var srcThumbnail = void 0;
-var pressTimer = void 0;
-var dynamicScaleExtra = void 0;
-
-// style
-var style = {
-  close: null,
-  open: null
-};
-
-// Helpers ---------------------------------------------------------------------
-
-var trans = sniffTransition(overlay);
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
-var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
-
-var setStyle$1 = function setStyle$1(el, styles, remember) {
-  return setStyleHelper(el, styles, remember);
-};
-
 var calculateTranslate = function calculateTranslate(rect) {
   var windowCenter = getWindowCenter();
   var targetCenter = {
@@ -195,7 +187,9 @@ var calculateScale = function calculateScale(rect, scaleBase) {
 var processTouches = function processTouches(touches, cb) {
   var total = touches.length;
   var firstTouch = touches[0];
+  var multitouch = total > 1;
 
+  var scaleExtra = void 0;
   var i = touches.length;
   var xs = 0,
       ys = 0;
@@ -204,8 +198,6 @@ var processTouches = function processTouches(touches, cb) {
 
   var min = { x: firstTouch.clientX, y: firstTouch.clientY };
   var max = { x: firstTouch.clientX, y: firstTouch.clientY };
-
-  multitouch = total > 1;
 
   while (i--) {
     var t = touches[i];
@@ -238,13 +230,43 @@ var processTouches = function processTouches(touches, cb) {
 
 
     if (distX > distY) {
-      dynamicScaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
+      scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
     } else {
-      dynamicScaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+      scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
     }
   }
 
-  cb(xs / total, ys / total);
+  cb(xs / total, ys / total, multitouch, scaleExtra);
+};
+
+var _this = undefined;
+
+var body = document.body;
+var overlay = document.createElement('div');
+var target = void 0;
+var parent = void 0;
+
+// state
+var shown = false; // target is open
+var lock = false; // target is in transform
+var released = true; // mouse/finger is not pressing down
+var multitouch = false;
+var lastScrollPosition = null;
+var translate = void 0;
+var scale = void 0;
+var srcThumbnail = void 0;
+var pressTimer = void 0;
+var dynamicScaleExtra = void 0;
+
+// Helpers ---------------------------------------------------------------------
+
+var trans = sniffTransition(overlay);
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+
+var setStyle$1 = function setStyle$1(el, styles, remember) {
+  return setStyleHelper(el, styles, remember);
 };
 
 // Event handler ---------------------------------------------------------------
@@ -286,22 +308,29 @@ var eventHandler = {
 
   mouseup: function mouseup() {
     clearTimeout(pressTimer);
+
+    if (released) api.close();else api.release();
   },
 
   touchstart: function touchstart(e) {
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
-      processTouches(e.touches, function (x, y) {
-        return api.grab(x, y, true);
+      processTouches(e.touches, function (x, y, multi, scaleExtra) {
+        multitouch = multi;
+        dynamicScaleExtra = scaleExtra;
+        api.grab(x, y, true);
       });
     }, PRESS_DELAY);
   },
 
   touchmove: function touchmove(e) {
     if (released) return;
-    processTouches(e.touches, function (x, y) {
-      return api.grab(x, y);
+
+    processTouches(e.touches, function (x, y, multi, scaleExtra) {
+      multitouch = multi;
+      dynamicScaleExtra = scaleExtra;
+      api.grab(x, y);
     });
   },
 
@@ -331,7 +360,7 @@ var api = {
 
     if (el.tagName !== 'IMG') return;
 
-    el.style.cursor = webkitPrefix + 'zoom-in';
+    el.style.cursor = style.cursor.zoomIn;
 
     el.addEventListener('click', function (e) {
       e.preventDefault();
@@ -388,16 +417,16 @@ var api = {
     // force layout update
     target.offsetWidth;
 
-    style.open = {
+    style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: '' + webkitPrefix + (options.enableGrab ? 'grab' : 'zoom-out'),
+      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
       transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
     };
 
     // trigger transition
-    style.close = setStyle$1(target, style.open, true);
+    style.target.close = setStyle$1(target, style.target.open, true);
 
     // insert overlay
     parent.appendChild(overlay);
@@ -411,7 +440,7 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, true);
+      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true);
 
       lock = false;
 
@@ -439,6 +468,7 @@ var api = {
     // force layout update
     target.offsetWidth;
 
+    body.style.cursor = style.cursor.default;
     overlay.style.opacity = 0;
     setStyle$1(target, { transform: 'none' });
 
@@ -448,7 +478,7 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
-      if (options.enableGrab) toggleListeners(target, EVENT_TYPES_GRAB, eventHandler, false);
+      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, false);
 
       shown = false;
       lock = false;
@@ -459,7 +489,7 @@ var api = {
       }
 
       // trigger transition
-      setStyle$1(target, style.close);
+      setStyle$1(target, style.target.close);
 
       // remove overlay
       parent.removeChild(overlay);
@@ -485,10 +515,11 @@ var api = {
     var transform = target.style.transform.replace(/translate\(.*?\)/i, 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)').replace(/scale\([0-9|\.]*\)/i, 'scale(' + (scale + scaleExtra) + ')');
 
     setStyle$1(target, {
-      cursor: 'move',
+      cursor: style.cursor.move,
       transition: transformCssProp + ' ' + (start ? options.transitionDuration + 's ' + options.transitionTimingFunction : 'ease'),
       transform: transform
     });
+    body.style.cursor = style.cursor.move;
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -505,7 +536,8 @@ var api = {
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target);
 
-    setStyle$1(target, style.open);
+    setStyle$1(target, style.target.open);
+    body.style.cursor = style.cursor.default;
 
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -523,18 +555,7 @@ var api = {
 // Init ------------------------------------------------------------------------
 
 overlay.setAttribute('id', 'zoom-overlay');
-
-setStyle$1(overlay, {
-  zIndex: 998,
-  backgroundColor: options.bgColor,
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  opacity: 0,
-  transition: 'opacity\n    ' + options.transitionDuration + 's\n    ' + options.transitionTimingFunction
-});
+setStyle$1(overlay, style.overlay.init);
 
 overlay.addEventListener('click', function () {
   return api.close();
