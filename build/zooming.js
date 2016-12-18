@@ -241,6 +241,7 @@ var processTouches = function processTouches(touches, cb) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -554,9 +555,8 @@ var api = {
 
 // Init ------------------------------------------------------------------------
 
-overlay.setAttribute('id', 'zoom-overlay');
 setStyle$1(overlay, style.overlay.init);
-
+overlay.setAttribute('id', 'zoom-overlay');
 overlay.addEventListener('click', function () {
   return api.close();
 });

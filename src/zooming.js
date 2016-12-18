@@ -315,9 +315,8 @@ const api = {
 
 // Init ------------------------------------------------------------------------
 
-overlay.setAttribute('id', 'zoom-overlay')
 setStyle(overlay, style.overlay.init)
-
+overlay.setAttribute('id', 'zoom-overlay')
 overlay.addEventListener('click', () => api.close())
 document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
 
