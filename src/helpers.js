@@ -1,4 +1,6 @@
-const webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+const webkitPrefix = 'WebkitAppearance' in document.documentElement.style
+  ? '-webkit-'
+  : ''
 
 const divide = (denominator) => {
   return (numerator) => {
@@ -8,7 +10,13 @@ const divide = (denominator) => {
 
 const half = divide(2)
 
-const preloadImage = (url) => (new Image()).src = url
+const loadImage = (url, cb) => {
+  const img = new Image()
+  img.onload = () => {
+    if (cb) cb(img)
+  }
+  img.src = url
+}
 
 const scrollTop = () => {
   const body = document.body
@@ -37,7 +45,7 @@ const toggleListeners = (el, types, handler, add = true) => {
 export {
   webkitPrefix,
   half,
-  preloadImage,
+  loadImage,
   scrollTop,
   getWindowCenter,
   toggleListeners

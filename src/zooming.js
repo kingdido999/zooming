@@ -1,6 +1,6 @@
 import style from './style'
 import { PRESS_DELAY, EVENT_TYPES_GRAB, options } from './defaults'
-import { preloadImage, scrollTop, getWindowCenter, toggleListeners } from './helpers'
+import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './helpers'
 import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './trans'
 import { processTouches } from './touch'
 
@@ -129,7 +129,7 @@ const api = {
     el.addEventListener('click', eventHandler.click)
 
     if (options.preloadImage && el.hasAttribute('data-original')) {
-      preloadImage(el.getAttribute('data-original'))
+      loadImage(el.getAttribute('data-original'))
     }
 
     return this
@@ -144,7 +144,9 @@ const api = {
 
     setStyle(overlay, {
       backgroundColor: options.bgColor,
-      transition: `opacity ${options.transitionDuration}s ${options.transitionTimingFunction}`
+      transition: `opacity
+        ${options.transitionDuration}s
+        ${options.transitionTimingFunction}`
     })
 
     return this
@@ -166,6 +168,11 @@ const api = {
     lock = true
     parent = target.parentNode
 
+    // load hi-res image if preloadImage option is disabled
+    if (!options.preloadImage && el.hasAttribute('data-original')) {
+      loadImage(el.getAttribute('data-original'))
+    }
+
     const rect = target.getBoundingClientRect()
     translate = calculateTranslate(rect)
     scale = calculateScale(rect, options.scaleBase)
@@ -177,7 +184,9 @@ const api = {
       position: 'relative',
       zIndex: 999,
       cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
-      transition: `${transformCssProp} ${options.transitionDuration}s ${options.transitionTimingFunction}`,
+      transition: `${transformCssProp}
+        ${options.transitionDuration}s
+        ${options.transitionTimingFunction}`,
       transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
     }
 
@@ -194,14 +203,28 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true)
+      if (options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true)
+      }
 
       lock = false
 
       if (target.hasAttribute('data-original')) {
-        // upgrade source
         srcThumbnail = target.getAttribute('src')
-        target.setAttribute('src', target.getAttribute('data-original'))
+        const dataOriginal = target.getAttribute('data-original')
+        const temp = target.cloneNode(false)
+
+        // force compute the hi-res image in DOM to prevent
+        // image flickering while updating src
+        temp.setAttribute('src', dataOriginal)
+        temp.style.position = 'absolute'
+        temp.style.visibility = 'hidden'
+        body.appendChild(temp)
+
+        setTimeout(() => {
+          target.setAttribute('src', dataOriginal)
+          body.removeChild(temp)
+        }, 10)
       }
 
       if (cb) cb(target)
@@ -212,10 +235,11 @@ const api = {
 
   close: (cb = options.onClose) => {
     if (!shown || lock) return
-    lock = true
 
     // onBeforeClose event
     if (options.onBeforeClose) options.onBeforeClose(target)
+
+    lock = true
 
     // force layout update
     target.offsetWidth
@@ -230,10 +254,12 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
-      if (options.enableGrab) toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, false)
-
       shown = false
       lock = false
+
+      if (options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, false)
+      }
 
       if (target.hasAttribute('data-original')) {
         // downgrade source
@@ -254,18 +280,19 @@ const api = {
 
   grab: (x, y, scaleExtra = options.scaleExtra, cb) => {
     if (!shown || lock) return
-    released = false
 
     // onBeforeGrab event
     if (options.onBeforeGrab) options.onBeforeGrab(target)
+
+    released = false
 
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
     setStyle(target, {
       cursor: style.cursor.move,
-      transition: `${transformCssProp} ${options.transitionDuration}s ${options.transitionTimingFunction}`,
-      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px) scale(${scale + scaleExtra})`
+      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px)
+        scale(${scale + scaleExtra})`
     })
 
     target.addEventListener(transEndEvent, function onEnd () {
@@ -276,18 +303,19 @@ const api = {
 
   move: (x, y, scaleExtra = options.scaleExtra, cb) => {
     if (!shown || lock) return
-    released = false
 
     // onBeforeMove event
     if (options.onBeforeMove) options.onBeforeMove(target)
+
+    released = false
 
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
     setStyle(target, {
-      cursor: style.cursor.move,
-      transition: `${transformCssProp} ease`,
-      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px) scale(${scale + scaleExtra})`
+      transition: transformCssProp,
+      transform: `translate(${translate.x + dx}px, ${translate.y + dy}px)
+        scale(${scale + scaleExtra})`
     })
 
     body.style.cursor = style.cursor.move
@@ -300,10 +328,11 @@ const api = {
 
   release: (cb = options.onRelease) => {
     if (!shown || lock) return
-    lock = true
 
     // onBeforeRelease event
     if (options.onBeforeRelease) options.onBeforeRelease(target)
+
+    lock = true
 
     setStyle(target, style.target.open)
     body.style.cursor = style.cursor.default
@@ -326,6 +355,8 @@ const api = {
 setStyle(overlay, style.overlay.init)
 overlay.setAttribute('id', 'zoom-overlay')
 overlay.addEventListener('click', () => api.close())
-document.addEventListener('DOMContentLoaded', () => api.listen(options.defaultZoomable))
+document.addEventListener('DOMContentLoaded', () => {
+  api.listen(options.defaultZoomable)
+})
 
 export default api
