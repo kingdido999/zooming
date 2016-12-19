@@ -3,7 +3,7 @@ import eslint from 'rollup-plugin-eslint'
 import uglify from 'rollup-plugin-uglify'
 
 export default {
-  entry: 'src/zooming.js',
+  entry: 'src/main.js',
   dest: 'build/zooming.min.js',
   format: 'umd',
   moduleName: 'Zooming',

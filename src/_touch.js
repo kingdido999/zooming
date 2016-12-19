@@ -1,4 +1,4 @@
-import { TOUCH_SCALE_FACTOR, options } from './defaults'
+import { TOUCH_SCALE_FACTOR, options } from './_defaults'
 
 const processTouches = (touches, cb) => {
   const total = touches.length

@@ -1,4 +1,4 @@
-import { half, getWindowCenter } from './helpers'
+import { half, getWindowCenter } from './_helpers'
 
 const sniffTransition = (el) => {
   let ret     = {}

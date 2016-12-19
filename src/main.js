@@ -1,8 +1,8 @@
-import style from './style'
-import { PRESS_DELAY, EVENT_TYPES_GRAB, options } from './defaults'
-import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './helpers'
-import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './trans'
-import { processTouches } from './touch'
+import style from './_style'
+import { PRESS_DELAY, EVENT_TYPES_GRAB, options } from './_defaults'
+import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './_helpers'
+import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
+import { processTouches } from './_touch'
 
 // elements
 const body = document.body
@@ -169,8 +169,8 @@ const api = {
     parent = target.parentNode
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && el.hasAttribute('data-original')) {
-      loadImage(el.getAttribute('data-original'))
+    if (!options.preloadImage && target.hasAttribute('data-original')) {
+      loadImage(target.getAttribute('data-original'))
     }
 
     const rect = target.getBoundingClientRect()
@@ -203,11 +203,11 @@ const api = {
     target.addEventListener(transEndEvent, function onEnd () {
       target.removeEventListener(transEndEvent, onEnd)
 
+      lock = false
+
       if (options.enableGrab) {
         toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true)
       }
-
-      lock = false
 
       if (target.hasAttribute('data-original')) {
         srcThumbnail = target.getAttribute('src')

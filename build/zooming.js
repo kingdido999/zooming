@@ -411,8 +411,8 @@ var api = {
     parent = target.parentNode;
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && el.hasAttribute('data-original')) {
-      loadImage(el.getAttribute('data-original'));
+    if (!options.preloadImage && target.hasAttribute('data-original')) {
+      loadImage(target.getAttribute('data-original'));
     }
 
     var rect = target.getBoundingClientRect();
@@ -445,11 +445,11 @@ var api = {
     target.addEventListener(transEndEvent, function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
 
+      lock = false;
+
       if (options.enableGrab) {
         toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true);
       }
-
-      lock = false;
 
       if (target.hasAttribute('data-original')) {
         (function () {
