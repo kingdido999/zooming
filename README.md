@@ -7,31 +7,36 @@ Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 - Zoom into a hi-res image if supplied.
 - Easy to integrate & customizable.
 
-## Install
+## Get started
 
-Install with your package manager:
+This library is available through:
 
-`yarn add zooming`
+- [cdnjs](https://cdnjs.com/libraries/zooming)
+- Package manager:
+  - `yarn add zooming`
+  - `npm install zooming --save`
+  - `bower install zooming --save`
+- [Download source](https://github.com/kingdido999/zooming/releases)
 
-`npm install zooming --save`
+To integrate with your web app:
 
-`bower install zooming --save`
+#### Option 1. Simply include a script
 
-Then load this module:
+```html
+<script src="build/zooming.min.js"></script>
+```
+
+#### Option 2. Module loader
 
 ```javascript
-// e.g., via Browserify
+// via Browserify
 var Zooming = require('zooming')
 
-// or with ES6 syntax
+// via ES6 syntax
 import Zooming from 'zooming'
 ```
 
-Alternatively, [download](https://github.com/kingdido999/zooming/releases) and include `build/zooming.js` in your page.
-
-## Usage
-
-Any image with attribute `data-action="zoom"` is zoomable by default, for example:
+At this point, any image with attribute `data-action="zoom"` is zoomable by default, for example:
 
 ```html
 <img src="img/journey.jpg" data-action="zoom" />
@@ -40,8 +45,12 @@ Any image with attribute `data-action="zoom"` is zoomable by default, for exampl
 You can also define zoomable images in JavaScript:
 
 ```javascript
-Zooming.listen('.selector') // or
-Zooming.listen(element)
+// by a css selector
+Zooming.listen('.img-zoomable')
+
+// by an Element
+var img = document.getElementByID('img-zoomable')
+Zooming.listen(img)
 ```
 
 Add `data-original` attribute to supply a hi-res image when zooming in:
@@ -54,9 +63,7 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 
 Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
 
-Fork and clone it.
-
-Under project folder:
+Fork and clone it. Under project folder:
 
 `yarn`
 
