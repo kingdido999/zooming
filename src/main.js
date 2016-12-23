@@ -64,6 +64,7 @@ const eventHandler = {
   },
 
   mousedown: function (e) {
+    if (e.button !== 0) return
     e.preventDefault()
 
     pressTimer = setTimeout(function () {
@@ -76,7 +77,8 @@ const eventHandler = {
     api.move(e.clientX, e.clientY)
   },
 
-  mouseup: function () {
+  mouseup: function (e) {
+    if (e.button !== 0) return
     clearTimeout(pressTimer)
 
     if (released) api.close()

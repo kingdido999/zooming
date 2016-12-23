@@ -310,6 +310,7 @@ var eventHandler = {
   },
 
   mousedown: function mousedown(e) {
+    if (e.button !== 0) return;
     e.preventDefault();
 
     pressTimer = setTimeout(function () {
@@ -322,7 +323,8 @@ var eventHandler = {
     api.move(e.clientX, e.clientY);
   },
 
-  mouseup: function mouseup() {
+  mouseup: function mouseup(e) {
+    if (e.button !== 0) return;
     clearTimeout(pressTimer);
 
     if (released) api.close();else api.release();
