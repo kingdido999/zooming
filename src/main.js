@@ -57,7 +57,10 @@ const eventHandler = {
 
   keydown: function (e) {
     const code = e.key || e.code
-    if (code === 'Escape' || e.keyCode === 27) api.close()
+    if (code === 'Escape' || e.keyCode === 27) {
+      if (released) api.close()
+      else api.release(() => api.close())
+    }
   },
 
   mousedown: function (e) {

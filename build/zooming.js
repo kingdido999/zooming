@@ -302,7 +302,11 @@ var eventHandler = {
 
   keydown: function keydown(e) {
     var code = e.key || e.code;
-    if (code === 'Escape' || e.keyCode === 27) api.close();
+    if (code === 'Escape' || e.keyCode === 27) {
+      if (released) api.close();else api.release(function () {
+        return api.close();
+      });
+    }
   },
 
   mousedown: function mousedown(e) {
