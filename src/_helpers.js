@@ -1,3 +1,5 @@
+const body = document.body
+const docElm = document.documentElement
 const webkitPrefix = 'WebkitAppearance' in document.documentElement.style
   ? '-webkit-'
   : ''
@@ -19,16 +21,17 @@ const loadImage = (url, cb) => {
 }
 
 const scrollTop = () => {
-  const body = document.body
-
   return window.pageYOffset ||
-    (document.documentElement || body.parentNode || body).scrollTop
+    (docElm || body.parentNode || body).scrollTop
 }
 
 const getWindowCenter = () => {
+  const docWidth = docElm.clientWidth || body.clientWidth
+  const docHeight = docElm.clientHeight || body.clientHeight
+
   return {
-    x: half(window.innerWidth),
-    y: half(window.innerHeight)
+    x: half(docWidth),
+    y: half(docHeight)
   }
 }
 

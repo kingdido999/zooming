@@ -4,6 +4,8 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
+var body$1 = document.body;
+var docElm = document.documentElement;
 var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 
 var divide = function divide(denominator) {
@@ -23,15 +25,16 @@ var loadImage = function loadImage(url, cb) {
 };
 
 var scrollTop = function scrollTop() {
-  var body = document.body;
-
-  return window.pageYOffset || (document.documentElement || body.parentNode || body).scrollTop;
+  return window.pageYOffset || (docElm || body$1.parentNode || body$1).scrollTop;
 };
 
 var getWindowCenter = function getWindowCenter() {
+  var docWidth = docElm.clientWidth || body$1.clientWidth;
+  var docHeight = docElm.clientHeight || body$1.clientHeight;
+
   return {
-    x: half(window.innerWidth),
-    y: half(window.innerHeight)
+    x: half(docWidth),
+    y: half(docHeight)
   };
 };
 
@@ -246,7 +249,6 @@ var processTouches = function processTouches(touches, cb) {
 
 var _this = undefined;
 
-// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
