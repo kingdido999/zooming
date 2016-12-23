@@ -1,0 +1,917 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title>  | Documentation</title>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <link href='assets/bass.css' type='text/css' rel='stylesheet' />
+  <link href='assets/style.css' type='text/css' rel='stylesheet' />
+  <link href='assets/github.css' type='text/css' rel='stylesheet' />
+</head>
+<body class='documentation'>
+  <div class='max-width-4 mx-auto'>
+    <div class='clearfix md-mxn2'>
+      <div class='fixed xs-hide fix-3 overflow-auto max-height-100'>
+        <div class='py1 px2'>
+          <h3 class='mb0 no-anchor'></h3>
+          <div class='mb1'><code></code></div>
+          <input
+            placeholder='Filter'
+            id='filter-input'
+            class='col12 block input'
+            type='text' />
+          <div id='toc'>
+            <ul class='list-reset h5 py1-ul'>
+              
+                
+                <li><a
+                  href='#api'
+                  class=" toggle-sibling">
+                  api
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#api.listen'
+                        class='regular pre-open'>
+                        .listen
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.open'
+                        class='regular pre-open'>
+                        .open
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.close'
+                        class='regular pre-open'>
+                        .close
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.grab'
+                        class='regular pre-open'>
+                        .grab
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.move'
+                        class='regular pre-open'>
+                        .move
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.release'
+                        class='regular pre-open'>
+                        .release
+                      </a></li>
+                    
+                      <li><a
+                        href='#api.config'
+                        class='regular pre-open'>
+                        .config
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#options'
+                  class="">
+                  options
+                  
+                </a>
+                
+                </li>
+              
+            </ul>
+          </div>
+          <div class='mt1 h6 quiet'>
+            <a href='http://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
+          </div>
+        </div>
+      </div>
+      <div class='fix-margin-3'>
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='api'>
+      api
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Zooming methods.</p>
+
+
+  <div class='pre p1 fill-light mt0'>api</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='api.listen'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>listen(el)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Make element(s) zoomable.</p>
+
+
+  <div class='pre p1 fill-light mt0'>listen(el: (<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>)): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>el</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>))</code>
+	    A css selector or an Element.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.open'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>open(el, cb = options.onOpen)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Open (zoom in) the Element.</p>
+
+
+  <div class='pre p1 fill-light mt0'>open(el: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>el</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>)</code>
+	    The Element to open.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?
+            = <code>options.onOpen</code>)</code>
+	    A callback function that will be
+called when a target is opened and transition has ended. It will get
+the target element as the argument.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.close'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>close(cb = options.onClose)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Close (zoom out) the Element currently opened.</p>
+
+
+  <div class='pre p1 fill-light mt0'>close(cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?
+            = <code>options.onClose</code>)</code>
+	    A callback function that will be
+called when a target is closed and transition has ended. It will get
+the target element as the argument.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.grab'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>grab(x, y, scaleExtra, cb = options.scaleExtra)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
+
+
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>x</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    The X-axis of where the press happened.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>y</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    The Y-axis of where the press happened.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    Extra zoom-in to apply.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?
+            = <code>options.scaleExtra</code>)</code>
+	    A callback function that will be
+called when a target is grabbed and transition has ended. It will get
+the target element as the argument.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.move'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>move(x, y, scaleExtra, cb = options.scaleExtra)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
+
+
+  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>x</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    The X-axis of where the press happened.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>y</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    The Y-axis of where the press happened.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    Extra zoom-in to apply.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?
+            = <code>options.scaleExtra</code>)</code>
+	    A callback function that will be
+called when a target is moved and transition has ended. It will get
+the target element as the argument.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.release'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>release(cb = options.onRelease)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Release the Element currently grabbed.</p>
+
+
+  <div class='pre p1 fill-light mt0'>release(cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?
+            = <code>options.onRelease</code>)</code>
+	    A callback function that will be
+called when a target is released and transition has ended. It will get
+the target element as the argument.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='api.config'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>config(opts)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Update options.</p>
+
+
+  <div class='pre p1 fill-light mt0'>config(opts: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): <a href="#api">api</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>opts</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+	    An Object that contains options.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#api">api</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+            <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='options'>
+      options
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>A list of options.</p>
+
+
+  <div class='pre p1 fill-light mt0'>options</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>defaultZoomable</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>))</code>
+          : Zoomable elements by default. It can be a css selector or an element.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>enableGrab</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : To be able to grab and drag the image for extra zoom-in.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>preloadImage</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : Preload images with attribute "data-original".
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>transitionDuration</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : Transition duration in seconds.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>transitionTimingFunction</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : Transition timing function.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>bgColor</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : Overlay background color.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>bgOpacity</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : Overlay background capacity.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>scaleBase</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : The base scale factor for zooming. By default scale to fit the window.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : The extra scale factor when grabbing the image.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>scrollThreshold</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : How much scrolling it takes before closing out.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onOpen</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called when a target is opened and
+transition has ended. It will get the target element as the argument.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onClose</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : Same as above, except fired when closed.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onRelease</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : Same as above, except fired when released.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onBeforeOpen</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called before open.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onBeforeClose</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called before close.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onBeforeGrab</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called before grab.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onBeforeMove</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called before move.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onBeforeRelease</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
+          : A callback function that will be called before release.
+
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-comment">// Default options</span>
+<span class="hljs-keyword">var</span> options = {
+<span class="hljs-attr">defaultZoomable</span>: <span class="hljs-string">'img[data-action="zoom"]'</span>,
+<span class="hljs-attr">enableGrab</span>: <span class="hljs-literal">true</span>,
+<span class="hljs-attr">preloadImage</span>: <span class="hljs-literal">true</span>,
+<span class="hljs-attr">transitionDuration</span>: <span class="hljs-number">0.4</span>,
+<span class="hljs-attr">transitionTimingFunction</span>: <span class="hljs-string">'cubic-bezier(0.4, 0, 0, 1)'</span>,
+<span class="hljs-attr">bgColor</span>: <span class="hljs-string">'rgb(255, 255, 255)'</span>,
+<span class="hljs-attr">bgOpacity</span>: <span class="hljs-number">1</span>,
+<span class="hljs-attr">scaleBase</span>: <span class="hljs-number">1.0</span>,
+<span class="hljs-attr">scaleExtra</span>: <span class="hljs-number">0.5</span>,
+<span class="hljs-attr">scrollThreshold</span>: <span class="hljs-number">40</span>,
+<span class="hljs-attr">onOpen</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onClose</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onRelease</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onBeforeOpen</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onBeforeClose</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onBeforeGrab</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onBeforeMove</span>: <span class="hljs-literal">null</span>,
+<span class="hljs-attr">onBeforeRelease</span>: <span class="hljs-literal">null</span>
+}</pre>
+    
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+      </div>
+    </div>
+  </div>
+  <script src='assets/anchor.js'></script>
+  <script src='assets/site.js'></script>
+</body>
+</html>

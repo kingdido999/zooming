@@ -28,6 +28,11 @@ img {
 }
 
 .button.button-primary {
-  background-color: #ce7338 !important;
-  border-color: #ce7338 !important;
+  background-color: #f9c04d !important;
+  border-color: #f9c04d !important;
+}
+
+.button.button-secondary {
+  background-color: #eee !important;
+  border-color: #eee !important;
 }

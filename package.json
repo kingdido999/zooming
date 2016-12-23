@@ -15,8 +15,10 @@
   ],
   "dependencies": {},
   "scripts": {
+    "build": "rollup -c",
     "watch": "rollup -c -w",
-    "uglify": "rollup -c rollup.config.uglify.js"
+    "uglify": "rollup -c rollup.config.uglify.js",
+    "docs": "documentation build src/main.js -f html -o docs"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
   "license": "MIT",

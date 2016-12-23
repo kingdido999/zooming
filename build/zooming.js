@@ -56,6 +56,69 @@ var TOUCH_SCALE_FACTOR = 2;
 
 var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
+/**
+ * A list of options.
+ * @type {Object}
+ * @property  {string|Element} defaultZoomable
+ * Zoomable elements by default. It can be a css selector or an element.
+ * @property  {boolean} enableGrab
+ * To be able to grab and drag the image for extra zoom-in.
+ * @property  {boolean} preloadImage
+ * Preload images with attribute "data-original".
+ * @property  {number} transitionDuration
+ * Transition duration in seconds.
+ * @property  {string} transitionTimingFunction
+ * Transition timing function.
+ * @property  {string} bgColor
+ * Overlay background color.
+ * @property  {number} bgOpacity
+ * Overlay background capacity.
+ * @property  {number} scaleBase
+ * The base scale factor for zooming. By default scale to fit the window.
+ * @property  {number} scaleExtra
+ * The extra scale factor when grabbing the image.
+ * @property  {number} scrollThreshold
+ * How much scrolling it takes before closing out.
+ * @property  {Function} onOpen
+ * A callback function that will be called when a target is opened and
+ * transition has ended. It will get the target element as the argument.
+ * @property  {Function} onClose
+ * Same as above, except fired when closed.
+ * @property  {Function} onRelease
+ * Same as above, except fired when released.
+ * @property  {Function} onBeforeOpen
+ * A callback function that will be called before open.
+ * @property  {Function} onBeforeClose
+ * A callback function that will be called before close.
+ * @property  {Function} onBeforeGrab
+ * A callback function that will be called before grab.
+ * @property  {Function} onBeforeMove
+ * A callback function that will be called before move.
+ * @property  {Function} onBeforeRelease
+ * A callback function that will be called before release.
+ * @example
+ * // Default options
+ * var options = {
+     defaultZoomable: 'img[data-action="zoom"]',
+     enableGrab: true,
+     preloadImage: true,
+     transitionDuration: 0.4,
+     transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+     bgColor: 'rgb(255, 255, 255)',
+     bgOpacity: 1,
+     scaleBase: 1.0,
+     scaleExtra: 0.5,
+     scrollThreshold: 40,
+     onOpen: null,
+     onClose: null,
+     onRelease: null,
+     onBeforeOpen: null,
+     onBeforeClose: null,
+     onBeforeGrab: null,
+     onBeforeMove: null,
+     onBeforeRelease: null
+   }
+ */
 var options = {
   defaultZoomable: 'img[data-action="zoom"]',
   enableGrab: true,
@@ -249,6 +312,7 @@ var processTouches = function processTouches(touches, cb) {
 
 var _this = undefined;
 
+// elements
 var body = document.body;
 var overlay = document.createElement('div');
 var target = void 0;
@@ -272,8 +336,6 @@ var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
 var setStyle$1 = function setStyle$1(el, styles, remember) {
   return setStyleHelper(el, styles, remember);
 };
-
-// Event handler ---------------------------------------------------------------
 
 var eventHandler = {
 
@@ -358,10 +420,17 @@ var eventHandler = {
   }
 };
 
-// API -------------------------------------------------------------------------
-
+/**
+ * Zooming methods.
+ * @type {Object}
+ */
 var api = {
 
+  /**
+   * Make element(s) zoomable.
+   * @param  {string|Element} el A css selector or an Element.
+   * @return {api}
+   */
   listen: function listen(el) {
     if (typeof el === 'string') {
       var els = document.querySelectorAll(el),
@@ -387,21 +456,14 @@ var api = {
     return _this;
   },
 
-  config: function config(opts) {
-    if (!opts) return options;
-
-    for (var key in opts) {
-      options[key] = opts[key];
-    }
-
-    setStyle$1(overlay, {
-      backgroundColor: options.bgColor,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-    });
-
-    return _this;
-  },
-
+  /**
+   * Open (zoom in) the Element.
+   * @param  {Element} el The Element to open.
+   * @param  {Function} [cb=options.onOpen] A callback function that will be
+   * called when a target is opened and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   open: function open(el) {
     var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options.onOpen;
 
@@ -485,6 +547,13 @@ var api = {
     return _this;
   },
 
+  /**
+   * Close (zoom out) the Element currently opened.
+   * @param  {Function} [cb=options.onClose] A callback function that will be
+   * called when a target is closed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   close: function close() {
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onClose;
 
@@ -532,6 +601,16 @@ var api = {
     return _this;
   },
 
+  /**
+   * Grab the Element currently opened given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * called when a target is grabbed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   grab: function grab(x, y) {
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
     var cb = arguments[3];
@@ -559,6 +638,16 @@ var api = {
     });
   },
 
+  /**
+   * Move the Element currently grabbed given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * called when a target is moved and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   move: function move(x, y) {
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
     var cb = arguments[3];
@@ -588,6 +677,13 @@ var api = {
     });
   },
 
+  /**
+   * Release the Element currently grabbed.
+   * @param  {Function} [cb=options.onRelease] A callback function that will be
+   * called when a target is released and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   release: function release() {
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onRelease;
 
@@ -608,6 +704,26 @@ var api = {
       released = true;
 
       if (cb) cb(target);
+    });
+
+    return _this;
+  },
+
+  /**
+   * Update options.
+   * @param  {Object} opts An Object that contains options.
+   * @return {api}
+   */
+  config: function config(opts) {
+    if (!opts) return options;
+
+    for (var key in opts) {
+      options[key] = opts[key];
+    }
+
+    setStyle$1(overlay, {
+      backgroundColor: options.bgColor,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
     });
 
     return _this;

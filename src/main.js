@@ -25,8 +25,6 @@ const setStyle = (el, styles, remember) => {
   return setStyleHelper(el, styles, remember)
 }
 
-// Event handler ---------------------------------------------------------------
-
 const eventHandler = {
 
   click: function (e) {
@@ -112,10 +110,17 @@ const eventHandler = {
   }
 }
 
-// API -------------------------------------------------------------------------
-
+/**
+ * Zooming methods.
+ * @type {Object}
+ */
 const api = {
 
+  /**
+   * Make element(s) zoomable.
+   * @param  {string|Element} el A css selector or an Element.
+   * @return {api}
+   */
   listen: (el) => {
     if (typeof el === 'string') {
       let els = document.querySelectorAll(el), i = els.length
@@ -140,23 +145,14 @@ const api = {
     return this
   },
 
-  config: (opts) => {
-    if (!opts) return options
-
-    for (let key in opts) {
-      options[key] = opts[key]
-    }
-
-    setStyle(overlay, {
-      backgroundColor: options.bgColor,
-      transition: `opacity
-        ${options.transitionDuration}s
-        ${options.transitionTimingFunction}`
-    })
-
-    return this
-  },
-
+  /**
+   * Open (zoom in) the Element.
+   * @param  {Element} el The Element to open.
+   * @param  {Function} [cb=options.onOpen] A callback function that will be
+   * called when a target is opened and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   open: (el, cb = options.onOpen) => {
     if (shown || lock) return
 
@@ -238,6 +234,13 @@ const api = {
     return this
   },
 
+  /**
+   * Close (zoom out) the Element currently opened.
+   * @param  {Function} [cb=options.onClose] A callback function that will be
+   * called when a target is closed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   close: (cb = options.onClose) => {
     if (!shown || lock) return
 
@@ -283,6 +286,16 @@ const api = {
     return this
   },
 
+  /**
+   * Grab the Element currently opened given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * called when a target is grabbed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   grab: (x, y, scaleExtra = options.scaleExtra, cb) => {
     if (!shown || lock) return
 
@@ -306,6 +319,16 @@ const api = {
     })
   },
 
+  /**
+   * Move the Element currently grabbed given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * called when a target is moved and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   move: (x, y, scaleExtra = options.scaleExtra, cb) => {
     if (!shown || lock) return
 
@@ -331,6 +354,13 @@ const api = {
     })
   },
 
+  /**
+   * Release the Element currently grabbed.
+   * @param  {Function} [cb=options.onRelease] A callback function that will be
+   * called when a target is released and transition has ended. It will get
+   * the target element as the argument.
+   * @return {api}
+   */
   release: (cb = options.onRelease) => {
     if (!shown || lock) return
 
@@ -352,7 +382,29 @@ const api = {
     })
 
     return this
-  }
+  },
+
+  /**
+   * Update options.
+   * @param  {Object} opts An Object that contains options.
+   * @return {api}
+   */
+  config: (opts) => {
+    if (!opts) return options
+
+    for (let key in opts) {
+      options[key] = opts[key]
+    }
+
+    setStyle(overlay, {
+      backgroundColor: options.bgColor,
+      transition: `opacity
+        ${options.transitionDuration}s
+        ${options.transitionTimingFunction}`
+    })
+
+    return this
+  },
 }
 
 // Init ------------------------------------------------------------------------
