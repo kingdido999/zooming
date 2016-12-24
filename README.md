@@ -1,4 +1,5 @@
-[![CDNJS](https://img.shields.io/cdnjs/v/zooming.svg)](https://cdnjs.com/libraries/zooming)
+[![CDNJS](https://img.shields.io/cdnjs/v/zooming.svg?style=flat-square)](https://cdnjs.com/libraries/zooming)
+[![npm](https://img.shields.io/npm/v/zooming.svg?style=flat-square)](https://www.npmjs.com/package/zooming)
 
 # Zooming
 
@@ -65,13 +66,9 @@ Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ## Development
 
-Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already.
+Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already. Fork and clone it. Under project folder:
 
-Fork and clone it. Under project folder:
-
-`yarn`
-
-`yarn watch`
+`yarn && yarn watch`
 
 Open up `index.html` and play around with it!
 
