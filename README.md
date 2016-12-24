@@ -1,3 +1,5 @@
+[![CDNJS](https://img.shields.io/cdnjs/v/zooming.svg)](https://cdnjs.com/libraries/zooming)
+
 # Zooming
 
 Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
