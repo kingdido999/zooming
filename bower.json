@@ -6,7 +6,7 @@
     "Desmond Ding <kingdido999@gmail.com>"
   ],
   "description": "Image zoom that makes sense.",
-  "main": "src/zooming.js",
+  "main": "src/main.js",
   "keywords": [
     "image",
     "zoom",

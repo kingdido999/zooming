@@ -1,5 +1,5 @@
 import { webkitPrefix } from './_helpers'
-import { options } from './_defaults'
+import options from './_options'
 
 export default {
   target: {

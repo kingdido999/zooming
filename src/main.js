@@ -1,8 +1,14 @@
 import style from './_style'
-import { PRESS_DELAY, EVENT_TYPES_GRAB, options } from './_defaults'
+import options from './_options'
 import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './_helpers'
 import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
 import { processTouches } from './_touch'
+
+const PRESS_DELAY = 200
+const EVENT_TYPES_GRAB = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
 
 // elements
 const body = document.body

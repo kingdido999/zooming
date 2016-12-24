@@ -2,7 +2,7 @@
   "name": "zooming",
   "version": "0.8.3",
   "description": "Image zoom that makes sense.",
-  "main": "src/zooming.js",
+  "main": "src/main.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:kingdido999/zooming.git"

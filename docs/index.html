@@ -89,10 +89,129 @@
                 
                 <li><a
                   href='#options'
-                  class="">
+                  class=" toggle-sibling">
                   options
-                  
+                  <span class='icon'>▸</span>
                 </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#options.defaultZoomable'
+                        class='regular pre-open'>
+                        .defaultZoomable
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.enableGrab'
+                        class='regular pre-open'>
+                        .enableGrab
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.preloadImage'
+                        class='regular pre-open'>
+                        .preloadImage
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.transitionDuration'
+                        class='regular pre-open'>
+                        .transitionDuration
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.transitionTimingFunction'
+                        class='regular pre-open'>
+                        .transitionTimingFunction
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.bgColor'
+                        class='regular pre-open'>
+                        .bgColor
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.bgOpacity'
+                        class='regular pre-open'>
+                        .bgOpacity
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.scaleBase'
+                        class='regular pre-open'>
+                        .scaleBase
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.scaleExtra'
+                        class='regular pre-open'>
+                        .scaleExtra
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.scrollThreshold'
+                        class='regular pre-open'>
+                        .scrollThreshold
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onOpen'
+                        class='regular pre-open'>
+                        .onOpen
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onClose'
+                        class='regular pre-open'>
+                        .onClose
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onRelease'
+                        class='regular pre-open'>
+                        .onRelease
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onBeforeOpen'
+                        class='regular pre-open'>
+                        .onBeforeOpen
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onBeforeClose'
+                        class='regular pre-open'>
+                        .onBeforeClose
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onBeforeGrab'
+                        class='regular pre-open'>
+                        .onBeforeGrab
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onBeforeMove'
+                        class='regular pre-open'>
+                        .onBeforeMove
+                      </a></li>
+                    
+                      <li><a
+                        href='#options.onBeforeRelease'
+                        class='regular pre-open'>
+                        .onBeforeRelease
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                </div>
                 
                 </li>
               
@@ -734,138 +853,6 @@ the target element as the argument.
   
 
   
-    <div class='py1 quiet mt1 prose-big'>Properties</div>
-    <div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>defaultZoomable</span> <code class='quiet'>((<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element">Element</a>))</code>
-          : Zoomable elements by default. It can be a css selector or an element.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>enableGrab</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
-          : To be able to grab and drag the image for extra zoom-in.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>preloadImage</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
-          : Preload images with attribute "data-original".
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>transitionDuration</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : Transition duration in seconds.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>transitionTimingFunction</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
-          : Transition timing function.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>bgColor</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
-          : Overlay background color.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>bgOpacity</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : Overlay background capacity.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>scaleBase</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : The base scale factor for zooming. By default scale to fit the window.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : The extra scale factor when grabbing the image.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>scrollThreshold</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : How much scrolling it takes before closing out.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onOpen</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called when a target is opened and
-transition has ended. It will get the target element as the argument.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onClose</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : Same as above, except fired when closed.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onRelease</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : Same as above, except fired when released.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onBeforeOpen</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called before open.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onBeforeClose</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called before close.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onBeforeGrab</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called before grab.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onBeforeMove</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called before move.
-
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>onBeforeRelease</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>)</code>
-          : A callback function that will be called before release.
-
-          
-        </div>
-      
-    </div>
-  
 
   
 
@@ -877,27 +864,844 @@ transition has ended. It will get the target element as the argument.
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-comment">// Default options</span>
 <span class="hljs-keyword">var</span> options = {
-<span class="hljs-attr">defaultZoomable</span>: <span class="hljs-string">'img[data-action="zoom"]'</span>,
-<span class="hljs-attr">enableGrab</span>: <span class="hljs-literal">true</span>,
-<span class="hljs-attr">preloadImage</span>: <span class="hljs-literal">true</span>,
-<span class="hljs-attr">transitionDuration</span>: <span class="hljs-number">0.4</span>,
-<span class="hljs-attr">transitionTimingFunction</span>: <span class="hljs-string">'cubic-bezier(0.4, 0, 0, 1)'</span>,
-<span class="hljs-attr">bgColor</span>: <span class="hljs-string">'rgb(255, 255, 255)'</span>,
-<span class="hljs-attr">bgOpacity</span>: <span class="hljs-number">1</span>,
-<span class="hljs-attr">scaleBase</span>: <span class="hljs-number">1.0</span>,
-<span class="hljs-attr">scaleExtra</span>: <span class="hljs-number">0.5</span>,
-<span class="hljs-attr">scrollThreshold</span>: <span class="hljs-number">40</span>,
-<span class="hljs-attr">onOpen</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onClose</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onRelease</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onBeforeOpen</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onBeforeClose</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onBeforeGrab</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onBeforeMove</span>: <span class="hljs-literal">null</span>,
-<span class="hljs-attr">onBeforeRelease</span>: <span class="hljs-literal">null</span>
+  <span class="hljs-attr">defaultZoomable</span>: <span class="hljs-string">'img[data-action="zoom"]'</span>,
+  <span class="hljs-attr">enableGrab</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">preloadImage</span>: <span class="hljs-literal">true</span>,
+  <span class="hljs-attr">transitionDuration</span>: <span class="hljs-number">0.4</span>,
+  <span class="hljs-attr">transitionTimingFunction</span>: <span class="hljs-string">'cubic-bezier(0.4, 0, 0, 1)'</span>,
+  <span class="hljs-attr">bgColor</span>: <span class="hljs-string">'rgb(255, 255, 255)'</span>,
+  <span class="hljs-attr">bgOpacity</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">scaleBase</span>: <span class="hljs-number">1.0</span>,
+  <span class="hljs-attr">scaleExtra</span>: <span class="hljs-number">0.5</span>,
+  <span class="hljs-attr">scrollThreshold</span>: <span class="hljs-number">40</span>,
+  <span class="hljs-attr">onOpen</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onClose</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onRelease</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onBeforeOpen</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onBeforeClose</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onBeforeGrab</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onBeforeMove</span>: <span class="hljs-literal">null</span>,
+  <span class="hljs-attr">onBeforeRelease</span>: <span class="hljs-literal">null</span>
 }</pre>
     
   
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='options.defaultZoomable'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>defaultZoomable</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Zoomable elements by default. It can be a css selector or an element.</p>
+
+
+  <div class='pre p1 fill-light mt0'>defaultZoomable</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.enableGrab'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>enableGrab</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>To be able to grab and drag the image for extra zoom-in.</p>
+
+
+  <div class='pre p1 fill-light mt0'>enableGrab</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.preloadImage'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>preloadImage</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Preload images with attribute "data-original".</p>
+
+
+  <div class='pre p1 fill-light mt0'>preloadImage</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.transitionDuration'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>transitionDuration</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Transition duration in seconds.</p>
+
+
+  <div class='pre p1 fill-light mt0'>transitionDuration</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.transitionTimingFunction'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>transitionTimingFunction</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Transition timing function.</p>
+
+
+  <div class='pre p1 fill-light mt0'>transitionTimingFunction</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.bgColor'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>bgColor</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Overlay background color.</p>
+
+
+  <div class='pre p1 fill-light mt0'>bgColor</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.bgOpacity'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>bgOpacity</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Overlay background opacity.</p>
+
+
+  <div class='pre p1 fill-light mt0'>bgOpacity</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.scaleBase'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>scaleBase</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>The base scale factor for zooming. By default scale to fit the window.</p>
+
+
+  <div class='pre p1 fill-light mt0'>scaleBase</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.scaleExtra'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>scaleExtra</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>The extra scale factor when grabbing the image.</p>
+
+
+  <div class='pre p1 fill-light mt0'>scaleExtra</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.scrollThreshold'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>scrollThreshold</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>How much scrolling it takes before closing out.</p>
+
+
+  <div class='pre p1 fill-light mt0'>scrollThreshold</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onOpen'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onOpen</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called when a target is opened and
+transition has ended. It will get the target element as the argument.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onOpen</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onClose'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onClose</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Same as above, except fired when closed.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onClose</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onRelease'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onRelease</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Same as above, except fired when released.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onRelease</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onBeforeOpen'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onBeforeOpen</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called before open.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onBeforeOpen</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onBeforeClose'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onBeforeClose</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called before close.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onBeforeClose</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onBeforeGrab'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onBeforeGrab</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called before grab</p>
+
+
+  <div class='pre p1 fill-light mt0'>onBeforeGrab</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onBeforeMove'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onBeforeMove</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called before move.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onBeforeMove</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='options.onBeforeRelease'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>onBeforeRelease</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>A callback function that will be called before release.</p>
+
+
+  <div class='pre p1 fill-light mt0'>onBeforeRelease</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 

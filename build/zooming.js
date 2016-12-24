@@ -50,93 +50,141 @@ var toggleListeners = function toggleListeners(el, types, handler) {
   });
 };
 
-var PRESS_DELAY = 200;
-
-var TOUCH_SCALE_FACTOR = 2;
-
-var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
 /**
  * A list of options.
+ *
  * @type {Object}
- * @property  {string|Element} defaultZoomable
- * Zoomable elements by default. It can be a css selector or an element.
- * @property  {boolean} enableGrab
- * To be able to grab and drag the image for extra zoom-in.
- * @property  {boolean} preloadImage
- * Preload images with attribute "data-original".
- * @property  {number} transitionDuration
- * Transition duration in seconds.
- * @property  {string} transitionTimingFunction
- * Transition timing function.
- * @property  {string} bgColor
- * Overlay background color.
- * @property  {number} bgOpacity
- * Overlay background capacity.
- * @property  {number} scaleBase
- * The base scale factor for zooming. By default scale to fit the window.
- * @property  {number} scaleExtra
- * The extra scale factor when grabbing the image.
- * @property  {number} scrollThreshold
- * How much scrolling it takes before closing out.
- * @property  {Function} onOpen
- * A callback function that will be called when a target is opened and
- * transition has ended. It will get the target element as the argument.
- * @property  {Function} onClose
- * Same as above, except fired when closed.
- * @property  {Function} onRelease
- * Same as above, except fired when released.
- * @property  {Function} onBeforeOpen
- * A callback function that will be called before open.
- * @property  {Function} onBeforeClose
- * A callback function that will be called before close.
- * @property  {Function} onBeforeGrab
- * A callback function that will be called before grab.
- * @property  {Function} onBeforeMove
- * A callback function that will be called before move.
- * @property  {Function} onBeforeRelease
- * A callback function that will be called before release.
  * @example
  * // Default options
  * var options = {
-     defaultZoomable: 'img[data-action="zoom"]',
-     enableGrab: true,
-     preloadImage: true,
-     transitionDuration: 0.4,
-     transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
-     bgColor: 'rgb(255, 255, 255)',
-     bgOpacity: 1,
-     scaleBase: 1.0,
-     scaleExtra: 0.5,
-     scrollThreshold: 40,
-     onOpen: null,
-     onClose: null,
-     onRelease: null,
-     onBeforeOpen: null,
-     onBeforeClose: null,
-     onBeforeGrab: null,
-     onBeforeMove: null,
-     onBeforeRelease: null
-   }
+ *   defaultZoomable: 'img[data-action="zoom"]',
+ *   enableGrab: true,
+ *   preloadImage: true,
+ *   transitionDuration: 0.4,
+ *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+ *   bgColor: 'rgb(255, 255, 255)',
+ *   bgOpacity: 1,
+ *   scaleBase: 1.0,
+ *   scaleExtra: 0.5,
+ *   scrollThreshold: 40,
+ *   onOpen: null,
+ *   onClose: null,
+ *   onRelease: null,
+ *   onBeforeOpen: null,
+ *   onBeforeClose: null,
+ *   onBeforeGrab: null,
+ *   onBeforeMove: null,
+ *   onBeforeRelease: null
+ * }
  */
 var options = {
+  /**
+   * Zoomable elements by default. It can be a css selector or an element.
+   * @type {string|Element}
+   */
   defaultZoomable: 'img[data-action="zoom"]',
+
+  /**
+   * To be able to grab and drag the image for extra zoom-in.
+   * @type {boolean}
+   */
   enableGrab: true,
+
+  /**
+   * Preload images with attribute "data-original".
+   * @type {boolean}
+   */
   preloadImage: true,
+
+  /**
+   * Transition duration in seconds.
+   * @type {number}
+   */
   transitionDuration: 0.4,
+
+  /**
+   * Transition timing function.
+   * @type {string}
+   */
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+
+  /**
+   * Overlay background color.
+   * @type {string}
+   */
   bgColor: 'rgb(255, 255, 255)',
+
+  /**
+   * Overlay background opacity.
+   * @type {number}
+   */
   bgOpacity: 1,
+
+  /**
+   * The base scale factor for zooming. By default scale to fit the window.
+   * @type {number}
+   */
   scaleBase: 1.0,
+
+  /**
+   * The extra scale factor when grabbing the image.
+   * @type {number}
+   */
   scaleExtra: 0.5,
+
+  /**
+   * How much scrolling it takes before closing out.
+   * @type {number}
+   */
   scrollThreshold: 40,
+
+  /**
+   * A callback function that will be called when a target is opened and
+   * transition has ended. It will get the target element as the argument.
+   * @type {Function}
+   */
   onOpen: null,
+
+  /**
+   * Same as above, except fired when closed.
+   * @type {Function}
+   */
   onClose: null,
+
+  /**
+   * Same as above, except fired when released.
+   * @type {Function}
+   */
   onRelease: null,
+
+  /**
+   * A callback function that will be called before open.
+   * @type {Function}
+   */
   onBeforeOpen: null,
+
+  /**
+   * A callback function that will be called before close.
+   * @type {Function}
+   */
   onBeforeClose: null,
+
+  /**
+   * A callback function that will be called before grab.
+   * @type {Function}
+   */
   onBeforeGrab: null,
+
+  /**
+   * A callback function that will be called before move.
+   * @type {Function}
+   */
   onBeforeMove: null,
+
+  /**
+   * A callback function that will be called before release.
+   * @type {Function}
+   */
   onBeforeRelease: null
 };
 
@@ -255,6 +303,8 @@ var calculateScale = function calculateScale(rect, scaleBase) {
   return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
+var TOUCH_SCALE_FACTOR = 200;
+
 var processTouches = function processTouches(touches, cb) {
   var total = touches.length;
   var firstTouch = touches[0];
@@ -311,6 +361,9 @@ var processTouches = function processTouches(touches, cb) {
 };
 
 var _this = undefined;
+
+var PRESS_DELAY = 200;
+var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
 // elements
 var body = document.body;
