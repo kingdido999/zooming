@@ -11,13 +11,26 @@ export default {
     babel({
       exclude: 'node_modules/**'
     }),
-    eslint({})
+    eslint({
+      env: {
+        browser: true
+      },
+      extends: 'eslint:recommended',
+      parserOptions: {
+        ecmaVersion: 6,
+        sourceType: 'module'
+      },
+      rules: {
+        indent: ['off', 2],
+        quotes: ['error', 'single'],
+        semi: ['off', 'never']
+      }
+    })
   ],
   onwarn: function (message) {
-    // Suppress this error message... there are hundreds of them. Angular team says to ignore it.
     // https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
     if (/The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten./.test(message)) {
-        return
+      return
     }
-  },
+  }
 }
