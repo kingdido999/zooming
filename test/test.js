@@ -1,7 +1,4 @@
-/* eslint-disable */
-
 var expect = chai.expect
-var should = chai.should()
 
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
 var defaultOpts = Object.assign({}, Zooming.config())

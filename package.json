@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "Image zoom that makes sense.",
   "main": "src/main.js",
   "repository": {
@@ -15,9 +15,7 @@
   ],
   "dependencies": {},
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
-    "uglify": "rollup -c rollup.config.uglify.js",
+    "watch": "node build.js",
     "docs": "documentation build src/main.js -f html -o docs"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
