@@ -303,7 +303,7 @@ var calculateScale = function calculateScale(rect, scaleBase) {
   return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
-var TOUCH_SCALE_FACTOR = 200;
+var TOUCH_SCALE_FACTOR = 2;
 
 var processTouches = function processTouches(touches, cb) {
   var total = touches.length;
