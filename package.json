@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "Image zoom that makes sense.",
   "main": "src/main.js",
   "repository": {
