@@ -118,7 +118,7 @@ var options = {
    * Overlay background opacity.
    * @type {number}
    */
-  overlay: 1,
+  bgOpacity: 1,
 
   /**
    * The base scale factor for zooming. By default scale to fit the window.
@@ -472,6 +472,16 @@ var eventHandler = {
   }
 };
 
+var kabeCaseMap = {
+  'bgOpacity': 'bg-opacity'
+};
+
+var kabeCase = function kabeCase(str) {
+  if (str in kabeCaseMap) return kabeCaseMap[str];
+
+  return str;
+};
+
 /**
  * Zooming methods.
  * @type {Object}
@@ -527,11 +537,11 @@ var api = {
 
     var csutomOptions = Object.assign(options);
 
-    var overrideOption = ['overlay' /*, scaleBase, duration */];
-    overrideOption.forEach(function (prop) {
+    var overrideOption = ['bgOpacity' /*, scaleBase, duration */];
+    overrideOption.forEach(function (optKey) {
       var value = null;
-      if ((value = target.getAttribute('data-' + prop)) != null) {
-        csutomOptions[prop] = value;
+      if ((value = target.getAttribute('data-' + kabeCase(optKey))) != null) {
+        csutomOptions[optKey] = value;
       }
     });
 
@@ -575,7 +585,7 @@ var api = {
     // insert overlay
     parent.appendChild(overlay);
     setTimeout(function () {
-      return overlay.style.opacity = csutomOptions.overlay;
+      return overlay.style.opacity = csutomOptions.bgOpacity;
     }, 30);
 
     document.addEventListener('scroll', eventHandler.scroll);

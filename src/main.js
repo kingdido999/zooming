@@ -116,6 +116,16 @@ const eventHandler = {
   }
 }
 
+const kabeCaseMap = {
+  'bgOpacity': 'bg-opacity',
+}
+
+const kabeCase = str => {
+  if (str in kabeCaseMap) return kabeCaseMap[str]
+
+  return str
+}
+
 /**
  * Zooming methods.
  * @type {Object}
@@ -170,11 +180,11 @@ const api = {
 
     const csutomOptions = Object.assign(options)
     
-    const overrideOption = ['overlay' /*, scaleBase, duration */]
-    overrideOption.forEach(prop => {
+    const overrideOption = ['bgOpacity' /*, scaleBase, duration */]
+    overrideOption.forEach(optKey => {
       let value = null
-      if ((value = target.getAttribute(`data-${prop}`)) != null) {
-        csutomOptions[prop] = value
+      if ((value = target.getAttribute(`data-${kabeCase(optKey)}`)) != null) {
+        csutomOptions[optKey] = value
       }
     })
 
@@ -219,7 +229,7 @@ const api = {
 
     // insert overlay
     parent.appendChild(overlay)
-    setTimeout(() => overlay.style.opacity = csutomOptions.overlay, 30)
+    setTimeout(() => overlay.style.opacity = csutomOptions.bgOpacity, 30)
 
     document.addEventListener('scroll', eventHandler.scroll)
     document.addEventListener('keydown', eventHandler.keydown)
