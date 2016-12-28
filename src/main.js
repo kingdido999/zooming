@@ -181,8 +181,8 @@ const api = {
     const windowCenter = getWindowCenter()
     // custom scale window
     if( target.hasAttribute('data-width') && target.hasAttribute('data-height')) {
-      windowCenter.x = target.getAttribute('data-width') / 2
-      windowCenter.y = target.getAttribute('data-height') / 2
+      windowCenter.x = Math.min(windowCenter.x, target.getAttribute('data-width') / 2)
+      windowCenter.y =  Math.min(windowCenter.y, target.getAttribute('data-height') / 2)
     }
 
     // onBeforeOpen event
