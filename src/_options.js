@@ -66,7 +66,7 @@ export default {
    * Overlay background opacity.
    * @type {number}
    */
-  bgOpacity: 1,
+  overlay: 1,
 
   /**
    * The base scale factor for zooming. By default scale to fit the window.

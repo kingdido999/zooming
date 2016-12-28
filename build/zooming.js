@@ -118,7 +118,7 @@ var options = {
    * Overlay background opacity.
    * @type {number}
    */
-  bgOpacity: 1,
+  overlay: 1,
 
   /**
    * The base scale factor for zooming. By default scale to fit the window.
@@ -284,8 +284,7 @@ var calculateTranslate = function calculateTranslate(rect) {
   };
 };
 
-var calculateScale = function calculateScale(rect, scaleBase) {
-  var windowCenter = getWindowCenter();
+var calculateScale = function calculateScale(rect, scaleBase, windowCenter) {
   var targetHalfWidth = half(rect.width);
   var targetHalfHeight = half(rect.height);
 
@@ -526,21 +525,37 @@ var api = {
 
     if (target.tagName !== 'IMG') return;
 
+    var csutomOptions = Object.assign(options);
+    var overrideOption = ['overlay'];
+    overrideOption.forEach(function (prop) {
+      var value = null;
+      if ((value = target.getAttribute('data-' + prop)) != null) {
+        csutomOptions[prop] = value;
+      }
+    });
+
+    var windowCenter = getWindowCenter();
+    // custom scale window
+    if (target.hasAttribute('data-width') && target.hasAttribute('data-height')) {
+      windowCenter.x = target.getAttribute('data-width') / 2;
+      windowCenter.y = target.getAttribute('data-height') / 2;
+    }
+
     // onBeforeOpen event
-    if (options.onBeforeOpen) options.onBeforeOpen(target);
+    if (csutomOptions.onBeforeOpen) csutomOptions.onBeforeOpen(target);
 
     shown = true;
     lock = true;
     parent = target.parentNode;
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && target.hasAttribute('data-original')) {
+    if (!csutomOptions.preloadImage && target.hasAttribute('data-original')) {
       loadImage(target.getAttribute('data-original'));
     }
 
     var rect = target.getBoundingClientRect();
     translate = calculateTranslate(rect);
-    scale = calculateScale(rect, options.scaleBase);
+    scale = calculateScale(rect, csutomOptions.scaleBase, windowCenter);
 
     // force layout update
     target.offsetWidth;
@@ -548,8 +563,8 @@ var api = {
     style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
-      transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
+      cursor: csutomOptions.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      transition: transformCssProp + '\n        ' + csutomOptions.transitionDuration + 's\n        ' + csutomOptions.transitionTimingFunction,
       transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
     };
 
@@ -559,7 +574,7 @@ var api = {
     // insert overlay
     parent.appendChild(overlay);
     setTimeout(function () {
-      return overlay.style.opacity = options.bgOpacity;
+      return overlay.style.opacity = csutomOptions.overlay;
     }, 30);
 
     document.addEventListener('scroll', eventHandler.scroll);
@@ -570,7 +585,7 @@ var api = {
 
       lock = false;
 
-      if (options.enableGrab) {
+      if (csutomOptions.enableGrab) {
         toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true);
       }
 
@@ -583,7 +598,7 @@ var api = {
           // force compute the hi-res image in DOM to prevent
           // image flickering while updating src
           temp.setAttribute('src', dataOriginal);
-          temp.style.position = 'absolute';
+          temp.style.position = 'fixed';
           temp.style.visibility = 'hidden';
           body.appendChild(temp);
 

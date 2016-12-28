@@ -168,21 +168,38 @@ const api = {
 
     if (target.tagName !== 'IMG') return
 
+    const csutomOptions = Object.assign(options)
+    
+    const overrideOption = ['overlay' /*, scaleBase, duration */]
+    overrideOption.forEach(prop => {
+      let value = null
+      if ((value = target.getAttribute(`data-${prop}`)) != null) {
+        csutomOptions[prop] = value
+      }
+    })
+
+    const windowCenter = getWindowCenter()
+    // custom scale window
+    if( target.hasAttribute('data-width') && target.hasAttribute('data-height')) {
+      windowCenter.x = target.getAttribute('data-width') / 2
+      windowCenter.y = target.getAttribute('data-height') / 2
+    }
+
     // onBeforeOpen event
-    if (options.onBeforeOpen) options.onBeforeOpen(target)
+    if (csutomOptions.onBeforeOpen) csutomOptions.onBeforeOpen(target)
 
     shown = true
     lock = true
     parent = target.parentNode
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && target.hasAttribute('data-original')) {
+    if (!csutomOptions.preloadImage && target.hasAttribute('data-original')) {
       loadImage(target.getAttribute('data-original'))
     }
 
     const rect = target.getBoundingClientRect()
     translate = calculateTranslate(rect)
-    scale = calculateScale(rect, options.scaleBase)
+    scale = calculateScale(rect, csutomOptions.scaleBase, windowCenter)
 
     // force layout update
     target.offsetWidth
@@ -190,10 +207,10 @@ const api = {
     style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      cursor: csutomOptions.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
       transition: `${transformCssProp}
-        ${options.transitionDuration}s
-        ${options.transitionTimingFunction}`,
+        ${csutomOptions.transitionDuration}s
+        ${csutomOptions.transitionTimingFunction}`,
       transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`
     }
 
@@ -202,7 +219,7 @@ const api = {
 
     // insert overlay
     parent.appendChild(overlay)
-    setTimeout(() => overlay.style.opacity = options.bgOpacity, 30)
+    setTimeout(() => overlay.style.opacity = csutomOptions.overlay, 30)
 
     document.addEventListener('scroll', eventHandler.scroll)
     document.addEventListener('keydown', eventHandler.keydown)
@@ -212,7 +229,7 @@ const api = {
 
       lock = false
 
-      if (options.enableGrab) {
+      if (csutomOptions.enableGrab) {
         toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true)
       }
 
@@ -224,7 +241,7 @@ const api = {
         // force compute the hi-res image in DOM to prevent
         // image flickering while updating src
         temp.setAttribute('src', dataOriginal)
-        temp.style.position = 'absolute'
+        temp.style.position = 'fixed'
         temp.style.visibility = 'hidden'
         body.appendChild(temp)
 
