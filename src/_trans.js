@@ -69,8 +69,7 @@ const calculateTranslate = (rect) => {
   }
 }
 
-const calculateScale = (rect, scaleBase) => {
-  const windowCenter = getWindowCenter()
+const calculateScale = (rect, scaleBase, windowCenter) => {
   const targetHalfWidth = half(rect.width)
   const targetHalfHeight = half(rect.height)
 
