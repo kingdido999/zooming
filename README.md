@@ -45,24 +45,41 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 <img src="img/journey.jpg" data-action="zoom" />
 ```
 
-You can also define zoomable images in JavaScript:
-
-```javascript
-// by a css selector
-Zooming.listen('.img-zoomable')
-
-// by an Element
-var img = document.getElementByID('img-zoomable')
-Zooming.listen(img)
-```
-
 Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ```html
 <img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
 ```
 
-## [Documentation](http://desmonding.me/zooming/docs/index.html)
+#### Advanced
+
+You can create multiple Zooming instances, each with its own configuration:
+
+```js
+var zooming = new Zooming({
+  // optional configuration here
+})
+
+// or just change the options later
+zooming.config({
+  // ...
+})
+```
+
+To specify zoomable image(s):
+
+```js
+// ...
+
+// by a css selector
+zooming.listen('.img-zoomable')
+
+// by an Element
+var img = document.getElementByID('img-zoomable')
+zooming.listen(img)
+```
+
+For all supported APIs and options, see [Documentation](http://desmonding.me/zooming/docs/index.html).
 
 ## Development
 
