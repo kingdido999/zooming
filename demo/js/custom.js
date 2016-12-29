@@ -1,6 +1,6 @@
-var z = new Zooming()
-z.listen('#img-custom')
-var config = z.config(),
+var customZooming = new Zooming()
+customZooming.listen('#img-custom')
+var config = customZooming.config(),
     TRANSITION_DURATION_DEFAULT = config.transitionDuration,
     TRANSITION_DURATION_SLOW    = 1.0,
     TRANSITION_DURATION_FAST    = 0.2,
@@ -37,7 +37,7 @@ function fast () {
     deactivate(btnSlow)
   }
 
-  z.config({ transitionDuration: t })
+  customZooming.config({ transitionDuration: t })
 }
 
 function slow () {
@@ -51,7 +51,7 @@ function slow () {
     deactivate(btnFast)
   }
 
-  z.config({ transitionDuration: t })
+  customZooming.config({ transitionDuration: t })
 }
 
 function dark() {
@@ -64,7 +64,7 @@ function dark() {
     activate(btnDark)
   }
 
-  z.config({ bgColor: c })
+  customZooming.config({ bgColor: c })
 }
 
 function noGrab() {
@@ -77,5 +77,5 @@ function noGrab() {
     activate(btnNoGrab)
   }
 
-  z.config({ enableGrab: enable })
+  customZooming.config({ enableGrab: enable })
 }

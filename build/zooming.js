@@ -456,11 +456,12 @@ var calculateScale = function calculateScale(rect, scaleBase) {
   return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
+/**
+ * Zooming instance.
+ * @param {Object} [options] Update default options if provided.
+ */
 function Zooming(options) {
   var _this = this;
-
-  this.options = Object.assign({}, OPTIONS);
-  if (options) this.config(options);
 
   // elements
   this.body = document.body;
@@ -478,9 +479,6 @@ function Zooming(options) {
   this.srcThumbnail = null;
   this.pressTimer = null;
 
-  this.style = new Style(this.options);
-  this.eventHandler = new EventHandler(this);
-
   var trans = sniffTransition(this.overlay);
   var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
   this.transformCssProp = trans.transformCssProp;
@@ -488,6 +486,11 @@ function Zooming(options) {
   this.setStyle = function (el, styles, remember) {
     return setStyleHelper(el, styles, remember);
   };
+
+  this.options = Object.assign({}, OPTIONS);
+  if (options) this.config(options);
+  this.style = new Style(this.options);
+  this.eventHandler = new EventHandler(this);
 
   // init overlay
   this.setStyle(this.overlay, this.style.overlay.init);

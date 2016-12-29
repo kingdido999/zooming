@@ -9,9 +9,6 @@ import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from 
  * @param {Object} [options] Update default options if provided.
  */
 function Zooming (options) {
-  this.options = Object.assign({}, OPTIONS)
-  if (options) this.config(options)
-
   // elements
   this.body = document.body
   this.overlay = document.createElement('div')
@@ -28,9 +25,6 @@ function Zooming (options) {
   this.srcThumbnail = null
   this.pressTimer = null
 
-  this.style = new Style(this.options)
-  this.eventHandler = new EventHandler(this)
-
   const trans = sniffTransition(this.overlay)
   const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
   this.transformCssProp = trans.transformCssProp
@@ -38,6 +32,11 @@ function Zooming (options) {
   this.setStyle = (el, styles, remember) => {
     return setStyleHelper(el, styles, remember)
   }
+
+  this.options = Object.assign({}, OPTIONS)
+  if (options) this.config(options)
+  this.style = new Style(this.options)
+  this.eventHandler = new EventHandler(this)
 
   // init overlay
   this.setStyle(this.overlay, this.style.overlay.init)
