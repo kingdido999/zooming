@@ -1,0 +1,446 @@
+import style from './_style'
+import defaultOptions from './_options'
+import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './_helpers'
+import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
+import { processTouches } from './_touch'
+
+const PRESS_DELAY = 200
+const EVENT_TYPES_GRAB = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
+
+function Zooming (options = defaultOptions) {
+  this.options = Object.assign({}, options)
+
+  // elements
+  this.body = document.body
+  this.overlay = document.createElement('div')
+  this.target = null
+  this.parent = null
+
+  // state
+  this.shown = false       // target is open
+  this.lock  = false       // target is in transform
+  this.released = true     // mouse/finger is not pressing down
+  this.lastScrollPosition = null
+  this.translate = null
+  this.scale = null
+  this.srcThumbnail = null
+  this.pressTimer = null
+
+  const trans = sniffTransition(this.overlay)
+  const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
+  this.transformCssProp = trans.transformCssProp
+  this.transEndEvent = trans.transEndEvent
+  this.setStyle = (el, styles, remember) => {
+    return setStyleHelper(el, styles, remember)
+  }
+
+  this.eventHandler = this.eventHandler()
+
+  // init overlay
+  this.setStyle(this.overlay, style.overlay.init)
+  this.overlay.addEventListener('click', () => this.close())
+}
+
+Zooming.prototype = {
+
+  eventHandler: function () {
+    const handler = {
+      click: function (e) {
+        e.preventDefault()
+
+        if (this.shown) {
+          if (this.released) this.close()
+          else this.release()
+        } else {
+          this.open(e.currentTarget)
+        }
+      },
+
+      scroll: function () {
+        const st = scrollTop()
+
+        if (this.lastScrollPosition === null) {
+          this.lastScrollPosition = st
+        }
+
+        const deltaY = this.lastScrollPosition - st
+
+        if (Math.abs(deltaY) >= this.options.scrollThreshold) {
+          this.lastScrollPosition = null
+          this.close()
+        }
+      },
+
+      keydown: function (e) {
+        const code = e.key || e.code
+        if (code === 'Escape' || e.keyCode === 27) {
+          if (this.released) this.close()
+          else this.release(() => this.close())
+        }
+      },
+
+      mousedown: function (e) {
+        if (e.button !== 0) return
+        e.preventDefault()
+
+        this.pressTimer = setTimeout(() => {
+          this.grab(e.clientX, e.clientY)
+        }, PRESS_DELAY)
+      },
+
+      mousemove: function (e) {
+        if (this.released) return
+        this.move(e.clientX, e.clientY)
+      },
+
+      mouseup: function (e) {
+        if (e.button !== 0) return
+        clearTimeout(this.pressTimer)
+
+        if (this.released) this.close()
+        else this.release()
+      },
+
+      touchstart: function (e) {
+        e.preventDefault()
+
+        this.pressTimer = setTimeout(() => {
+          processTouches(e.touches, (x, y, scaleExtra) => {
+            this.grab(x, y, scaleExtra)
+          })
+        }, PRESS_DELAY)
+      },
+
+      touchmove: function (e) {
+        if (this.released) return
+
+        processTouches(e.touches, (x, y, scaleExtra) => {
+          this.move(x, y, scaleExtra)
+        })
+      },
+
+      touchend: function (e) {
+        if (e.targetTouches.length > 0) return
+        clearTimeout(this.pressTimer)
+
+        if (this.released) this.close()
+        else this.release()
+      }
+    }
+
+    for (let fn in handler) {
+      handler[fn] = handler[fn].bind(this)
+    }
+
+    return handler
+  },
+
+  /**
+   * Make element(s) zoomable.
+   * @param  {string|Element} el A css selector or an Element.
+   * @return {this}
+   */
+  listen: function (el) {
+    if (typeof el === 'string') {
+      let els = document.querySelectorAll(el), i = els.length
+
+      while (i--) {
+        this.listen(els[i])
+      }
+
+      return this
+    }
+
+    if (el.tagName !== 'IMG') return
+
+    el.style.cursor = style.cursor.zoomIn
+
+    el.addEventListener('click', this.eventHandler.click)
+
+    if (this.options.preloadImage && el.hasAttribute('data-original')) {
+      loadImage(el.getAttribute('data-original'))
+    }
+
+    return this
+  },
+
+  /**
+   * Open (zoom in) the Element.
+   * @param  {Element} el The Element to open.
+   * @param  {Function} [cb=this.options.onOpen] A callback function that will be
+   * called when a target is opened and transition has ended. It will get
+   * the target element as the argument.
+   * @return {this}
+   */
+  open: function (el, cb = this.options.onOpen) {
+    if (this.shown || this.lock) return
+
+    this.target = typeof el === 'string'
+      ? document.querySelector(el)
+      : el
+
+    if (this.target.tagName !== 'IMG') return
+
+    // onBeforeOpen event
+    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target)
+
+    this.shown = true
+    this.lock = true
+    this.parent = this.target.parentNode
+
+    // load hi-res image if preloadImage option is disabled
+    if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
+      loadImage(this.target.getAttribute('data-original'))
+    }
+
+    const rect = this.target.getBoundingClientRect()
+    this.translate = calculateTranslate(rect)
+    this.scale = calculateScale(rect, this.options.scaleBase)
+
+    // force layout update
+    this.target.offsetWidth
+
+    style.target.open = {
+      position: 'relative',
+      zIndex: 999,
+      cursor: this.options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      transition: `${this.transformCssProp}
+        ${this.options.transitionDuration}s
+        ${this.options.transitionTimingFunction}`,
+      transform: `translate(${this.translate.x}px, ${this.translate.y}px) scale(${this.scale})`
+    }
+
+    // trigger transition
+    style.target.close = this.setStyle(this.target, style.target.open, true)
+
+    // insert this.overlay
+    this.parent.appendChild(this.overlay)
+    setTimeout(() => this.overlay.style.opacity = this.options.bgOpacity, 30)
+
+    document.addEventListener('scroll', this.eventHandler.scroll)
+    document.addEventListener('keydown', this.eventHandler.keydown)
+
+    const onEnd = () => {
+      this.target.removeEventListener(this.transEndEvent, onEnd)
+
+      this.lock = false
+
+      if (this.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, true)
+      }
+
+      if (this.target.hasAttribute('data-original')) {
+        this.srcThumbnail = this.target.getAttribute('src')
+        const dataOriginal = this.target.getAttribute('data-original')
+        const temp = this.target.cloneNode(false)
+
+        // force compute the hi-res image in DOM to prevent
+        // image flickering while updating src
+        temp.setAttribute('src', dataOriginal)
+        temp.style.position = 'absolute'
+        temp.style.visibility = 'hidden'
+        this.body.appendChild(temp)
+
+        setTimeout(() => {
+          this.target.setAttribute('src', dataOriginal)
+          this.body.removeChild(temp)
+        }, 10)
+      }
+
+      if (cb) cb(this.target)
+    }
+
+    this.target.addEventListener(this.transEndEvent, onEnd)
+
+    return this
+  },
+
+  /**
+   * Close (zoom out) the Element currently opened.
+   * @param  {Function} [cb=this.options.onClose] A callback function that will be
+   * called when a target is closed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {this}
+   */
+  close: function (cb = this.options.onClose) {
+    if (!this.shown || this.lock) return
+
+    // onBeforeClose event
+    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target)
+
+    this.lock = true
+
+    // force layout update
+    this.target.offsetWidth
+
+    this.body.style.cursor = style.cursor.default
+    this.overlay.style.opacity = 0
+    this.setStyle(this.target, { transform: 'none' })
+
+    document.removeEventListener('scroll', this.eventHandler.scroll)
+    document.removeEventListener('keydown', this.eventHandler.keydown)
+
+    const onEnd = () => {
+      this.target.removeEventListener(this.transEndEvent, onEnd)
+
+      this.shown = false
+      this.lock = false
+
+      if (this.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, false)
+      }
+
+      if (this.target.hasAttribute('data-original')) {
+        // downgrade source
+        this.target.setAttribute('src', this.srcThumbnail)
+      }
+
+      // trigger transition
+      this.setStyle(this.target, style.target.close)
+
+      // remove overlay
+      this.parent.removeChild(this.overlay)
+
+      if (cb) cb(this.target)
+    }
+
+    this.target.addEventListener(this.transEndEvent, onEnd)
+
+    return this
+  },
+
+  /**
+   * Grab the Element currently opened given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
+   * called when a target is grabbed and transition has ended. It will get
+   * the target element as the argument.
+   * @return {this}
+   */
+  grab: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
+    if (!this.shown || this.lock) return
+
+    // onBeforeGrab event
+    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target)
+
+    this.released = false
+
+    const windowCenter = getWindowCenter()
+    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
+
+    this.setStyle(this.target, {
+      cursor: style.cursor.move,
+      transform: `translate(${this.translate.x + dx}px, ${this.translate.y + dy}px)
+        scale(${this.scale + scaleExtra})`
+    })
+
+    const onEnd = () => {
+      this.target.removeEventListener(this.transEndEvent, onEnd)
+      if (cb) cb(this.target)
+    }
+
+    this.target.addEventListener(this.transEndEvent, onEnd)
+  },
+
+  /**
+   * Move the Element currently grabbed given a position and apply extra zoom-in.
+   * @param  {number}   x The X-axis of where the press happened.
+   * @param  {number}   y The Y-axis of where the press happened.
+   * @param  {number}   scaleExtra Extra zoom-in to apply.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
+   * called when a target is moved and transition has ended. It will get
+   * the target element as the argument.
+   * @return {this}
+   */
+  move: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
+    if (!this.shown || this.lock) return
+
+    // onBeforeMove event
+    if (this.options.onBeforeMove) this.options.onBeforeMove(this.target)
+
+    this.released = false
+
+    const windowCenter = getWindowCenter()
+    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
+
+    this.setStyle(this.target, {
+      transition: this.transformCssProp,
+      transform: `translate(${this.translate.x + dx}px, ${this.translate.y + dy}px)
+        scale(${this.scale + scaleExtra})`
+    })
+
+    this.body.style.cursor = style.cursor.move
+
+    const onEnd = () => {
+      this.target.removeEventListener(this.transEndEvent, onEnd)
+      if (cb) cb(this.target)
+    }
+
+    this.target.addEventListener(this.transEndEvent, onEnd)
+  },
+
+  /**
+   * Release the Element currently grabbed.
+   * @param  {Function} [cb=this.options.onRelease] A callback function that will be
+   * called when a target is released and transition has ended. It will get
+   * the target element as the argument.
+   * @return {this}
+   */
+  release: function (cb = this.options.onRelease) {
+    if (!this.shown || this.lock) return
+
+    // onBeforeRelease event
+    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target)
+
+    this.lock = true
+
+    this.setStyle(this.target, style.target.open)
+    this.body.style.cursor = style.cursor.default
+
+    const onEnd = () => {
+      this.target.removeEventListener(this.transEndEvent, onEnd)
+
+      this.lock = false
+      this.released = true
+
+      if (cb) cb(this.target)
+    }
+
+    this.target.addEventListener(this.transEndEvent, onEnd)
+
+    return this
+  },
+
+  /**
+   * Update this.options.
+   * @param  {Object} opts An Object that contains this.options.
+   * @return {this}
+   */
+  config: function (opts) {
+    if (!opts) return this.options
+
+    for (let key in opts) {
+      this.options[key] = opts[key]
+    }
+
+    this.setStyle(this.overlay, {
+      backgroundColor: this.options.bgColor,
+      transition: `opacity
+        ${this.options.transitionDuration}s
+        ${this.options.transitionTimingFunction}`
+    })
+
+    return this
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new Zooming().listen(defaultOptions.defaultZoomable)
+})
+
+export default Zooming

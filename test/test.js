@@ -1,12 +1,13 @@
 var expect = chai.expect
 
+var z = new Zooming()
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
-var defaultOpts = Object.assign({}, Zooming.config())
+var defaultOpts = Object.assign({}, z.config())
+var els = document.querySelectorAll(defaultOpts.defaultZoomable)
+var el = els[0]
+var i = els.length
 
 describe('API', function() {
-  var els = document.querySelectorAll(defaultOpts.defaultZoomable)
-  var el = els[0]
-  var i = els.length
 
   describe('listen()', function() {
     it('should set cursor style to zoom-in', function() {
@@ -40,21 +41,21 @@ describe('API', function() {
     }
 
     before(function() {
-      Zooming.config(opts)
+      z.config(opts)
     })
 
     it('should update options correctly', function() {
-      expect(Zooming.config()).to.deep.equal(opts)
+      expect(z.config()).to.deep.equal(opts)
     })
 
     after(function() {
-      Zooming.config(defaultOpts)
+      z.config(defaultOpts)
     })
   })
 
   describe('open()', function() {
     it('should open up the image', function(done) {
-      Zooming.open(el, function(target) {
+      z.open(el, function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
         expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
@@ -65,9 +66,7 @@ describe('API', function() {
     })
 
     it('should insert the overlay', function() {
-      var overlay = el.parentNode.lastChild
-      var style = overlay.style
-      expect(overlay.getAttribute('id')).to.equal('zoom-overlay')
+      var style = z.overlay.style
       expect(style.zIndex).to.equal('998')
       expect(style.backgroundColor).to.equal(defaultOpts.bgColor)
       expect(style.position).to.equal('fixed')
@@ -85,7 +84,7 @@ describe('API', function() {
     var y = window.innerHeight / 2
 
     it('should grab the image', function(done) {
-      Zooming.grab(x, y, defaultOpts.scaleExtra, function(target) {
+      z.grab(x, y, defaultOpts.scaleExtra, function(target) {
         expect(target.style.cursor).to.equal('move')
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
@@ -96,7 +95,7 @@ describe('API', function() {
 
   describe('release()', function() {
     it('should release the image', function(done) {
-      Zooming.release(function(target) {
+      z.release(function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
         expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
@@ -109,7 +108,7 @@ describe('API', function() {
 
   describe('close()', function() {
     it('should close out the image', function(done) {
-      Zooming.close(function(target) {
+      z.close(function(target) {
         expect(target.style.position).to.be.empty
         expect(target.style.zIndex).to.be.empty
         expect(target.style.cursor).to.equal(prefix + 'zoom-in')
@@ -120,8 +119,7 @@ describe('API', function() {
     })
 
     it('should remove the overlay', function() {
-      var overlay = document.querySelector('#zoom-overlay')
-      expect(overlay).to.not.exist
+      expect(el.parentNode.lastElementChild.tagName).to.equal('IMG')
     })
   })
 })

@@ -27,7 +27,7 @@ const defaultPlugins = [
 
 const config = (dest, plugins) => {
   return {
-    entry: 'src/main.js',
+    entry: 'src/zooming.js',
     dest: dest,
     format: 'umd',
     moduleName: 'Zooming',
@@ -42,7 +42,7 @@ const config = (dest, plugins) => {
   }
 }
 
-// stderr to stderr to keep `rollup main.js > bundle.js` from breaking
+// stderr to stderr to keep `rollup zooming.js > bundle.js` from breaking
 const stderr = console.error.bind(console) // eslint-disable-line no-console
 
 const eventHandler = (event) => {

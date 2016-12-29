@@ -4,7 +4,7 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-var body$1 = document.body;
+var body = document.body;
 var docElm = document.documentElement;
 var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 
@@ -25,12 +25,12 @@ var loadImage = function loadImage(url, cb) {
 };
 
 var scrollTop = function scrollTop() {
-  return window.pageYOffset || (docElm || body$1.parentNode || body$1).scrollTop;
+  return window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
 };
 
 var getWindowCenter = function getWindowCenter() {
-  var docWidth = docElm.clientWidth || body$1.clientWidth;
-  var docHeight = docElm.clientHeight || body$1.clientHeight;
+  var docWidth = docElm.clientWidth || body.clientWidth;
+  var docHeight = docElm.clientHeight || body.clientHeight;
 
   return {
     x: half(docWidth),
@@ -360,129 +360,153 @@ var processTouches = function processTouches(touches, cb) {
   cb(xs / total, ys / total, scaleExtra);
 };
 
-var _this = undefined;
-
 var PRESS_DELAY = 200;
 var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
-// elements
-var body = document.body;
-var overlay = document.createElement('div');
-var target = void 0;
-var parent = void 0;
+function Zooming() {
+  var _this = this;
 
-// state
-var shown = false; // target is open
-var lock = false; // target is in transform
-var released = true; // mouse/finger is not pressing down
-var lastScrollPosition = null;
-var translate = void 0;
-var scale = void 0;
-var srcThumbnail = void 0;
-var pressTimer = void 0;
+  var options$$1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options;
 
-var trans = sniffTransition(overlay);
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
-var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+  this.options = Object.assign({}, options$$1);
 
-var setStyle$1 = function setStyle$1(el, styles, remember) {
-  return setStyleHelper(el, styles, remember);
-};
+  // elements
+  this.body = document.body;
+  this.overlay = document.createElement('div');
+  this.target = null;
+  this.parent = null;
 
-var eventHandler = {
+  // state
+  this.shown = false; // target is open
+  this.lock = false; // target is in transform
+  this.released = true; // mouse/finger is not pressing down
+  this.lastScrollPosition = null;
+  this.translate = null;
+  this.scale = null;
+  this.srcThumbnail = null;
+  this.pressTimer = null;
 
-  click: function click(e) {
-    e.preventDefault();
+  var trans = sniffTransition(this.overlay);
+  var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
+  this.transformCssProp = trans.transformCssProp;
+  this.transEndEvent = trans.transEndEvent;
+  this.setStyle = function (el, styles, remember) {
+    return setStyleHelper(el, styles, remember);
+  };
 
-    if (shown) {
-      if (released) api.close();else api.release();
-    } else {
-      api.open(e.currentTarget);
+  this.eventHandler = this.eventHandler();
+
+  // init overlay
+  this.setStyle(this.overlay, style.overlay.init);
+  this.overlay.addEventListener('click', function () {
+    return _this.close();
+  });
+}
+
+Zooming.prototype = {
+
+  eventHandler: function eventHandler() {
+    var handler = {
+      click: function click(e) {
+        e.preventDefault();
+
+        if (this.shown) {
+          if (this.released) this.close();else this.release();
+        } else {
+          this.open(e.currentTarget);
+        }
+      },
+
+      scroll: function scroll() {
+        var st = scrollTop();
+
+        if (this.lastScrollPosition === null) {
+          this.lastScrollPosition = st;
+        }
+
+        var deltaY = this.lastScrollPosition - st;
+
+        if (Math.abs(deltaY) >= this.options.scrollThreshold) {
+          this.lastScrollPosition = null;
+          this.close();
+        }
+      },
+
+      keydown: function keydown(e) {
+        var _this2 = this;
+
+        var code = e.key || e.code;
+        if (code === 'Escape' || e.keyCode === 27) {
+          if (this.released) this.close();else this.release(function () {
+            return _this2.close();
+          });
+        }
+      },
+
+      mousedown: function mousedown(e) {
+        var _this3 = this;
+
+        if (e.button !== 0) return;
+        e.preventDefault();
+
+        this.pressTimer = setTimeout(function () {
+          _this3.grab(e.clientX, e.clientY);
+        }, PRESS_DELAY);
+      },
+
+      mousemove: function mousemove(e) {
+        if (this.released) return;
+        this.move(e.clientX, e.clientY);
+      },
+
+      mouseup: function mouseup(e) {
+        if (e.button !== 0) return;
+        clearTimeout(this.pressTimer);
+
+        if (this.released) this.close();else this.release();
+      },
+
+      touchstart: function touchstart(e) {
+        var _this4 = this;
+
+        e.preventDefault();
+
+        this.pressTimer = setTimeout(function () {
+          processTouches(e.touches, function (x, y, scaleExtra) {
+            _this4.grab(x, y, scaleExtra);
+          });
+        }, PRESS_DELAY);
+      },
+
+      touchmove: function touchmove(e) {
+        var _this5 = this;
+
+        if (this.released) return;
+
+        processTouches(e.touches, function (x, y, scaleExtra) {
+          _this5.move(x, y, scaleExtra);
+        });
+      },
+
+      touchend: function touchend(e) {
+        if (e.targetTouches.length > 0) return;
+        clearTimeout(this.pressTimer);
+
+        if (this.released) this.close();else this.release();
+      }
+    };
+
+    for (var fn in handler) {
+      handler[fn] = handler[fn].bind(this);
     }
+
+    return handler;
   },
-
-  scroll: function scroll() {
-    var st = scrollTop();
-
-    if (lastScrollPosition === null) {
-      lastScrollPosition = st;
-    }
-
-    var deltaY = lastScrollPosition - st;
-
-    if (Math.abs(deltaY) >= options.scrollThreshold) {
-      lastScrollPosition = null;
-      api.close();
-    }
-  },
-
-  keydown: function keydown(e) {
-    var code = e.key || e.code;
-    if (code === 'Escape' || e.keyCode === 27) {
-      if (released) api.close();else api.release(function () {
-        return api.close();
-      });
-    }
-  },
-
-  mousedown: function mousedown(e) {
-    if (e.button !== 0) return;
-    e.preventDefault();
-
-    pressTimer = setTimeout(function () {
-      api.grab(e.clientX, e.clientY);
-    }, PRESS_DELAY);
-  },
-
-  mousemove: function mousemove(e) {
-    if (released) return;
-    api.move(e.clientX, e.clientY);
-  },
-
-  mouseup: function mouseup(e) {
-    if (e.button !== 0) return;
-    clearTimeout(pressTimer);
-
-    if (released) api.close();else api.release();
-  },
-
-  touchstart: function touchstart(e) {
-    e.preventDefault();
-
-    pressTimer = setTimeout(function () {
-      processTouches(e.touches, function (x, y, scaleExtra) {
-        api.grab(x, y, scaleExtra);
-      });
-    }, PRESS_DELAY);
-  },
-
-  touchmove: function touchmove(e) {
-    if (released) return;
-
-    processTouches(e.touches, function (x, y, scaleExtra) {
-      api.move(x, y, scaleExtra);
-    });
-  },
-
-  touchend: function touchend(e) {
-    if (e.targetTouches.length > 0) return;
-    clearTimeout(pressTimer);
-
-    if (released) api.close();else api.release();
-  }
-};
-
-/**
- * Zooming methods.
- * @type {Object}
- */
-var api = {
 
   /**
    * Make element(s) zoomable.
    * @param  {string|Element} el A css selector or an Element.
-   * @return {api}
+   * @return {this}
    */
   listen: function listen(el) {
     if (typeof el === 'string') {
@@ -490,168 +514,176 @@ var api = {
           i = els.length;
 
       while (i--) {
-        api.listen(els[i]);
+        this.listen(els[i]);
       }
 
-      return _this;
+      return this;
     }
 
     if (el.tagName !== 'IMG') return;
 
     el.style.cursor = style.cursor.zoomIn;
 
-    el.addEventListener('click', eventHandler.click);
+    el.addEventListener('click', this.eventHandler.click);
 
-    if (options.preloadImage && el.hasAttribute('data-original')) {
+    if (this.options.preloadImage && el.hasAttribute('data-original')) {
       loadImage(el.getAttribute('data-original'));
     }
 
-    return _this;
+    return this;
   },
 
   /**
    * Open (zoom in) the Element.
    * @param  {Element} el The Element to open.
-   * @param  {Function} [cb=options.onOpen] A callback function that will be
+   * @param  {Function} [cb=this.options.onOpen] A callback function that will be
    * called when a target is opened and transition has ended. It will get
    * the target element as the argument.
-   * @return {api}
+   * @return {this}
    */
   open: function open(el) {
-    var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : options.onOpen;
+    var _this6 = this;
 
-    if (shown || lock) return;
+    var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.options.onOpen;
 
-    target = typeof el === 'string' ? document.querySelector(el) : el;
+    if (this.shown || this.lock) return;
 
-    if (target.tagName !== 'IMG') return;
+    this.target = typeof el === 'string' ? document.querySelector(el) : el;
+
+    if (this.target.tagName !== 'IMG') return;
 
     // onBeforeOpen event
-    if (options.onBeforeOpen) options.onBeforeOpen(target);
+    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target);
 
-    shown = true;
-    lock = true;
-    parent = target.parentNode;
+    this.shown = true;
+    this.lock = true;
+    this.parent = this.target.parentNode;
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && target.hasAttribute('data-original')) {
-      loadImage(target.getAttribute('data-original'));
+    if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
+      loadImage(this.target.getAttribute('data-original'));
     }
 
-    var rect = target.getBoundingClientRect();
-    translate = calculateTranslate(rect);
-    scale = calculateScale(rect, options.scaleBase);
+    var rect = this.target.getBoundingClientRect();
+    this.translate = calculateTranslate(rect);
+    this.scale = calculateScale(rect, this.options.scaleBase);
 
     // force layout update
-    target.offsetWidth;
+    this.target.offsetWidth;
 
     style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
-      transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
-      transform: 'translate(' + translate.x + 'px, ' + translate.y + 'px) scale(' + scale + ')'
+      cursor: this.options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      transition: this.transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
+      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px) scale(' + this.scale + ')'
     };
 
     // trigger transition
-    style.target.close = setStyle$1(target, style.target.open, true);
+    style.target.close = this.setStyle(this.target, style.target.open, true);
 
-    // insert overlay
-    parent.appendChild(overlay);
+    // insert this.overlay
+    this.parent.appendChild(this.overlay);
     setTimeout(function () {
-      return overlay.style.opacity = options.bgOpacity;
+      return _this6.overlay.style.opacity = _this6.options.bgOpacity;
     }, 30);
 
-    document.addEventListener('scroll', eventHandler.scroll);
-    document.addEventListener('keydown', eventHandler.keydown);
+    document.addEventListener('scroll', this.eventHandler.scroll);
+    document.addEventListener('keydown', this.eventHandler.keydown);
 
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
+    var onEnd = function onEnd() {
+      _this6.target.removeEventListener(_this6.transEndEvent, onEnd);
 
-      lock = false;
+      _this6.lock = false;
 
-      if (options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, true);
+      if (_this6.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, _this6.eventHandler, true);
       }
 
-      if (target.hasAttribute('data-original')) {
+      if (_this6.target.hasAttribute('data-original')) {
         (function () {
-          srcThumbnail = target.getAttribute('src');
-          var dataOriginal = target.getAttribute('data-original');
-          var temp = target.cloneNode(false);
+          _this6.srcThumbnail = _this6.target.getAttribute('src');
+          var dataOriginal = _this6.target.getAttribute('data-original');
+          var temp = _this6.target.cloneNode(false);
 
           // force compute the hi-res image in DOM to prevent
           // image flickering while updating src
           temp.setAttribute('src', dataOriginal);
           temp.style.position = 'absolute';
           temp.style.visibility = 'hidden';
-          body.appendChild(temp);
+          _this6.body.appendChild(temp);
 
           setTimeout(function () {
-            target.setAttribute('src', dataOriginal);
-            body.removeChild(temp);
+            _this6.target.setAttribute('src', dataOriginal);
+            _this6.body.removeChild(temp);
           }, 10);
         })();
       }
 
-      if (cb) cb(target);
-    });
+      if (cb) cb(_this6.target);
+    };
 
-    return _this;
+    this.target.addEventListener(this.transEndEvent, onEnd);
+
+    return this;
   },
 
   /**
    * Close (zoom out) the Element currently opened.
-   * @param  {Function} [cb=options.onClose] A callback function that will be
+   * @param  {Function} [cb=this.options.onClose] A callback function that will be
    * called when a target is closed and transition has ended. It will get
    * the target element as the argument.
-   * @return {api}
+   * @return {this}
    */
   close: function close() {
-    var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onClose;
+    var _this7 = this;
 
-    if (!shown || lock) return;
+    var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.onClose;
+
+    if (!this.shown || this.lock) return;
 
     // onBeforeClose event
-    if (options.onBeforeClose) options.onBeforeClose(target);
+    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target);
 
-    lock = true;
+    this.lock = true;
 
     // force layout update
-    target.offsetWidth;
+    this.target.offsetWidth;
 
-    body.style.cursor = style.cursor.default;
-    overlay.style.opacity = 0;
-    setStyle$1(target, { transform: 'none' });
+    this.body.style.cursor = style.cursor.default;
+    this.overlay.style.opacity = 0;
+    this.setStyle(this.target, { transform: 'none' });
 
-    document.removeEventListener('scroll', eventHandler.scroll);
-    document.removeEventListener('keydown', eventHandler.keydown);
+    document.removeEventListener('scroll', this.eventHandler.scroll);
+    document.removeEventListener('keydown', this.eventHandler.keydown);
 
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
+    var onEnd = function onEnd() {
+      _this7.target.removeEventListener(_this7.transEndEvent, onEnd);
 
-      shown = false;
-      lock = false;
+      _this7.shown = false;
+      _this7.lock = false;
 
-      if (options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, eventHandler, false);
+      if (_this7.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, _this7.eventHandler, false);
       }
 
-      if (target.hasAttribute('data-original')) {
+      if (_this7.target.hasAttribute('data-original')) {
         // downgrade source
-        target.setAttribute('src', srcThumbnail);
+        _this7.target.setAttribute('src', _this7.srcThumbnail);
       }
 
       // trigger transition
-      setStyle$1(target, style.target.close);
+      _this7.setStyle(_this7.target, style.target.close);
 
       // remove overlay
-      parent.removeChild(overlay);
+      _this7.parent.removeChild(_this7.overlay);
 
-      if (cb) cb(target);
-    });
+      if (cb) cb(_this7.target);
+    };
 
-    return _this;
+    this.target.addEventListener(this.transEndEvent, onEnd);
+
+    return this;
   },
 
   /**
@@ -659,36 +691,40 @@ var api = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
    * called when a target is grabbed and transition has ended. It will get
    * the target element as the argument.
-   * @return {api}
+   * @return {this}
    */
   grab: function grab(x, y) {
-    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
+    var _this8 = this;
+
+    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
 
-    if (!shown || lock) return;
+    if (!this.shown || this.lock) return;
 
     // onBeforeGrab event
-    if (options.onBeforeGrab) options.onBeforeGrab(target);
+    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target);
 
-    released = false;
+    this.released = false;
 
     var windowCenter = getWindowCenter();
     var dx = windowCenter.x - x,
         dy = windowCenter.y - y;
 
 
-    setStyle$1(target, {
+    this.setStyle(this.target, {
       cursor: style.cursor.move,
-      transform: 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)\n        scale(' + (scale + scaleExtra) + ')'
+      transform: 'translate(' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(target);
-    });
+    var onEnd = function onEnd() {
+      _this8.target.removeEventListener(_this8.transEndEvent, onEnd);
+      if (cb) cb(_this8.target);
+    };
+
+    this.target.addEventListener(this.transEndEvent, onEnd);
   },
 
   /**
@@ -696,105 +732,106 @@ var api = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=options.scaleExtra] A callback function that will be
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
    * called when a target is moved and transition has ended. It will get
    * the target element as the argument.
-   * @return {api}
+   * @return {this}
    */
   move: function move(x, y) {
-    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : options.scaleExtra;
+    var _this9 = this;
+
+    var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
 
-    if (!shown || lock) return;
+    if (!this.shown || this.lock) return;
 
     // onBeforeMove event
-    if (options.onBeforeMove) options.onBeforeMove(target);
+    if (this.options.onBeforeMove) this.options.onBeforeMove(this.target);
 
-    released = false;
+    this.released = false;
 
     var windowCenter = getWindowCenter();
     var dx = windowCenter.x - x,
         dy = windowCenter.y - y;
 
 
-    setStyle$1(target, {
-      transition: transformCssProp,
-      transform: 'translate(' + (translate.x + dx) + 'px, ' + (translate.y + dy) + 'px)\n        scale(' + (scale + scaleExtra) + ')'
+    this.setStyle(this.target, {
+      transition: this.transformCssProp,
+      transform: 'translate(' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
-    body.style.cursor = style.cursor.move;
+    this.body.style.cursor = style.cursor.move;
 
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(target);
-    });
+    var onEnd = function onEnd() {
+      _this9.target.removeEventListener(_this9.transEndEvent, onEnd);
+      if (cb) cb(_this9.target);
+    };
+
+    this.target.addEventListener(this.transEndEvent, onEnd);
   },
 
   /**
    * Release the Element currently grabbed.
-   * @param  {Function} [cb=options.onRelease] A callback function that will be
+   * @param  {Function} [cb=this.options.onRelease] A callback function that will be
    * called when a target is released and transition has ended. It will get
    * the target element as the argument.
-   * @return {api}
+   * @return {this}
    */
   release: function release() {
-    var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options.onRelease;
+    var _this10 = this;
 
-    if (!shown || lock) return;
+    var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.onRelease;
+
+    if (!this.shown || this.lock) return;
 
     // onBeforeRelease event
-    if (options.onBeforeRelease) options.onBeforeRelease(target);
+    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target);
 
-    lock = true;
+    this.lock = true;
 
-    setStyle$1(target, style.target.open);
-    body.style.cursor = style.cursor.default;
+    this.setStyle(this.target, style.target.open);
+    this.body.style.cursor = style.cursor.default;
 
-    target.addEventListener(transEndEvent, function onEnd() {
-      target.removeEventListener(transEndEvent, onEnd);
+    var onEnd = function onEnd() {
+      _this10.target.removeEventListener(_this10.transEndEvent, onEnd);
 
-      lock = false;
-      released = true;
+      _this10.lock = false;
+      _this10.released = true;
 
-      if (cb) cb(target);
-    });
+      if (cb) cb(_this10.target);
+    };
 
-    return _this;
+    this.target.addEventListener(this.transEndEvent, onEnd);
+
+    return this;
   },
 
   /**
-   * Update options.
-   * @param  {Object} opts An Object that contains options.
-   * @return {api}
+   * Update this.options.
+   * @param  {Object} opts An Object that contains this.options.
+   * @return {this}
    */
   config: function config(opts) {
-    if (!opts) return options;
+    if (!opts) return this.options;
 
     for (var key in opts) {
-      options[key] = opts[key];
+      this.options[key] = opts[key];
     }
 
-    setStyle$1(overlay, {
-      backgroundColor: options.bgColor,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    this.setStyle(this.overlay, {
+      backgroundColor: this.options.bgColor,
+      transition: 'opacity\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction
     });
 
-    return _this;
+    return this;
   }
 };
 
-// Init ------------------------------------------------------------------------
-
-setStyle$1(overlay, style.overlay.init);
-overlay.setAttribute('id', 'zoom-overlay');
-overlay.addEventListener('click', function () {
-  return api.close();
-});
 document.addEventListener('DOMContentLoaded', function () {
-  api.listen(options.defaultZoomable);
+  new Zooming().listen(options.defaultZoomable);
 });
 
-return api;
+return Zooming;
 
 })));
 //# sourceMappingURL=zooming.js.map
