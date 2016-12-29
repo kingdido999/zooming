@@ -82,11 +82,9 @@ Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already. Fork and
 
 `yarn && yarn watch`
 
-Open up `index.html` and play around with it!
-
 ## Test
 
-Open up `test.html` for browser testing (keep your cursor away from the browser window).
+`yarn test`
 
 ## Credit
 
