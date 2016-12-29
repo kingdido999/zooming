@@ -50,6 +50,35 @@ var toggleListeners = function toggleListeners(el, types, handler) {
   });
 };
 
+function Style(options) {
+  return {
+    target: {
+      close: null,
+      open: null
+    },
+    overlay: {
+      init: {
+        zIndex: 998,
+        backgroundColor: options.bgColor,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0,
+        transition: 'opacity\n          ' + options.transitionDuration + 's\n          ' + options.transitionTimingFunction
+      }
+    },
+    cursor: {
+      default: 'auto',
+      zoomIn: webkitPrefix + 'zoom-in',
+      zoomOut: webkitPrefix + 'zoom-out',
+      grab: webkitPrefix + 'grab',
+      move: 'move'
+    }
+  };
+}
+
 /**
  * A list of options.
  *
@@ -77,7 +106,7 @@ var toggleListeners = function toggleListeners(el, types, handler) {
  *   onBeforeRelease: null
  * }
  */
-var options = {
+var OPTIONS = {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
    * @type {string|Element}
@@ -188,32 +217,9 @@ var options = {
   onBeforeRelease: null
 };
 
-var style = {
-  target: {
-    close: null,
-    open: null
-  },
-  overlay: {
-    init: {
-      zIndex: 998,
-      backgroundColor: options.bgColor,
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      opacity: 0,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-    }
-  },
-  cursor: {
-    default: 'auto',
-    zoomIn: webkitPrefix + 'zoom-in',
-    zoomOut: webkitPrefix + 'zoom-out',
-    grab: webkitPrefix + 'grab',
-    move: 'move'
-  }
-};
+var PRESS_DELAY = 200;
+var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
+var TOUCH_SCALE_FACTOR = 2;
 
 var sniffTransition = function sniffTransition(el) {
   var ret = {};
@@ -303,14 +309,12 @@ var calculateScale = function calculateScale(rect, scaleBase) {
   return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
-var TOUCH_SCALE_FACTOR = 2;
-
-var processTouches = function processTouches(touches, cb) {
+var processTouches = function processTouches(touches, currScaleExtra, cb) {
   var total = touches.length;
   var firstTouch = touches[0];
   var multitouch = total > 1;
 
-  var scaleExtra = options.scaleExtra;
+  var scaleExtra = currScaleExtra;
   var i = touches.length;
   var xs = 0,
       ys = 0;
@@ -360,15 +364,13 @@ var processTouches = function processTouches(touches, cb) {
   cb(xs / total, ys / total, scaleExtra);
 };
 
-var PRESS_DELAY = 200;
-var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
 function Zooming() {
   var _this = this;
 
-  var options$$1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : options;
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : OPTIONS;
 
-  this.options = Object.assign({}, options$$1);
+  this.options = Object.assign({}, options);
+  this.style = new Style(this.options);
 
   // elements
   this.body = document.body;
@@ -397,7 +399,7 @@ function Zooming() {
   this.eventHandler = this.eventHandler();
 
   // init overlay
-  this.setStyle(this.overlay, style.overlay.init);
+  this.setStyle(this.overlay, this.style.overlay.init);
   this.overlay.addEventListener('click', function () {
     return _this.close();
   });
@@ -472,7 +474,7 @@ Zooming.prototype = {
         e.preventDefault();
 
         this.pressTimer = setTimeout(function () {
-          processTouches(e.touches, function (x, y, scaleExtra) {
+          processTouches(e.touches, _this4.options.scaleExtra, function (x, y, scaleExtra) {
             _this4.grab(x, y, scaleExtra);
           });
         }, PRESS_DELAY);
@@ -483,7 +485,7 @@ Zooming.prototype = {
 
         if (this.released) return;
 
-        processTouches(e.touches, function (x, y, scaleExtra) {
+        processTouches(e.touches, this.options.scaleExtra, function (x, y, scaleExtra) {
           _this5.move(x, y, scaleExtra);
         });
       },
@@ -522,7 +524,7 @@ Zooming.prototype = {
 
     if (el.tagName !== 'IMG') return;
 
-    el.style.cursor = style.cursor.zoomIn;
+    el.style.cursor = this.style.cursor.zoomIn;
 
     el.addEventListener('click', this.eventHandler.click);
 
@@ -536,8 +538,8 @@ Zooming.prototype = {
   /**
    * Open (zoom in) the Element.
    * @param  {Element} el The Element to open.
-   * @param  {Function} [cb=this.options.onOpen] A callback function that will be
-   * called when a target is opened and transition has ended. It will get
+   * @param  {Function} [cb=this.options.onOpen] A callback function that will
+   * be called when a target is opened and transition has ended. It will get
    * the target element as the argument.
    * @return {this}
    */
@@ -571,16 +573,16 @@ Zooming.prototype = {
     // force layout update
     this.target.offsetWidth;
 
-    style.target.open = {
+    this.style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: this.options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      cursor: this.options.enableGrab ? this.style.cursor.grab : this.style.cursor.zoomOut,
       transition: this.transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
-      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px) scale(' + this.scale + ')'
+      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale + ')'
     };
 
     // trigger transition
-    style.target.close = this.setStyle(this.target, style.target.open, true);
+    this.style.target.close = this.setStyle(this.target, this.style.target.open, true);
 
     // insert this.overlay
     this.parent.appendChild(this.overlay);
@@ -630,8 +632,8 @@ Zooming.prototype = {
 
   /**
    * Close (zoom out) the Element currently opened.
-   * @param  {Function} [cb=this.options.onClose] A callback function that will be
-   * called when a target is closed and transition has ended. It will get
+   * @param  {Function} [cb=this.options.onClose] A callback function that will
+   * be called when a target is closed and transition has ended. It will get
    * the target element as the argument.
    * @return {this}
    */
@@ -650,7 +652,7 @@ Zooming.prototype = {
     // force layout update
     this.target.offsetWidth;
 
-    this.body.style.cursor = style.cursor.default;
+    this.body.style.cursor = this.style.cursor.default;
     this.overlay.style.opacity = 0;
     this.setStyle(this.target, { transform: 'none' });
 
@@ -673,7 +675,7 @@ Zooming.prototype = {
       }
 
       // trigger transition
-      _this7.setStyle(_this7.target, style.target.close);
+      _this7.setStyle(_this7.target, _this7.style.target.close);
 
       // remove overlay
       _this7.parent.removeChild(_this7.overlay);
@@ -691,9 +693,9 @@ Zooming.prototype = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
-   * called when a target is grabbed and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * will be called when a target is grabbed and transition has ended. It
+   * will get the target element as the argument.
    * @return {this}
    */
   grab: function grab(x, y) {
@@ -715,8 +717,8 @@ Zooming.prototype = {
 
 
     this.setStyle(this.target, {
-      cursor: style.cursor.move,
-      transform: 'translate(' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
+      cursor: this.style.cursor.move,
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
     var onEnd = function onEnd() {
@@ -732,9 +734,9 @@ Zooming.prototype = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
-   * called when a target is moved and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * will be called when a target is moved and transition has ended. It will
+   * get the target element as the argument.
    * @return {this}
    */
   move: function move(x, y) {
@@ -757,10 +759,10 @@ Zooming.prototype = {
 
     this.setStyle(this.target, {
       transition: this.transformCssProp,
-      transform: 'translate(' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
-    this.body.style.cursor = style.cursor.move;
+    this.body.style.cursor = this.style.cursor.move;
 
     var onEnd = function onEnd() {
       _this9.target.removeEventListener(_this9.transEndEvent, onEnd);
@@ -772,9 +774,9 @@ Zooming.prototype = {
 
   /**
    * Release the Element currently grabbed.
-   * @param  {Function} [cb=this.options.onRelease] A callback function that will be
-   * called when a target is released and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.onRelease] A callback function that
+   * will be called when a target is released and transition has ended. It
+   * will get the target element as the argument.
    * @return {this}
    */
   release: function release() {
@@ -789,8 +791,8 @@ Zooming.prototype = {
 
     this.lock = true;
 
-    this.setStyle(this.target, style.target.open);
-    this.body.style.cursor = style.cursor.default;
+    this.setStyle(this.target, this.style.target.open);
+    this.body.style.cursor = this.style.cursor.default;
 
     var onEnd = function onEnd() {
       _this10.target.removeEventListener(_this10.transEndEvent, onEnd);
@@ -828,7 +830,7 @@ Zooming.prototype = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-  new Zooming().listen(options.defaultZoomable);
+  new Zooming().listen(OPTIONS.defaultZoomable);
 });
 
 return Zooming;

@@ -1,13 +1,12 @@
-import options from './_options'
+import { TOUCH_SCALE_FACTOR } from './_defaults'
 
-const TOUCH_SCALE_FACTOR = 2
 
-const processTouches = (touches, cb) => {
+const processTouches = (touches, currScaleExtra, cb) => {
   const total = touches.length
   const firstTouch = touches[0]
   const multitouch = total > 1
 
-  let scaleExtra = options.scaleExtra
+  let scaleExtra = currScaleExtra
   let i = touches.length
   let [xs, ys] = [0, 0]
 

@@ -25,7 +25,7 @@
  *   onBeforeRelease: null
  * }
  */
-export default {
+const OPTIONS = {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
    * @type {string|Element}
@@ -134,4 +134,18 @@ export default {
    * @type {Function}
    */
   onBeforeRelease: null
+}
+
+const PRESS_DELAY = 200
+const EVENT_TYPES_GRAB = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
+const TOUCH_SCALE_FACTOR = 2
+
+export {
+  OPTIONS,
+  PRESS_DELAY,
+  EVENT_TYPES_GRAB,
+  TOUCH_SCALE_FACTOR
 }

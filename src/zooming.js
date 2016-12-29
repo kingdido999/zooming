@@ -1,17 +1,12 @@
-import style from './_style'
-import defaultOptions from './_options'
+import Style from './_style'
+import { OPTIONS, PRESS_DELAY, EVENT_TYPES_GRAB } from './_defaults'
 import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './_helpers'
 import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
 import { processTouches } from './_touch'
 
-const PRESS_DELAY = 200
-const EVENT_TYPES_GRAB = [
-  'mousedown', 'mousemove', 'mouseup',
-  'touchstart', 'touchmove', 'touchend'
-]
-
-function Zooming (options = defaultOptions) {
+function Zooming (options = OPTIONS) {
   this.options = Object.assign({}, options)
+  this.style = new Style(this.options)
 
   // elements
   this.body = document.body
@@ -40,7 +35,7 @@ function Zooming (options = defaultOptions) {
   this.eventHandler = this.eventHandler()
 
   // init overlay
-  this.setStyle(this.overlay, style.overlay.init)
+  this.setStyle(this.overlay, this.style.overlay.init)
   this.overlay.addEventListener('click', () => this.close())
 }
 
@@ -108,18 +103,20 @@ Zooming.prototype = {
         e.preventDefault()
 
         this.pressTimer = setTimeout(() => {
-          processTouches(e.touches, (x, y, scaleExtra) => {
-            this.grab(x, y, scaleExtra)
-          })
+          processTouches(e.touches, this.options.scaleExtra,
+            (x, y, scaleExtra) => {
+              this.grab(x, y, scaleExtra)
+            })
         }, PRESS_DELAY)
       },
 
       touchmove: function (e) {
         if (this.released) return
 
-        processTouches(e.touches, (x, y, scaleExtra) => {
-          this.move(x, y, scaleExtra)
-        })
+        processTouches(e.touches, this.options.scaleExtra,
+          (x, y, scaleExtra) => {
+            this.move(x, y, scaleExtra)
+          })
       },
 
       touchend: function (e) {
@@ -156,7 +153,7 @@ Zooming.prototype = {
 
     if (el.tagName !== 'IMG') return
 
-    el.style.cursor = style.cursor.zoomIn
+    el.style.cursor = this.style.cursor.zoomIn
 
     el.addEventListener('click', this.eventHandler.click)
 
@@ -170,8 +167,8 @@ Zooming.prototype = {
   /**
    * Open (zoom in) the Element.
    * @param  {Element} el The Element to open.
-   * @param  {Function} [cb=this.options.onOpen] A callback function that will be
-   * called when a target is opened and transition has ended. It will get
+   * @param  {Function} [cb=this.options.onOpen] A callback function that will
+   * be called when a target is opened and transition has ended. It will get
    * the target element as the argument.
    * @return {this}
    */
@@ -203,18 +200,21 @@ Zooming.prototype = {
     // force layout update
     this.target.offsetWidth
 
-    style.target.open = {
+    this.style.target.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: this.options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      cursor: this.options.enableGrab
+        ? this.style.cursor.grab
+        : this.style.cursor.zoomOut,
       transition: `${this.transformCssProp}
         ${this.options.transitionDuration}s
         ${this.options.transitionTimingFunction}`,
-      transform: `translate(${this.translate.x}px, ${this.translate.y}px) scale(${this.scale})`
+      transform: `translate(${this.translate.x}px, ${this.translate.y}px)
+        scale(${this.scale})`
     }
 
     // trigger transition
-    style.target.close = this.setStyle(this.target, style.target.open, true)
+    this.style.target.close = this.setStyle(this.target, this.style.target.open, true)
 
     // insert this.overlay
     this.parent.appendChild(this.overlay)
@@ -260,8 +260,8 @@ Zooming.prototype = {
 
   /**
    * Close (zoom out) the Element currently opened.
-   * @param  {Function} [cb=this.options.onClose] A callback function that will be
-   * called when a target is closed and transition has ended. It will get
+   * @param  {Function} [cb=this.options.onClose] A callback function that will
+   * be called when a target is closed and transition has ended. It will get
    * the target element as the argument.
    * @return {this}
    */
@@ -276,7 +276,7 @@ Zooming.prototype = {
     // force layout update
     this.target.offsetWidth
 
-    this.body.style.cursor = style.cursor.default
+    this.body.style.cursor = this.style.cursor.default
     this.overlay.style.opacity = 0
     this.setStyle(this.target, { transform: 'none' })
 
@@ -299,7 +299,7 @@ Zooming.prototype = {
       }
 
       // trigger transition
-      this.setStyle(this.target, style.target.close)
+      this.setStyle(this.target, this.style.target.close)
 
       // remove overlay
       this.parent.removeChild(this.overlay)
@@ -317,9 +317,9 @@ Zooming.prototype = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
-   * called when a target is grabbed and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * will be called when a target is grabbed and transition has ended. It
+   * will get the target element as the argument.
    * @return {this}
    */
   grab: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
@@ -334,8 +334,9 @@ Zooming.prototype = {
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
     this.setStyle(this.target, {
-      cursor: style.cursor.move,
-      transform: `translate(${this.translate.x + dx}px, ${this.translate.y + dy}px)
+      cursor: this.style.cursor.move,
+      transform: `translate(
+        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale + scaleExtra})`
     })
 
@@ -352,9 +353,9 @@ Zooming.prototype = {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that will be
-   * called when a target is moved and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * will be called when a target is moved and transition has ended. It will
+   * get the target element as the argument.
    * @return {this}
    */
   move: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
@@ -370,11 +371,12 @@ Zooming.prototype = {
 
     this.setStyle(this.target, {
       transition: this.transformCssProp,
-      transform: `translate(${this.translate.x + dx}px, ${this.translate.y + dy}px)
+      transform: `translate(
+        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale + scaleExtra})`
     })
 
-    this.body.style.cursor = style.cursor.move
+    this.body.style.cursor = this.style.cursor.move
 
     const onEnd = () => {
       this.target.removeEventListener(this.transEndEvent, onEnd)
@@ -386,9 +388,9 @@ Zooming.prototype = {
 
   /**
    * Release the Element currently grabbed.
-   * @param  {Function} [cb=this.options.onRelease] A callback function that will be
-   * called when a target is released and transition has ended. It will get
-   * the target element as the argument.
+   * @param  {Function} [cb=this.options.onRelease] A callback function that
+   * will be called when a target is released and transition has ended. It
+   * will get the target element as the argument.
    * @return {this}
    */
   release: function (cb = this.options.onRelease) {
@@ -399,8 +401,8 @@ Zooming.prototype = {
 
     this.lock = true
 
-    this.setStyle(this.target, style.target.open)
-    this.body.style.cursor = style.cursor.default
+    this.setStyle(this.target, this.style.target.open)
+    this.body.style.cursor = this.style.cursor.default
 
     const onEnd = () => {
       this.target.removeEventListener(this.transEndEvent, onEnd)
@@ -440,7 +442,7 @@ Zooming.prototype = {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  new Zooming().listen(defaultOptions.defaultZoomable)
+  new Zooming().listen(OPTIONS.defaultZoomable)
 })
 
 export default Zooming
