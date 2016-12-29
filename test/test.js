@@ -1,20 +1,16 @@
 var expect = chai.expect
-
 var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
-var testZooming = new Zooming()
-var defaultOpts = Object.assign({}, testZooming.config())
-var els = document.querySelectorAll(defaultOpts.defaultZoomable)
-var el = els[0]
-var i = els.length
 
 describe('API', function() {
 
+  var testZooming = new Zooming()
+  var defaultOpts = Object.assign({}, testZooming.config())
+  var els = document.querySelectorAll(defaultOpts.defaultZoomable)
+  var el = els[0]
+
   describe('listen()', function() {
     it('should set cursor style to zoom-in', function() {
-      while (i--) {
-        var el = els[i]
-        expect(el.style.cursor).to.equal(prefix + 'zoom-in')
-      }
+      expect(el.style.cursor).to.equal(prefix + 'zoom-in')
     })
   })
 
@@ -55,16 +51,25 @@ describe('API', function() {
 
   describe('config() new instance', function() {
     var testZooming2 = new Zooming({})
+    var defaultZoomable = 'img[data-action="zoom2"]'
+    var scrollThreshold = 250
+    var newOptions = {
+      defaultZoomable: defaultZoomable,
+      scrollThreshold: scrollThreshold
+    }
 
-    testZooming2.config({
-      defaultZoomable: 'img[data-action="zoom2"]',
-      scrollThreshold: 250
-    })
+    testZooming2.config(newOptions)
 
     it('should update options correctly', function() {
-      expect(testZooming2.config().defaultZoomable).to.equal('img[data-action="zoom2"]')
-      expect(testZooming2.config().scrollThreshold).to.equal(250)
-      expect(testZooming2.config().enableGrab).to.equal(true)
+      var resultOptions = testZooming2.config()
+
+      for (let key in resultOptions) {
+        if (key in newOptions) {
+          expect(resultOptions[key]).to.equal(newOptions[key])
+        } else {
+          expect(resultOptions[key]).to.equal(defaultOpts[key])
+        }
+      }
     })
   })
 
@@ -81,7 +86,9 @@ describe('API', function() {
     })
 
     it('should insert the overlay', function() {
-      var style = testZooming.overlay.style
+      var overlay = el.parentNode.lastElementChild
+      expect(overlay.tagName).to.equal('DIV')
+      var style = overlay.style
       expect(style.zIndex).to.equal('998')
       expect(style.backgroundColor).to.equal(defaultOpts.bgColor)
       expect(style.position).to.equal('fixed')
