@@ -1,7 +1,4 @@
-[![CDNJS](https://img.shields.io/cdnjs/v/zooming.svg?style=flat-square)](https://cdnjs.com/libraries/zooming)
-[![npm](https://img.shields.io/npm/v/zooming.svg?style=flat-square)](https://www.npmjs.com/package/zooming)
-
-# Zooming
+# Zooming [![CDNJS](https://img.shields.io/cdnjs/v/zooming.svg?style=flat-square)](https://cdnjs.com/libraries/zooming) [![npm](https://img.shields.io/npm/v/zooming.svg?style=flat-square)](https://www.npmjs.com/package/zooming)
 
 Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 
@@ -45,13 +42,13 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 <img src="img/journey.jpg" data-action="zoom" />
 ```
 
+## Advanced
+
 Add `data-original` attribute to supply a hi-res image when zooming in:
 
 ```html
 <img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
 ```
-
-#### Advanced
 
 You can create multiple Zooming instances, each with its own configuration:
 
@@ -69,8 +66,6 @@ zooming.config({
 To specify zoomable image(s):
 
 ```js
-// ...
-
 // by a css selector
 zooming.listen('.img-zoomable')
 
