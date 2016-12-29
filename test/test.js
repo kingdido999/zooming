@@ -63,7 +63,7 @@ describe('API', function() {
     it('should update options correctly', function() {
       var resultOptions = testZooming2.config()
 
-      for (let key in resultOptions) {
+      for (var key in resultOptions) {
         if (key in newOptions) {
           expect(resultOptions[key]).to.equal(newOptions[key])
         } else {
