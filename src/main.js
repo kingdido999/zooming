@@ -1,12 +1,16 @@
 import Style from './_style'
-import { OPTIONS, PRESS_DELAY, EVENT_TYPES_GRAB } from './_defaults'
-import { loadImage, scrollTop, getWindowCenter, toggleListeners } from './_helpers'
+import EventHandler from './_eventHandler'
+import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
+import { loadImage, getWindowCenter, toggleListeners } from './_helpers'
 import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
-import { processTouches } from './_touch'
 
-function Zooming (options = OPTIONS) {
-  this.options = Object.assign({}, options)
-  this.style = new Style(this.options)
+/**
+ * Zooming instance.
+ * @param {Object} [options] Update default options if provided.
+ */
+function Zooming (options) {
+  this.options = Object.assign({}, OPTIONS)
+  if (options) this.config(options)
 
   // elements
   this.body = document.body
@@ -24,6 +28,9 @@ function Zooming (options = OPTIONS) {
   this.srcThumbnail = null
   this.pressTimer = null
 
+  this.style = new Style(this.options)
+  this.eventHandler = new EventHandler(this)
+
   const trans = sniffTransition(this.overlay)
   const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
   this.transformCssProp = trans.transformCssProp
@@ -32,108 +39,12 @@ function Zooming (options = OPTIONS) {
     return setStyleHelper(el, styles, remember)
   }
 
-  this.eventHandler = this.eventHandler()
-
   // init overlay
   this.setStyle(this.overlay, this.style.overlay.init)
   this.overlay.addEventListener('click', () => this.close())
 }
 
 Zooming.prototype = {
-
-  eventHandler: function () {
-    const handler = {
-      click: function (e) {
-        e.preventDefault()
-
-        if (this.shown) {
-          if (this.released) this.close()
-          else this.release()
-        } else {
-          this.open(e.currentTarget)
-        }
-      },
-
-      scroll: function () {
-        const st = scrollTop()
-
-        if (this.lastScrollPosition === null) {
-          this.lastScrollPosition = st
-        }
-
-        const deltaY = this.lastScrollPosition - st
-
-        if (Math.abs(deltaY) >= this.options.scrollThreshold) {
-          this.lastScrollPosition = null
-          this.close()
-        }
-      },
-
-      keydown: function (e) {
-        const code = e.key || e.code
-        if (code === 'Escape' || e.keyCode === 27) {
-          if (this.released) this.close()
-          else this.release(() => this.close())
-        }
-      },
-
-      mousedown: function (e) {
-        if (e.button !== 0) return
-        e.preventDefault()
-
-        this.pressTimer = setTimeout(() => {
-          this.grab(e.clientX, e.clientY)
-        }, PRESS_DELAY)
-      },
-
-      mousemove: function (e) {
-        if (this.released) return
-        this.move(e.clientX, e.clientY)
-      },
-
-      mouseup: function (e) {
-        if (e.button !== 0) return
-        clearTimeout(this.pressTimer)
-
-        if (this.released) this.close()
-        else this.release()
-      },
-
-      touchstart: function (e) {
-        e.preventDefault()
-
-        this.pressTimer = setTimeout(() => {
-          processTouches(e.touches, this.options.scaleExtra,
-            (x, y, scaleExtra) => {
-              this.grab(x, y, scaleExtra)
-            })
-        }, PRESS_DELAY)
-      },
-
-      touchmove: function (e) {
-        if (this.released) return
-
-        processTouches(e.touches, this.options.scaleExtra,
-          (x, y, scaleExtra) => {
-            this.move(x, y, scaleExtra)
-          })
-      },
-
-      touchend: function (e) {
-        if (e.targetTouches.length > 0) return
-        clearTimeout(this.pressTimer)
-
-        if (this.released) this.close()
-        else this.release()
-      }
-    }
-
-    for (let fn in handler) {
-      handler[fn] = handler[fn].bind(this)
-    }
-
-    return handler
-  },
 
   /**
    * Make element(s) zoomable.
@@ -420,14 +331,14 @@ Zooming.prototype = {
 
   /**
    * Update this.options.
-   * @param  {Object} opts An Object that contains this.options.
+   * @param  {Object} options An Object that contains this.options.
    * @return {this}
    */
-  config: function (opts) {
-    if (!opts) return this.options
+  config: function (options) {
+    if (!options) return this.options
 
-    for (let key in opts) {
-      this.options[key] = opts[key]
+    for (let key in options) {
+      this.options[key] = options[key]
     }
 
     this.setStyle(this.overlay, {

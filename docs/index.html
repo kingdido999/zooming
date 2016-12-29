@@ -25,71 +25,64 @@
               
                 
                 <li><a
-                  href='#listen'
-                  class="">
-                  listen
-                  
+                  href='#zooming'
+                  class=" toggle-sibling">
+                  Zooming
+                  <span class='icon'>▸</span>
                 </a>
                 
-                </li>
-              
-                
-                <li><a
-                  href='#open'
-                  class="">
-                  open
+                <div class='toggle-target display-none'>
                   
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#close'
-                  class="">
-                  close
                   
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#grab'
-                  class="">
-                  grab
+                    <ul class='list-reset py1-ul pl1'>
+                      <li class='h5'><span>Instance members</span></li>
+                      
+                      <li><a
+                        href='#Zooming#listen'
+                        class='regular pre-open'>
+                        #listen
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#open'
+                        class='regular pre-open'>
+                        #open
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#close'
+                        class='regular pre-open'>
+                        #close
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#grab'
+                        class='regular pre-open'>
+                        #grab
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#move'
+                        class='regular pre-open'>
+                        #move
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#release'
+                        class='regular pre-open'>
+                        #release
+                      </a></li>
+                      
+                      <li><a
+                        href='#Zooming#config'
+                        class='regular pre-open'>
+                        #config
+                      </a></li>
+                      
+                    </ul>
                   
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#move'
-                  class="">
-                  move
                   
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#release'
-                  class="">
-                  release
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#config'
-                  class="">
-                  config
-                  
-                </a>
+                </div>
                 
                 </li>
               
@@ -237,12 +230,67 @@
   
   <div class='clearfix'>
     
-    <h3 class='fl m0' id='listen'>
-      listen
+    <h3 class='fl m0' id='zooming'>
+      Zooming
     </h3>
     
     
   </div>
+  
+
+  <p>Zooming instance.</p>
+
+
+  <div class='pre p1 fill-light mt0'>new Zooming(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>options</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    Update default options if provided.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='Zooming#listen'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>listen(el)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Make element(s) zoomable.</p>
@@ -297,20 +345,19 @@
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='open'>
-      open
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#open'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>open(el, cb = this.options.onOpen)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Open (zoom in) the Element.</p>
@@ -377,20 +424,19 @@ the target element as the argument.
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='close'>
-      close
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#close'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>close(cb = this.options.onClose)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Close (zoom out) the Element currently opened.</p>
@@ -448,20 +494,19 @@ the target element as the argument.
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='grab'>
-      grab
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#grab'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>grab(x, y, scaleExtra, cb = this.options.scaleExtra)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
@@ -546,20 +591,19 @@ will get the target element as the argument.
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='move'>
-      move
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#move'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>move(x, y, scaleExtra, cb = this.options.scaleExtra)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
@@ -644,20 +688,19 @@ get the target element as the argument.
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='release'>
-      release
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#release'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>release(cb = this.options.onRelease)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Release the Element currently grabbed.</p>
@@ -715,26 +758,25 @@ will get the target element as the argument.
   
 </section>
 
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
+      </div>
+    </div>
   
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='config'>
-      config
-    </h3>
-    
-    
-  </div>
+    <div class='border-bottom' id='Zooming#config'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>config(options)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
   
 
   <p>Update this.options.</p>
 
 
-  <div class='pre p1 fill-light mt0'>config(opts: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): this</div>
+  <div class='pre p1 fill-light mt0'>config(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): this</div>
   
   
 
@@ -750,7 +792,7 @@ will get the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>opts</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+            <span class='code bold'>options</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
 	    An Object that contains this.options.
 
           </div>
@@ -777,6 +819,16 @@ will get the target element as the argument.
   
 
   
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
 
   
 
