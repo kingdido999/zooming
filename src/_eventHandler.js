@@ -3,7 +3,9 @@ import { PRESS_DELAY } from './_defaults'
 import { processTouches } from './_touch'
 
 export default function EventHandler(instance) {
+  
   const handler = {
+
     click: function (e) {
       e.preventDefault()
 

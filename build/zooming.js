@@ -277,7 +277,9 @@ var processTouches = function processTouches(touches, currScaleExtra, cb) {
 };
 
 function EventHandler(instance) {
+
   var handler = {
+
     click: function click(e) {
       e.preventDefault();
 
@@ -454,10 +456,6 @@ var calculateScale = function calculateScale(rect, scaleBase) {
   return scaleBase + Math.min(scaleHorizontally, scaleVertically);
 };
 
-/**
- * Zooming instance.
- * @param {Object} [options] Update default options if provided.
- */
 function Zooming(options) {
   var _this = this;
 
@@ -804,7 +802,7 @@ Zooming.prototype = {
   },
 
   /**
-   * Update this.options.
+   * Update options.
    * @param  {Object} options An Object that contains this.options.
    * @return {this}
    */

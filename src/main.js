@@ -330,7 +330,7 @@ Zooming.prototype = {
   },
 
   /**
-   * Update this.options.
+   * Update options.
    * @param  {Object} options An Object that contains this.options.
    * @return {this}
    */
