@@ -3,6 +3,7 @@ const watch = require('rollup-watch')
 const babel = require('rollup-plugin-babel')
 const eslint = require('rollup-plugin-eslint')
 const uglify = require('rollup-plugin-uglify')
+const open = require('open')
 
 const defaultPlugins = [
   babel({
@@ -43,6 +44,7 @@ const config = (dest, plugins) => {
 }
 
 const stderr = console.error.bind(console) // eslint-disable-line no-console
+let opened = false
 
 const eventHandler = (event) => {
   switch (event.code) {
@@ -54,6 +56,10 @@ const eventHandler = (event) => {
       break
     case 'BUILD_END':
       stderr('bundled in ' + event.duration + 'ms. Watching for changes...')
+      if (!opened) {
+        open(__dirname + '/../index.html')
+        opened = true
+      }
       break
     case 'ERROR':
       stderr('error: ' + event.error)
@@ -68,10 +74,9 @@ const watcherDefault = watch(rollup, config(
   defaultPlugins
 ))
 
-const watcherUglify = watch(rollup, config(
+watch(rollup, config(
   'build/zooming.min.js',
   defaultPlugins.concat([uglify({})])
 ))
 
 watcherDefault.on('event', eventHandler)
-watcherUglify.on('event', eventHandler)
