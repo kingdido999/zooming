@@ -151,7 +151,7 @@ Zooming.prototype = {
         // force compute the hi-res image in DOM to prevent
         // image flickering while updating src
         temp.setAttribute('src', dataOriginal)
-        temp.style.position = 'absolute'
+        temp.style.position = 'fixed'
         temp.style.visibility = 'hidden'
         this.body.appendChild(temp)
 
