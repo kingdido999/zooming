@@ -26,6 +26,7 @@ describe('API', function() {
       scaleBase: 0.8,
       scaleExtra: 0.3,
       scrollThreshold: 50,
+      customSize: { x: 800, y: 400 },
       onOpen: function() { return 'onOpen' },
       onClose: function() { return 'onClose' },
       onRelease: function() { return 'onRelease' },

@@ -7,12 +7,15 @@ var config = customZooming.config(),
     BG_COLOR_DEFAULT            = config.bgColor,
     BG_COLOR_DARK               = '#000',
     ENABLE_GRAB_DEFAULT         = config.enableGrab,
+    SCALE_BASE_DEFAULT          = config.scaleBase,
+    SCALE_BASE_SMALL            = 0.8,
     ACTIVE_CLASS                = 'button-primary',
 
     btnFast = document.getElementById('btn-fast'),
     btnSlow = document.getElementById('btn-slow'),
     btnDark = document.getElementById('btn-dark'),
     btnNoGrab = document.getElementById('btn-no-grab')
+    btnScaleSmall = document.getElementById('btn-scale-small')
 
 function isActive (el) {
   return el.classList.contains(ACTIVE_CLASS)
@@ -78,4 +81,17 @@ function noGrab() {
   }
 
   customZooming.config({ enableGrab: enable })
+}
+
+function scaleSmall() {
+  var scaleBase
+  if (isActive(btnScaleSmall)) {
+    scaleBase = SCALE_BASE_DEFAULT
+    deactivate(btnScaleSmall)
+  } else {
+    scaleBase = SCALE_BASE_SMALL
+    activate(btnScaleSmall)
+  }
+
+  customZooming.config({ scaleBase: scaleBase })
 }

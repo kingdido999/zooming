@@ -155,6 +155,7 @@ function Style(options) {
  *   scaleBase: 1.0,
  *   scaleExtra: 0.5,
  *   scrollThreshold: 40,
+ *   customSize: null,
  *   onOpen: null,
  *   onClose: null,
  *   onRelease: null,
@@ -225,6 +226,14 @@ var OPTIONS = {
    * @type {number}
    */
   scrollThreshold: 40,
+
+  /**
+   * Scale (zoom in) to given width and height. Ignore scaleBase if set.
+   * @type {Object}
+   * @example
+   * customSize: { x: 800, y: 400 }
+   */
+  customSize: null,
 
   /**
    * A callback function that will be called when a target is opened and
@@ -441,29 +450,37 @@ var calculateTranslate = function calculateTranslate(rect) {
   };
 };
 
-var calculateScale = function calculateScale(rect, scaleBase) {
-  var windowCenter = getWindowCenter();
-  var targetHalfWidth = half(rect.width);
-  var targetHalfHeight = half(rect.height);
+var calculateScale = function calculateScale(rect, scaleBase, customSize) {
+  if (customSize) {
+    return {
+      x: customSize.x / rect.width,
+      y: customSize.y / rect.height
+    };
+  } else {
+    var targetHalfWidth = half(rect.width);
+    var targetHalfHeight = half(rect.height);
+    var windowCenter = getWindowCenter();
 
-  // The distance between target edge and window edge
-  var targetEdgeToWindowEdge = {
-    x: windowCenter.x - targetHalfWidth,
-    y: windowCenter.y - targetHalfHeight
-  };
+    // The distance between target edge and window edge
+    var targetEdgeToWindowEdge = {
+      x: windowCenter.x - targetHalfWidth,
+      y: windowCenter.y - targetHalfHeight
+    };
 
-  var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
-  var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
+    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
 
-  // The additional scale is based on the smaller value of
-  // scaling horizontally and scaling vertically
-  return scaleBase + Math.min(scaleHorizontally, scaleVertically);
+    // The additional scale is based on the smaller value of
+    // scaling horizontally and scaling vertically
+    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+    return {
+      x: scale,
+      y: scale
+    };
+  }
 };
 
-/**
- * Zooming instance.
- * @param {Object} [options] Update default options if provided.
- */
 function Zooming(options) {
   var _this = this;
 
@@ -560,7 +577,7 @@ Zooming.prototype = {
 
     var rect = this.target.getBoundingClientRect();
     this.translate = calculateTranslate(rect);
-    this.scale = calculateScale(rect, this.options.scaleBase);
+    this.scale = calculateScale(rect, this.options.scaleBase, this.options.customSize);
 
     // force layout update
     this.target.offsetWidth;
@@ -570,7 +587,7 @@ Zooming.prototype = {
       zIndex: 999,
       cursor: this.options.enableGrab ? this.style.cursor.grab : this.style.cursor.zoomOut,
       transition: transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
-      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale + ')'
+      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
     };
 
     // trigger transition
@@ -710,7 +727,7 @@ Zooming.prototype = {
 
     setStyle(this.target, {
       cursor: this.style.cursor.move,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
     });
 
     var onEnd = function onEnd() {
@@ -751,7 +768,7 @@ Zooming.prototype = {
 
     setStyle(this.target, {
       transition: transformCssProp,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
     });
 
     this.body.style.cursor = this.style.cursor.move;

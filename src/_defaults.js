@@ -15,6 +15,7 @@
  *   scaleBase: 1.0,
  *   scaleExtra: 0.5,
  *   scrollThreshold: 40,
+ *   customSize: null,
  *   onOpen: null,
  *   onClose: null,
  *   onRelease: null,
@@ -85,6 +86,14 @@ const OPTIONS = {
    * @type {number}
    */
   scrollThreshold: 40,
+
+  /**
+   * Scale (zoom in) to given width and height. Ignore scaleBase if set.
+   * @type {Object}
+   * @example
+   * customSize: { x: 800, y: 400 }
+   */
+  customSize: null,
 
   /**
    * A callback function that will be called when a target is opened and

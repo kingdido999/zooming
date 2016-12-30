@@ -98,7 +98,7 @@ Zooming.prototype = {
 
     const rect = this.target.getBoundingClientRect()
     this.translate = calculateTranslate(rect)
-    this.scale = calculateScale(rect, this.options.scaleBase)
+    this.scale = calculateScale(rect, this.options.scaleBase, this.options.customSize)
 
     // force layout update
     this.target.offsetWidth
@@ -113,7 +113,7 @@ Zooming.prototype = {
         ${this.options.transitionDuration}s
         ${this.options.transitionTimingFunction}`,
       transform: `translate(${this.translate.x}px, ${this.translate.y}px)
-        scale(${this.scale})`
+        scale(${this.scale.x},${this.scale.y})`
     }
 
     // trigger transition
@@ -240,7 +240,7 @@ Zooming.prototype = {
       cursor: this.style.cursor.move,
       transform: `translate(
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
-        scale(${this.scale + scaleExtra})`
+        scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
 
     const onEnd = () => {
@@ -276,7 +276,7 @@ Zooming.prototype = {
       transition: transformCssProp,
       transform: `translate(
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
-        scale(${this.scale + scaleExtra})`
+        scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
 
     this.body.style.cursor = this.style.cursor.move

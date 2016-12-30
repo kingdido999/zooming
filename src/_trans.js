@@ -14,23 +14,35 @@ const calculateTranslate = (rect) => {
   }
 }
 
-const calculateScale = (rect, scaleBase) => {
-  const windowCenter = getWindowCenter()
-  const targetHalfWidth = half(rect.width)
-  const targetHalfHeight = half(rect.height)
+const calculateScale = (rect, scaleBase, customSize) => {
+  if (customSize) {
+    return {
+      x: customSize.x / rect.width,
+      y: customSize.y / rect.height
+    }
+  } else {
+    const targetHalfWidth = half(rect.width)
+    const targetHalfHeight = half(rect.height)
+    const windowCenter = getWindowCenter()
 
-  // The distance between target edge and window edge
-  const targetEdgeToWindowEdge = {
-    x: windowCenter.x - targetHalfWidth,
-    y: windowCenter.y - targetHalfHeight
+    // The distance between target edge and window edge
+    const targetEdgeToWindowEdge = {
+      x: windowCenter.x - targetHalfWidth,
+      y: windowCenter.y - targetHalfHeight
+    }
+
+    const scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth
+    const scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight
+
+    // The additional scale is based on the smaller value of
+    // scaling horizontally and scaling vertically
+    const scale = scaleBase + Math.min(scaleHorizontally, scaleVertically)
+    
+    return {
+      x: scale,
+      y: scale
+    }
   }
-
-  const scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth
-  const scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight
-
-  // The additional scale is based on the smaller value of
-  // scaling horizontally and scaling vertically
-  return scaleBase + Math.min(scaleHorizontally, scaleVertically)
 }
 
 export {
