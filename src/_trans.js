@@ -17,8 +17,8 @@ const calculateTranslate = (rect) => {
 const calculateScale = (rect, scaleBase, customSize) => {
   if (customSize) {
     return {
-      x: customSize.x / rect.width,
-      y: customSize.y / rect.height
+      x: customSize.width / rect.width,
+      y: customSize.height / rect.height
     }
   } else {
     const targetHalfWidth = half(rect.width)
@@ -37,7 +37,7 @@ const calculateScale = (rect, scaleBase, customSize) => {
     // The additional scale is based on the smaller value of
     // scaling horizontally and scaling vertically
     const scale = scaleBase + Math.min(scaleHorizontally, scaleVertically)
-    
+
     return {
       x: scale,
       y: scale

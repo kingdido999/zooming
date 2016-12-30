@@ -91,7 +91,7 @@ const OPTIONS = {
    * Scale (zoom in) to given width and height. Ignore scaleBase if set.
    * @type {Object}
    * @example
-   * customSize: { x: 800, y: 400 }
+   * customSize: { width: 800, height: 400 }
    */
   customSize: null,
 

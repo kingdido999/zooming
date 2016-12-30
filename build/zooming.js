@@ -231,7 +231,7 @@ var OPTIONS = {
    * Scale (zoom in) to given width and height. Ignore scaleBase if set.
    * @type {Object}
    * @example
-   * customSize: { x: 800, y: 400 }
+   * customSize: { width: 800, height: 400 }
    */
   customSize: null,
 
@@ -453,8 +453,8 @@ var calculateTranslate = function calculateTranslate(rect) {
 var calculateScale = function calculateScale(rect, scaleBase, customSize) {
   if (customSize) {
     return {
-      x: customSize.x / rect.width,
-      y: customSize.y / rect.height
+      x: customSize.width / rect.width,
+      y: customSize.height / rect.height
     };
   } else {
     var targetHalfWidth = half(rect.width);
@@ -481,6 +481,10 @@ var calculateScale = function calculateScale(rect, scaleBase, customSize) {
   }
 };
 
+/**
+ * Zooming instance.
+ * @param {Object} [options] Update default options if provided.
+ */
 function Zooming(options) {
   var _this = this;
 
