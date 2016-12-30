@@ -50,6 +50,65 @@ var toggleListeners = function toggleListeners(el, types, handler) {
   });
 };
 
+var sniffTransition = function sniffTransition(el) {
+  var ret = {};
+  var trans = ['webkitTransition', 'transition', 'mozTransition'];
+  var tform = ['webkitTransform', 'transform', 'mozTransform'];
+  var end = {
+    'transition': 'transitionend',
+    'mozTransition': 'transitionend',
+    'webkitTransition': 'webkitTransitionEnd'
+  };
+
+  trans.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transitionProp = prop;
+      ret.transEndEvent = end[prop];
+      return true;
+    }
+  });
+
+  tform.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transformProp = prop;
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
+      return true;
+    }
+  });
+
+  return ret;
+};
+
+var trans = sniffTransition(document.createElement('div'));
+var transitionProp = trans.transitionProp;
+var transformProp = trans.transformProp;
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+
+var setStyle = function setStyle(el, styles, remember) {
+  var value = void 0;
+  if (styles.transition) {
+    value = styles.transition;
+    delete styles.transition;
+    styles[transitionProp] = value;
+  }
+  if (styles.transform) {
+    value = styles.transform;
+    delete styles.transform;
+    styles[transformProp] = value;
+  }
+
+  var s = el.style;
+  var original = {};
+
+  for (var key in styles) {
+    if (remember) original[key] = s[key] || '';
+    s[key] = styles[key];
+  }
+
+  return original;
+};
+
 function Style(options) {
   return {
     target: {
@@ -368,61 +427,6 @@ function EventHandler(instance) {
   return handler;
 }
 
-var sniffTransition = function sniffTransition(el) {
-  var ret = {};
-  var trans = ['webkitTransition', 'transition', 'mozTransition'];
-  var tform = ['webkitTransform', 'transform', 'mozTransform'];
-  var end = {
-    'transition': 'transitionend',
-    'mozTransition': 'transitionend',
-    'webkitTransition': 'webkitTransitionEnd'
-  };
-
-  trans.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transitionProp = prop;
-      ret.transEndEvent = end[prop];
-      return true;
-    }
-  });
-
-  tform.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transformProp = prop;
-      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
-      return true;
-    }
-  });
-
-  return ret;
-};
-
-var checkTrans = function checkTrans(transitionProp, transformProp) {
-  return function setStyle(el, styles, remember) {
-    var value = void 0;
-    if (styles.transition) {
-      value = styles.transition;
-      delete styles.transition;
-      styles[transitionProp] = value;
-    }
-    if (styles.transform) {
-      value = styles.transform;
-      delete styles.transform;
-      styles[transformProp] = value;
-    }
-
-    var s = el.style;
-    var original = {};
-
-    for (var key in styles) {
-      if (remember) original[key] = s[key] || '';
-      s[key] = styles[key];
-    }
-
-    return original;
-  };
-};
-
 var calculateTranslate = function calculateTranslate(rect) {
   var windowCenter = getWindowCenter();
   var targetCenter = {
@@ -479,21 +483,13 @@ function Zooming(options) {
   this.srcThumbnail = null;
   this.pressTimer = null;
 
-  var trans = sniffTransition(this.overlay);
-  var setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp);
-  this.transformCssProp = trans.transformCssProp;
-  this.transEndEvent = trans.transEndEvent;
-  this.setStyle = function (el, styles, remember) {
-    return setStyleHelper(el, styles, remember);
-  };
-
   this.options = Object.assign({}, OPTIONS);
   if (options) this.config(options);
   this.style = new Style(this.options);
   this.eventHandler = new EventHandler(this);
 
   // init overlay
-  this.setStyle(this.overlay, this.style.overlay.init);
+  setStyle(this.overlay, this.style.overlay.init);
   this.overlay.addEventListener('click', function () {
     return _this.close();
   });
@@ -573,12 +569,12 @@ Zooming.prototype = {
       position: 'relative',
       zIndex: 999,
       cursor: this.options.enableGrab ? this.style.cursor.grab : this.style.cursor.zoomOut,
-      transition: this.transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
+      transition: transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
       transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale + ')'
     };
 
     // trigger transition
-    this.style.target.close = this.setStyle(this.target, this.style.target.open, true);
+    this.style.target.close = setStyle(this.target, this.style.target.open, true);
 
     // insert this.overlay
     this.parent.appendChild(this.overlay);
@@ -590,7 +586,7 @@ Zooming.prototype = {
     document.addEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this2.target.removeEventListener(_this2.transEndEvent, onEnd);
+      _this2.target.removeEventListener(transEndEvent, onEnd);
 
       _this2.lock = false;
 
@@ -621,7 +617,7 @@ Zooming.prototype = {
       if (cb) cb(_this2.target);
     };
 
-    this.target.addEventListener(this.transEndEvent, onEnd);
+    this.target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
@@ -650,13 +646,13 @@ Zooming.prototype = {
 
     this.body.style.cursor = this.style.cursor.default;
     this.overlay.style.opacity = 0;
-    this.setStyle(this.target, { transform: 'none' });
+    setStyle(this.target, { transform: 'none' });
 
     document.removeEventListener('scroll', this.eventHandler.scroll);
     document.removeEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this3.target.removeEventListener(_this3.transEndEvent, onEnd);
+      _this3.target.removeEventListener(transEndEvent, onEnd);
 
       _this3.shown = false;
       _this3.lock = false;
@@ -671,7 +667,7 @@ Zooming.prototype = {
       }
 
       // trigger transition
-      _this3.setStyle(_this3.target, _this3.style.target.close);
+      setStyle(_this3.target, _this3.style.target.close);
 
       // remove overlay
       _this3.parent.removeChild(_this3.overlay);
@@ -679,7 +675,7 @@ Zooming.prototype = {
       if (cb) cb(_this3.target);
     };
 
-    this.target.addEventListener(this.transEndEvent, onEnd);
+    this.target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
@@ -712,17 +708,17 @@ Zooming.prototype = {
         dy = windowCenter.y - y;
 
 
-    this.setStyle(this.target, {
+    setStyle(this.target, {
       cursor: this.style.cursor.move,
       transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
     var onEnd = function onEnd() {
-      _this4.target.removeEventListener(_this4.transEndEvent, onEnd);
+      _this4.target.removeEventListener(transEndEvent, onEnd);
       if (cb) cb(_this4.target);
     };
 
-    this.target.addEventListener(this.transEndEvent, onEnd);
+    this.target.addEventListener(transEndEvent, onEnd);
   },
 
   /**
@@ -753,19 +749,19 @@ Zooming.prototype = {
         dy = windowCenter.y - y;
 
 
-    this.setStyle(this.target, {
-      transition: this.transformCssProp,
+    setStyle(this.target, {
+      transition: transformCssProp,
       transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale + scaleExtra) + ')'
     });
 
     this.body.style.cursor = this.style.cursor.move;
 
     var onEnd = function onEnd() {
-      _this5.target.removeEventListener(_this5.transEndEvent, onEnd);
+      _this5.target.removeEventListener(transEndEvent, onEnd);
       if (cb) cb(_this5.target);
     };
 
-    this.target.addEventListener(this.transEndEvent, onEnd);
+    this.target.addEventListener(transEndEvent, onEnd);
   },
 
   /**
@@ -787,11 +783,11 @@ Zooming.prototype = {
 
     this.lock = true;
 
-    this.setStyle(this.target, this.style.target.open);
+    setStyle(this.target, this.style.target.open);
     this.body.style.cursor = this.style.cursor.default;
 
     var onEnd = function onEnd() {
-      _this6.target.removeEventListener(_this6.transEndEvent, onEnd);
+      _this6.target.removeEventListener(transEndEvent, onEnd);
 
       _this6.lock = false;
       _this6.released = true;
@@ -799,7 +795,7 @@ Zooming.prototype = {
       if (cb) cb(_this6.target);
     };
 
-    this.target.addEventListener(this.transEndEvent, onEnd);
+    this.target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
@@ -816,7 +812,7 @@ Zooming.prototype = {
       this.options[key] = options[key];
     }
 
-    this.setStyle(this.overlay, {
+    setStyle(this.overlay, {
       backgroundColor: this.options.bgColor,
       transition: 'opacity\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction
     });

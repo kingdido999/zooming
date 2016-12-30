@@ -4,7 +4,7 @@ export default function Style (options) {
   return {
     target: {
       close: null,
-      open: null,
+      open: null
     },
     overlay: {
       init: {

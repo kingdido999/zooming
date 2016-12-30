@@ -1,8 +1,9 @@
 import Style from './_style'
 import EventHandler from './_eventHandler'
 import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
-import { loadImage, getWindowCenter, toggleListeners } from './_helpers'
-import { sniffTransition, checkTrans, calculateTranslate, calculateScale } from './_trans'
+import { loadImage, getWindowCenter, toggleListeners,
+  transformCssProp, transEndEvent, setStyle } from './_helpers'
+import { calculateTranslate, calculateScale } from './_trans'
 
 /**
  * Zooming instance.
@@ -25,21 +26,13 @@ function Zooming (options) {
   this.srcThumbnail = null
   this.pressTimer = null
 
-  const trans = sniffTransition(this.overlay)
-  const setStyleHelper = checkTrans(trans.transitionProp, trans.transformProp)
-  this.transformCssProp = trans.transformCssProp
-  this.transEndEvent = trans.transEndEvent
-  this.setStyle = (el, styles, remember) => {
-    return setStyleHelper(el, styles, remember)
-  }
-
   this.options = Object.assign({}, OPTIONS)
   if (options) this.config(options)
   this.style = new Style(this.options)
   this.eventHandler = new EventHandler(this)
 
   // init overlay
-  this.setStyle(this.overlay, this.style.overlay.init)
+  setStyle(this.overlay, this.style.overlay.init)
   this.overlay.addEventListener('click', () => this.close())
 }
 
@@ -116,7 +109,7 @@ Zooming.prototype = {
       cursor: this.options.enableGrab
         ? this.style.cursor.grab
         : this.style.cursor.zoomOut,
-      transition: `${this.transformCssProp}
+      transition: `${transformCssProp}
         ${this.options.transitionDuration}s
         ${this.options.transitionTimingFunction}`,
       transform: `translate(${this.translate.x}px, ${this.translate.y}px)
@@ -124,7 +117,7 @@ Zooming.prototype = {
     }
 
     // trigger transition
-    this.style.target.close = this.setStyle(this.target, this.style.target.open, true)
+    this.style.target.close = setStyle(this.target, this.style.target.open, true)
 
     // insert this.overlay
     this.parent.appendChild(this.overlay)
@@ -134,7 +127,7 @@ Zooming.prototype = {
     document.addEventListener('keydown', this.eventHandler.keydown)
 
     const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+      this.target.removeEventListener(transEndEvent, onEnd)
 
       this.lock = false
 
@@ -163,7 +156,7 @@ Zooming.prototype = {
       if (cb) cb(this.target)
     }
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(transEndEvent, onEnd)
 
     return this
   },
@@ -188,13 +181,13 @@ Zooming.prototype = {
 
     this.body.style.cursor = this.style.cursor.default
     this.overlay.style.opacity = 0
-    this.setStyle(this.target, { transform: 'none' })
+    setStyle(this.target, { transform: 'none' })
 
     document.removeEventListener('scroll', this.eventHandler.scroll)
     document.removeEventListener('keydown', this.eventHandler.keydown)
 
     const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+      this.target.removeEventListener(transEndEvent, onEnd)
 
       this.shown = false
       this.lock = false
@@ -209,7 +202,7 @@ Zooming.prototype = {
       }
 
       // trigger transition
-      this.setStyle(this.target, this.style.target.close)
+      setStyle(this.target, this.style.target.close)
 
       // remove overlay
       this.parent.removeChild(this.overlay)
@@ -217,7 +210,7 @@ Zooming.prototype = {
       if (cb) cb(this.target)
     }
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(transEndEvent, onEnd)
 
     return this
   },
@@ -243,7 +236,7 @@ Zooming.prototype = {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
-    this.setStyle(this.target, {
+    setStyle(this.target, {
       cursor: this.style.cursor.move,
       transform: `translate(
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
@@ -251,11 +244,11 @@ Zooming.prototype = {
     })
 
     const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+      this.target.removeEventListener(transEndEvent, onEnd)
       if (cb) cb(this.target)
     }
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(transEndEvent, onEnd)
   },
 
   /**
@@ -279,8 +272,8 @@ Zooming.prototype = {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
-    this.setStyle(this.target, {
-      transition: this.transformCssProp,
+    setStyle(this.target, {
+      transition: transformCssProp,
       transform: `translate(
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale + scaleExtra})`
@@ -289,11 +282,11 @@ Zooming.prototype = {
     this.body.style.cursor = this.style.cursor.move
 
     const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+      this.target.removeEventListener(transEndEvent, onEnd)
       if (cb) cb(this.target)
     }
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(transEndEvent, onEnd)
   },
 
   /**
@@ -311,11 +304,11 @@ Zooming.prototype = {
 
     this.lock = true
 
-    this.setStyle(this.target, this.style.target.open)
+    setStyle(this.target, this.style.target.open)
     this.body.style.cursor = this.style.cursor.default
 
     const onEnd = () => {
-      this.target.removeEventListener(this.transEndEvent, onEnd)
+      this.target.removeEventListener(transEndEvent, onEnd)
 
       this.lock = false
       this.released = true
@@ -323,7 +316,7 @@ Zooming.prototype = {
       if (cb) cb(this.target)
     }
 
-    this.target.addEventListener(this.transEndEvent, onEnd)
+    this.target.addEventListener(transEndEvent, onEnd)
 
     return this
   },
@@ -340,7 +333,7 @@ Zooming.prototype = {
       this.options[key] = options[key]
     }
 
-    this.setStyle(this.overlay, {
+    setStyle(this.overlay, {
       backgroundColor: this.options.bgColor,
       transition: `opacity
         ${this.options.transitionDuration}s

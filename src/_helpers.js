@@ -45,11 +45,73 @@ const toggleListeners = (el, types, handler, add = true) => {
   })
 }
 
+const sniffTransition = (el) => {
+  let ret     = {}
+  const trans = ['webkitTransition', 'transition', 'mozTransition']
+  const tform = ['webkitTransform', 'transform', 'mozTransform']
+  const end   = {
+    'transition'       : 'transitionend',
+    'mozTransition'    : 'transitionend',
+    'webkitTransition' : 'webkitTransitionEnd'
+  }
+
+  trans.some(prop => {
+    if (el.style[prop] !== undefined) {
+      ret.transitionProp = prop
+      ret.transEndEvent = end[prop]
+      return true
+    }
+  })
+
+  tform.some(prop => {
+    if (el.style[prop] !== undefined) {
+      ret.transformProp = prop
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform')
+      return true
+    }
+  })
+
+  return ret
+}
+
+const trans = sniffTransition(document.createElement('div'))
+const transitionProp = trans.transitionProp
+const transformProp = trans.transformProp
+const transformCssProp = trans.transformCssProp
+const transEndEvent = trans.transEndEvent
+
+const setStyle = (el, styles, remember) => {
+  let value
+  if (styles.transition) {
+    value = styles.transition
+    delete styles.transition
+    styles[transitionProp] = value
+  }
+  if (styles.transform) {
+    value = styles.transform
+    delete styles.transform
+    styles[transformProp] = value
+  }
+
+  let s = el.style
+  let original = {}
+
+  for (let key in styles) {
+    if (remember) original[key] = s[key] || ''
+    s[key] = styles[key]
+  }
+
+  return original
+}
+
 export {
   webkitPrefix,
   half,
   loadImage,
   scrollTop,
   getWindowCenter,
-  toggleListeners
+  toggleListeners,
+  transformCssProp,
+  transEndEvent,
+  setStyle
 }
