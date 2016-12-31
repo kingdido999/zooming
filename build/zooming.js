@@ -138,6 +138,65 @@ function Style(options) {
   };
 }
 
+function Overlay(el, instance) {
+  this.el = el;
+  this.instance = instance;
+  this.parent = null;
+}
+
+Overlay.prototype = {
+  init: function init() {
+    var options = this.instance.options;
+
+    setStyle(this.el, {
+      zIndex: 998,
+      backgroundColor: options.bgColor,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    });
+
+    this.el.addEventListener('click', this.instance.close());
+  },
+
+  updateStyle: function updateStyle() {
+    var options = this.instance.options;
+
+    setStyle(this.el, {
+      backgroundColor: options.bgColor,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    });
+  },
+
+  setParent: function setParent(parent) {
+    this.parent = parent;
+  },
+
+  insert: function insert() {
+    this.parent.appendChild(this.el);
+  },
+
+  remove: function remove() {
+    this.parent.removeChild(this.el);
+  },
+
+  show: function show() {
+    var _this = this;
+
+    setTimeout(function () {
+      return _this.el.style.opacity = _this.instance.options.bgOpacity;
+    }, 30);
+  },
+
+  hide: function hide() {
+    this.el.style.opacity = 0;
+  }
+};
+
 /**
  * A list of options.
  *
@@ -486,13 +545,10 @@ var calculateScale = function calculateScale(rect, scaleBase, customSize) {
  * @param {Object} [options] Update default options if provided.
  */
 function Zooming(options) {
-  var _this = this;
-
   // elements
   this.body = document.body;
-  this.overlay = document.createElement('div');
+  this.overlay = new Overlay(document.createElement('div'), this);
   this.target = null;
-  this.parent = null;
 
   // state
   this.shown = false; // target is open
@@ -509,11 +565,7 @@ function Zooming(options) {
   this.style = new Style(this.options);
   this.eventHandler = new EventHandler(this);
 
-  // init overlay
-  setStyle(this.overlay, this.style.overlay.init);
-  this.overlay.addEventListener('click', function () {
-    return _this.close();
-  });
+  this.overlay.init();
 }
 
 Zooming.prototype = {
@@ -557,7 +609,7 @@ Zooming.prototype = {
    * @return {this}
    */
   open: function open(el) {
-    var _this2 = this;
+    var _this = this;
 
     var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.options.onOpen;
 
@@ -572,7 +624,7 @@ Zooming.prototype = {
 
     this.shown = true;
     this.lock = true;
-    this.parent = this.target.parentNode;
+    this.overlay.setParent(this.target.parentNode);
 
     // load hi-res image if preloadImage option is disabled
     if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
@@ -597,45 +649,42 @@ Zooming.prototype = {
     // trigger transition
     this.style.target.close = setStyle(this.target, this.style.target.open, true);
 
-    // insert this.overlay
-    this.parent.appendChild(this.overlay);
-    setTimeout(function () {
-      return _this2.overlay.style.opacity = _this2.options.bgOpacity;
-    }, 30);
+    this.overlay.insert();
+    this.overlay.show();
 
     document.addEventListener('scroll', this.eventHandler.scroll);
     document.addEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this2.target.removeEventListener(transEndEvent, onEnd);
+      _this.target.removeEventListener(transEndEvent, onEnd);
 
-      _this2.lock = false;
+      _this.lock = false;
 
-      if (_this2.options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, _this2.eventHandler, true);
+      if (_this.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, _this.eventHandler, true);
       }
 
-      if (_this2.target.hasAttribute('data-original')) {
+      if (_this.target.hasAttribute('data-original')) {
         (function () {
-          _this2.srcThumbnail = _this2.target.getAttribute('src');
-          var dataOriginal = _this2.target.getAttribute('data-original');
-          var temp = _this2.target.cloneNode(false);
+          _this.srcThumbnail = _this.target.getAttribute('src');
+          var dataOriginal = _this.target.getAttribute('data-original');
+          var temp = _this.target.cloneNode(false);
 
           // force compute the hi-res image in DOM to prevent
           // image flickering while updating src
           temp.setAttribute('src', dataOriginal);
           temp.style.position = 'fixed';
           temp.style.visibility = 'hidden';
-          _this2.body.appendChild(temp);
+          _this.body.appendChild(temp);
 
           setTimeout(function () {
-            _this2.target.setAttribute('src', dataOriginal);
-            _this2.body.removeChild(temp);
+            _this.target.setAttribute('src', dataOriginal);
+            _this.body.removeChild(temp);
           }, 10);
         })();
       }
 
-      if (cb) cb(_this2.target);
+      if (cb) cb(_this.target);
     };
 
     this.target.addEventListener(transEndEvent, onEnd);
@@ -651,7 +700,7 @@ Zooming.prototype = {
    * @return {this}
    */
   close: function close() {
-    var _this3 = this;
+    var _this2 = this;
 
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.onClose;
 
@@ -666,34 +715,33 @@ Zooming.prototype = {
     this.target.offsetWidth;
 
     this.body.style.cursor = this.style.cursor.default;
-    this.overlay.style.opacity = 0;
+    this.overlay.hide();
     setStyle(this.target, { transform: 'none' });
 
     document.removeEventListener('scroll', this.eventHandler.scroll);
     document.removeEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this3.target.removeEventListener(transEndEvent, onEnd);
+      _this2.target.removeEventListener(transEndEvent, onEnd);
 
-      _this3.shown = false;
-      _this3.lock = false;
+      _this2.shown = false;
+      _this2.lock = false;
 
-      if (_this3.options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, _this3.eventHandler, false);
+      if (_this2.options.enableGrab) {
+        toggleListeners(document, EVENT_TYPES_GRAB, _this2.eventHandler, false);
       }
 
-      if (_this3.target.hasAttribute('data-original')) {
+      if (_this2.target.hasAttribute('data-original')) {
         // downgrade source
-        _this3.target.setAttribute('src', _this3.srcThumbnail);
+        _this2.target.setAttribute('src', _this2.srcThumbnail);
       }
 
       // trigger transition
-      setStyle(_this3.target, _this3.style.target.close);
+      setStyle(_this2.target, _this2.style.target.close);
 
-      // remove overlay
-      _this3.parent.removeChild(_this3.overlay);
+      _this2.overlay.remove();
 
-      if (cb) cb(_this3.target);
+      if (cb) cb(_this2.target);
     };
 
     this.target.addEventListener(transEndEvent, onEnd);
@@ -712,7 +760,7 @@ Zooming.prototype = {
    * @return {this}
    */
   grab: function grab(x, y) {
-    var _this4 = this;
+    var _this3 = this;
 
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
@@ -735,8 +783,8 @@ Zooming.prototype = {
     });
 
     var onEnd = function onEnd() {
-      _this4.target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(_this4.target);
+      _this3.target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(_this3.target);
     };
 
     this.target.addEventListener(transEndEvent, onEnd);
@@ -753,7 +801,7 @@ Zooming.prototype = {
    * @return {this}
    */
   move: function move(x, y) {
-    var _this5 = this;
+    var _this4 = this;
 
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
@@ -778,8 +826,8 @@ Zooming.prototype = {
     this.body.style.cursor = this.style.cursor.move;
 
     var onEnd = function onEnd() {
-      _this5.target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(_this5.target);
+      _this4.target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(_this4.target);
     };
 
     this.target.addEventListener(transEndEvent, onEnd);
@@ -793,7 +841,7 @@ Zooming.prototype = {
    * @return {this}
    */
   release: function release() {
-    var _this6 = this;
+    var _this5 = this;
 
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.onRelease;
 
@@ -808,12 +856,12 @@ Zooming.prototype = {
     this.body.style.cursor = this.style.cursor.default;
 
     var onEnd = function onEnd() {
-      _this6.target.removeEventListener(transEndEvent, onEnd);
+      _this5.target.removeEventListener(transEndEvent, onEnd);
 
-      _this6.lock = false;
-      _this6.released = true;
+      _this5.lock = false;
+      _this5.released = true;
 
-      if (cb) cb(_this6.target);
+      if (cb) cb(_this5.target);
     };
 
     this.target.addEventListener(transEndEvent, onEnd);
@@ -833,10 +881,7 @@ Zooming.prototype = {
       this.options[key] = options[key];
     }
 
-    setStyle(this.overlay, {
-      backgroundColor: this.options.bgColor,
-      transition: 'opacity\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction
-    });
+    this.overlay.updateStyle();
 
     return this;
   }

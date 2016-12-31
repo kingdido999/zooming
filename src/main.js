@@ -1,4 +1,5 @@
 import Style from './_style'
+import Overlay from './Overlay'
 import EventHandler from './_eventHandler'
 import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
 import { loadImage, getWindowCenter, toggleListeners,
@@ -12,9 +13,8 @@ import { calculateTranslate, calculateScale } from './_trans'
 function Zooming (options) {
   // elements
   this.body = document.body
-  this.overlay = document.createElement('div')
+  this.overlay = new Overlay(document.createElement('div'), this)
   this.target = null
-  this.parent = null
 
   // state
   this.shown = false       // target is open
@@ -31,9 +31,7 @@ function Zooming (options) {
   this.style = new Style(this.options)
   this.eventHandler = new EventHandler(this)
 
-  // init overlay
-  setStyle(this.overlay, this.style.overlay.init)
-  this.overlay.addEventListener('click', () => this.close())
+  this.overlay.init()
 }
 
 Zooming.prototype = {
@@ -89,7 +87,7 @@ Zooming.prototype = {
 
     this.shown = true
     this.lock = true
-    this.parent = this.target.parentNode
+    this.overlay.setParent(this.target.parentNode)
 
     // load hi-res image if preloadImage option is disabled
     if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
@@ -119,9 +117,8 @@ Zooming.prototype = {
     // trigger transition
     this.style.target.close = setStyle(this.target, this.style.target.open, true)
 
-    // insert this.overlay
-    this.parent.appendChild(this.overlay)
-    setTimeout(() => this.overlay.style.opacity = this.options.bgOpacity, 30)
+    this.overlay.insert()
+    this.overlay.show()
 
     document.addEventListener('scroll', this.eventHandler.scroll)
     document.addEventListener('keydown', this.eventHandler.keydown)
@@ -180,7 +177,7 @@ Zooming.prototype = {
     this.target.offsetWidth
 
     this.body.style.cursor = this.style.cursor.default
-    this.overlay.style.opacity = 0
+    this.overlay.hide()
     setStyle(this.target, { transform: 'none' })
 
     document.removeEventListener('scroll', this.eventHandler.scroll)
@@ -204,8 +201,7 @@ Zooming.prototype = {
       // trigger transition
       setStyle(this.target, this.style.target.close)
 
-      // remove overlay
-      this.parent.removeChild(this.overlay)
+      this.overlay.remove()
 
       if (cb) cb(this.target)
     }
@@ -333,12 +329,7 @@ Zooming.prototype = {
       this.options[key] = options[key]
     }
 
-    setStyle(this.overlay, {
-      backgroundColor: this.options.bgColor,
-      transition: `opacity
-        ${this.options.transitionDuration}s
-        ${this.options.transitionTimingFunction}`
-    })
+    this.overlay.updateStyle()
 
     return this
   }
