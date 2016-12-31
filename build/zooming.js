@@ -599,9 +599,24 @@ var OPTIONS = {
   onBeforeRelease: null
 };
 
+/**
+ * Duration (ms) longer than or equal to this value will be recognized as grab,
+ * otherwise click.
+ * @type {number}
+ */
 var PRESS_DELAY = 200;
+
+/**
+ * Event types related to grab.
+ * @type {Array}
+ */
 var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-var TOUCH_SCALE_FACTOR = 2;
+
+/**
+ * Scale factor for multi-touch.
+ * @type {number}
+ */
+var MULTITOUCH_SCALE_FACTOR = 2;
 
 var EventHandler = function () {
   function EventHandler(instance) {
@@ -757,9 +772,9 @@ function processTouches(touches, currScaleExtra, cb) {
 
 
     if (distX > distY) {
-      scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
+      scaleExtra = distX / window.innerWidth * MULTITOUCH_SCALE_FACTOR;
     } else {
-      scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+      scaleExtra = distY / window.innerHeight * MULTITOUCH_SCALE_FACTOR;
     }
   }
 

@@ -1,5 +1,5 @@
 import { scrollTop, bind } from './_helpers'
-import { PRESS_DELAY, TOUCH_SCALE_FACTOR } from './_defaults'
+import { PRESS_DELAY, MULTITOUCH_SCALE_FACTOR } from './_defaults'
 
 export default class EventHandler {
 
@@ -131,9 +131,9 @@ function processTouches (touches, currScaleExtra, cb) {
     const [distX, distY] = [max.x - min.x, max.y - min.y]
 
     if (distX > distY) {
-      scaleExtra = (distX / window.innerWidth) * TOUCH_SCALE_FACTOR
+      scaleExtra = (distX / window.innerWidth) * MULTITOUCH_SCALE_FACTOR
     } else {
-      scaleExtra = (distY / window.innerHeight) * TOUCH_SCALE_FACTOR
+      scaleExtra = (distY / window.innerHeight) * MULTITOUCH_SCALE_FACTOR
     }
   }
 
