@@ -1,9 +1,8 @@
-import Style from './_style'
 import Overlay from './Overlay'
 import Target from './Target'
 import EventHandler from './_eventHandler'
 import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
-import { loadImage, toggleListeners, transEndEvent } from './_helpers'
+import { loadImage, toggleListeners, transEndEvent, cursor } from './_helpers'
 
 /**
  * Zooming instance.
@@ -24,7 +23,6 @@ function Zooming (options) {
 
   this.options = Object.assign({}, OPTIONS)
   if (options) this.config(options)
-  this.style = new Style(this.options)
   this.eventHandler = new EventHandler(this)
 
   this.overlay.init()
@@ -50,7 +48,7 @@ Zooming.prototype = {
 
     if (el.tagName !== 'IMG') return
 
-    el.style.cursor = this.style.cursor.zoomIn
+    el.style.cursor = cursor.zoomIn
 
     el.addEventListener('click', this.eventHandler.click)
 
@@ -135,7 +133,7 @@ Zooming.prototype = {
     // force layout update
     target.offsetWidth
 
-    this.body.style.cursor = this.style.cursor.default
+    this.body.style.cursor = cursor.default
     this.overlay.hide()
     this.target.close()
 
@@ -217,7 +215,7 @@ Zooming.prototype = {
     this.released = false
 
     this.target.move(x, y, scaleExtra)
-    this.body.style.cursor = this.style.cursor.move
+    this.body.style.cursor = cursor.move
 
     const onEnd = () => {
       target.removeEventListener(transEndEvent, onEnd)
@@ -245,7 +243,7 @@ Zooming.prototype = {
     this.lock = true
 
     this.target.restoreOpenStyle()
-    this.body.style.cursor = this.style.cursor.default
+    this.body.style.cursor = cursor.default
 
     const onEnd = () => {
       target.removeEventListener(transEndEvent, onEnd)

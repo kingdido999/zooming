@@ -109,34 +109,13 @@ var setStyle = function setStyle(el, styles, remember) {
   return original;
 };
 
-function Style(options) {
-  return {
-    target: {
-      close: null,
-      open: null
-    },
-    overlay: {
-      init: {
-        zIndex: 998,
-        backgroundColor: options.bgColor,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        opacity: 0,
-        transition: 'opacity\n          ' + options.transitionDuration + 's\n          ' + options.transitionTimingFunction
-      }
-    },
-    cursor: {
-      default: 'auto',
-      zoomIn: webkitPrefix + 'zoom-in',
-      zoomOut: webkitPrefix + 'zoom-out',
-      grab: webkitPrefix + 'grab',
-      move: 'move'
-    }
-  };
-}
+var cursor = {
+  default: 'auto',
+  zoomIn: webkitPrefix + 'zoom-in',
+  zoomOut: webkitPrefix + 'zoom-out',
+  grab: webkitPrefix + 'grab',
+  move: 'move'
+};
 
 function Overlay(el, instance) {
   this.el = el;
@@ -259,7 +238,6 @@ Target.prototype = {
 
   open: function open() {
     var options = this.instance.options;
-    var style = this.instance.style;
 
     // load hi-res image if preloadImage option is disabled
     if (!options.preloadImage && this.el.hasAttribute('data-original')) {
@@ -276,7 +254,7 @@ Target.prototype = {
     this.style.open = {
       position: 'relative',
       zIndex: 999,
-      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
       transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
     };
@@ -296,7 +274,7 @@ Target.prototype = {
 
 
     setStyle(this.el, {
-      cursor: this.instance.style.cursor.move,
+      cursor: cursor.move,
       transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
     });
   },
@@ -644,6 +622,10 @@ function EventHandler(instance) {
   return handler;
 }
 
+/**
+ * Zooming instance.
+ * @param {Object} [options] Update default options if provided.
+ */
 function Zooming(options) {
   // elements
   this.body = document.body;
@@ -659,7 +641,6 @@ function Zooming(options) {
 
   this.options = Object.assign({}, OPTIONS);
   if (options) this.config(options);
-  this.style = new Style(this.options);
   this.eventHandler = new EventHandler(this);
 
   this.overlay.init();
@@ -686,7 +667,7 @@ Zooming.prototype = {
 
     if (el.tagName !== 'IMG') return;
 
-    el.style.cursor = this.style.cursor.zoomIn;
+    el.style.cursor = cursor.zoomIn;
 
     el.addEventListener('click', this.eventHandler.click);
 
@@ -777,7 +758,7 @@ Zooming.prototype = {
     // force layout update
     target.offsetWidth;
 
-    this.body.style.cursor = this.style.cursor.default;
+    this.body.style.cursor = cursor.default;
     this.overlay.hide();
     this.target.close();
 
@@ -865,7 +846,7 @@ Zooming.prototype = {
     this.released = false;
 
     this.target.move(x, y, scaleExtra);
-    this.body.style.cursor = this.style.cursor.move;
+    this.body.style.cursor = cursor.move;
 
     var onEnd = function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);
@@ -897,7 +878,7 @@ Zooming.prototype = {
     this.lock = true;
 
     this.target.restoreOpenStyle();
-    this.body.style.cursor = this.style.cursor.default;
+    this.body.style.cursor = cursor.default;
 
     var onEnd = function onEnd() {
       target.removeEventListener(transEndEvent, onEnd);

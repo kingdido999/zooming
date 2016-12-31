@@ -1,4 +1,4 @@
-import { transformCssProp, setStyle, getWindowCenter, loadImage } from './_helpers'
+import { transformCssProp, setStyle, getWindowCenter, loadImage, cursor } from './_helpers'
 import { calculateTranslate, calculateScale } from './_trans'
 
 function Target (el, instance) {
@@ -18,7 +18,6 @@ Target.prototype = {
 
   open: function () {
     const options = this.instance.options
-    const style = this.instance.style
 
     // load hi-res image if preloadImage option is disabled
     if (!options.preloadImage && this.el.hasAttribute('data-original')) {
@@ -36,8 +35,8 @@ Target.prototype = {
       position: 'relative',
       zIndex: 999,
       cursor: options.enableGrab
-        ? style.cursor.grab
-        : style.cursor.zoomOut,
+        ? cursor.grab
+        : cursor.zoomOut,
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
@@ -58,7 +57,7 @@ Target.prototype = {
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
     setStyle(this.el, {
-      cursor: this.instance.style.cursor.move,
+      cursor: cursor.move,
       transform: `translate(
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`

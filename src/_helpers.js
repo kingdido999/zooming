@@ -104,6 +104,14 @@ const setStyle = (el, styles, remember) => {
   return original
 }
 
+const cursor = {
+  default: 'auto',
+  zoomIn: `${webkitPrefix}zoom-in`,
+  zoomOut: `${webkitPrefix}zoom-out`,
+  grab: `${webkitPrefix}grab`,
+  move: 'move'
+}
+
 export {
   webkitPrefix,
   half,
@@ -113,5 +121,6 @@ export {
   toggleListeners,
   transformCssProp,
   transEndEvent,
-  setStyle
+  setStyle,
+  cursor
 }
