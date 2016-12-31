@@ -176,51 +176,6 @@ Overlay.prototype = {
   }
 };
 
-var calculateTranslate = function calculateTranslate(rect) {
-  var windowCenter = getWindowCenter();
-  var targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
-  };
-
-  // The vector to translate image to the window center
-  return {
-    x: windowCenter.x - targetCenter.x,
-    y: windowCenter.y - targetCenter.y
-  };
-};
-
-var calculateScale = function calculateScale(rect, scaleBase, customSize) {
-  if (customSize) {
-    return {
-      x: customSize.width / rect.width,
-      y: customSize.height / rect.height
-    };
-  } else {
-    var targetHalfWidth = half(rect.width);
-    var targetHalfHeight = half(rect.height);
-    var windowCenter = getWindowCenter();
-
-    // The distance between target edge and window edge
-    var targetEdgeToWindowEdge = {
-      x: windowCenter.x - targetHalfWidth,
-      y: windowCenter.y - targetHalfHeight
-    };
-
-    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
-    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
-
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-    return {
-      x: scale,
-      y: scale
-    };
-  }
-};
-
 function Target(el, instance) {
   this.el = el;
   this.instance = instance;
@@ -323,6 +278,51 @@ Target.prototype = {
     this.el.setAttribute('src', this.srcThumbnail);
   }
 };
+
+function calculateTranslate(rect) {
+  var windowCenter = getWindowCenter();
+  var targetCenter = {
+    x: rect.left + half(rect.width),
+    y: rect.top + half(rect.height)
+  };
+
+  // The vector to translate image to the window center
+  return {
+    x: windowCenter.x - targetCenter.x,
+    y: windowCenter.y - targetCenter.y
+  };
+}
+
+function calculateScale(rect, scaleBase, customSize) {
+  if (customSize) {
+    return {
+      x: customSize.width / rect.width,
+      y: customSize.height / rect.height
+    };
+  } else {
+    var targetHalfWidth = half(rect.width);
+    var targetHalfHeight = half(rect.height);
+    var windowCenter = getWindowCenter();
+
+    // The distance between target edge and window edge
+    var targetEdgeToWindowEdge = {
+      x: windowCenter.x - targetHalfWidth,
+      y: windowCenter.y - targetHalfHeight
+    };
+
+    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
+
+    // The additional scale is based on the smaller value of
+    // scaling horizontally and scaling vertically
+    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+    return {
+      x: scale,
+      y: scale
+    };
+  }
+}
 
 /**
  * A list of options.
@@ -475,61 +475,6 @@ var PRESS_DELAY = 200;
 var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 var TOUCH_SCALE_FACTOR = 2;
 
-var processTouches = function processTouches(touches, currScaleExtra, cb) {
-  var total = touches.length;
-  var firstTouch = touches[0];
-  var multitouch = total > 1;
-
-  var scaleExtra = currScaleExtra;
-  var i = touches.length;
-  var xs = 0,
-      ys = 0;
-
-  // keep track of the min and max of touch positions
-
-  var min = { x: firstTouch.clientX, y: firstTouch.clientY };
-  var max = { x: firstTouch.clientX, y: firstTouch.clientY };
-
-  while (i--) {
-    var t = touches[i];
-    var _ref = [t.clientX, t.clientY],
-        x = _ref[0],
-        y = _ref[1];
-
-    xs += x;
-    ys += y;
-
-    if (!multitouch) continue;
-
-    if (x < min.x) {
-      min.x = x;
-    } else if (x > max.x) {
-      max.x = x;
-    }
-
-    if (y < min.y) {
-      min.y = y;
-    } else if (y > max.y) {
-      max.y = y;
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    var distX = max.x - min.x,
-        distY = max.y - min.y;
-
-
-    if (distX > distY) {
-      scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
-    } else {
-      scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
-    }
-  }
-
-  cb(xs / total, ys / total, scaleExtra);
-};
-
 function EventHandler(instance) {
 
   var handler = {
@@ -622,10 +567,61 @@ function EventHandler(instance) {
   return handler;
 }
 
-/**
- * Zooming instance.
- * @param {Object} [options] Update default options if provided.
- */
+function processTouches(touches, currScaleExtra, cb) {
+  var total = touches.length;
+  var firstTouch = touches[0];
+  var multitouch = total > 1;
+
+  var scaleExtra = currScaleExtra;
+  var i = touches.length;
+  var xs = 0,
+      ys = 0;
+
+  // keep track of the min and max of touch positions
+
+  var min = { x: firstTouch.clientX, y: firstTouch.clientY };
+  var max = { x: firstTouch.clientX, y: firstTouch.clientY };
+
+  while (i--) {
+    var t = touches[i];
+    var _ref = [t.clientX, t.clientY],
+        x = _ref[0],
+        y = _ref[1];
+
+    xs += x;
+    ys += y;
+
+    if (!multitouch) continue;
+
+    if (x < min.x) {
+      min.x = x;
+    } else if (x > max.x) {
+      max.x = x;
+    }
+
+    if (y < min.y) {
+      min.y = y;
+    } else if (y > max.y) {
+      max.y = y;
+    }
+  }
+
+  if (multitouch) {
+    // change scaleExtra dynamically
+    var distX = max.x - min.x,
+        distY = max.y - min.y;
+
+
+    if (distX > distY) {
+      scaleExtra = distX / window.innerWidth * TOUCH_SCALE_FACTOR;
+    } else {
+      scaleExtra = distY / window.innerHeight * TOUCH_SCALE_FACTOR;
+    }
+  }
+
+  cb(xs / total, ys / total, scaleExtra);
+}
+
 function Zooming(options) {
   // elements
   this.body = document.body;
