@@ -112,6 +112,18 @@ const cursor = {
   move: 'move'
 }
 
+const bind = (_this, that) => {
+  const methods = (
+    Object.getOwnPropertyNames(
+      Object.getPrototypeOf(_this)
+    )
+  )
+
+  methods.forEach(m => {
+    _this[m] = _this[m].bind(that)
+  })
+}
+
 export {
   webkitPrefix,
   half,
@@ -122,5 +134,6 @@ export {
   transformCssProp,
   transEndEvent,
   setStyle,
-  cursor
+  cursor,
+  bind
 }

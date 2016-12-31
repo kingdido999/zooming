@@ -507,7 +507,7 @@ the target element as the argument.
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>grab(x, y, scaleExtra, cb = this.options.scaleExtra)</span>
+            <span class='code strong strong truncate'>grab(x, y, scaleExtra?, cb = this.options.scaleExtra)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -518,7 +518,7 @@ the target element as the argument.
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ) cb(target)}, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -552,7 +552,7 @@ the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ) cb(target)})</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -604,7 +604,7 @@ will get the target element as the argument.
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>move(x, y, scaleExtra, cb = this.options.scaleExtra)</span>
+            <span class='code strong strong truncate'>move(x, y, scaleExtra?, cb = this.options.scaleExtra)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -615,7 +615,7 @@ will get the target element as the argument.
   <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= istener(transEndEvent, , cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -649,7 +649,7 @@ will get the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= istener(transEndEvent, )</code>
 	    Extra zoom-in to apply.
 
           </div>

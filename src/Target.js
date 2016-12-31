@@ -1,21 +1,21 @@
 import { transformCssProp, setStyle, half, getWindowCenter, loadImage, cursor } from './_helpers'
 
-function Target (el, instance) {
-  this.el = el
-  this.instance = instance
-  this.body = document.body
-  this.translate = null
-  this.scale = null
-  this.srcThumbnail = null
-  this.style = {
-    open: null,
-    close: null
+export default class Target {
+
+  constructor (el, instance) {
+    this.el = el
+    this.instance = instance
+    this.body = document.body
+    this.translate = null
+    this.scale = null
+    this.srcThumbnail = null
+    this.style = {
+      open: null,
+      close: null
+    }
   }
-}
 
-Target.prototype = {
-
-  open: function () {
+  open () {
     const options = this.instance.options
 
     // load hi-res image if preloadImage option is disabled
@@ -45,16 +45,16 @@ Target.prototype = {
 
     // trigger transition
     this.style.close = setStyle(this.el, this.style.open, true)
-  },
+  }
 
-  close: function () {
+  close () {
     // force layout update
     this.el.offsetWidth
 
     setStyle(this.el, { transform: 'none' })
-  },
+  }
 
-  grab: function (x, y, scaleExtra) {
+  grab (x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
@@ -64,9 +64,9 @@ Target.prototype = {
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
-  },
+  }
 
-  move: function (x, y, scaleExtra) {
+  move (x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
@@ -76,17 +76,17 @@ Target.prototype = {
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
-  },
+  }
 
-  restoreCloseStyle: function () {
+  restoreCloseStyle () {
     setStyle(this.el, this.style.close)
-  },
+  }
 
-  restoreOpenStyle: function () {
+  restoreOpenStyle () {
     setStyle(this.el, this.style.open)
-  },
+  }
 
-  upgradeSource: function () {
+  upgradeSource () {
     this.srcThumbnail = this.el.getAttribute('src')
     const dataOriginal = this.el.getAttribute('data-original')
     const temp = this.el.cloneNode(false)
@@ -102,9 +102,9 @@ Target.prototype = {
       this.el.setAttribute('src', dataOriginal)
       this.body.removeChild(temp)
     }, 10)
-  },
+  }
 
-  downgradeSource: function () {
+  downgradeSource () {
     this.el.setAttribute('src', this.srcThumbnail)
   }
 }
@@ -153,5 +153,3 @@ function calculateScale (rect, scaleBase, customSize) {
     }
   }
 }
-
-export default Target

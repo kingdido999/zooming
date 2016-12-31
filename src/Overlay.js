@@ -1,13 +1,14 @@
 import { setStyle } from './_helpers'
 
-function Overlay (el, instance) {
-  this.el = el
-  this.instance = instance
-  this.parent = null
-}
+export default class Overlay {
 
-Overlay.prototype = {
-  init: function () {
+  constructor (el, instance) {
+    this.el = el
+    this.instance = instance
+    this.parent = null
+  }
+
+  init () {
     const options = this.instance.options
 
     setStyle(this.el, {
@@ -25,9 +26,9 @@ Overlay.prototype = {
     })
 
     this.el.addEventListener('click', this.instance.close())
-  },
+  }
 
-  updateStyle: function () {
+  updateStyle () {
     const options = this.instance.options
 
     setStyle(this.el, {
@@ -36,27 +37,25 @@ Overlay.prototype = {
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`
     })
-  },
+  }
 
-  setParent: function (parent) {
+  setParent (parent) {
     this.parent = parent
-  },
+  }
 
-  insert: function () {
+  insert () {
     this.parent.appendChild(this.el)
-  },
+  }
 
-  remove: function () {
+  remove () {
     this.parent.removeChild(this.el)
-  },
+  }
 
-  show: function () {
+  show () {
     setTimeout(() => this.el.style.opacity = this.instance.options.bgOpacity, 30)
-  },
+  }
 
-  hide: function () {
+  hide () {
     this.el.style.opacity = 0
   }
 }
-
-export default Overlay

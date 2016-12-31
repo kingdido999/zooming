@@ -1,100 +1,95 @@
-import { scrollTop } from './_helpers'
+import { scrollTop, bind } from './_helpers'
 import { PRESS_DELAY, TOUCH_SCALE_FACTOR } from './_defaults'
 
-export default function EventHandler(instance) {
+export default class EventHandler {
 
-  const handler = {
+  constructor (instance) {
+    bind(this, instance)
+  }
 
-    click: function (e) {
-      e.preventDefault()
+  click (e) {
+    e.preventDefault()
 
-      if (instance.shown) {
-        if (instance.released) instance.close()
-        else instance.release()
-      } else {
-        instance.open(e.currentTarget)
-      }
-    },
-
-    scroll: function () {
-      const st = scrollTop()
-
-      if (instance.lastScrollPosition === null) {
-        instance.lastScrollPosition = st
-      }
-
-      const deltaY = instance.lastScrollPosition - st
-
-      if (Math.abs(deltaY) >= instance.options.scrollThreshold) {
-        instance.lastScrollPosition = null
-        instance.close()
-      }
-    },
-
-    keydown: function (e) {
-      const code = e.key || e.code
-      if (code === 'Escape' || e.keyCode === 27) {
-        if (instance.released) instance.close()
-        else instance.release(() => instance.close())
-      }
-    },
-
-    mousedown: function (e) {
-      if (e.button !== 0) return
-      e.preventDefault()
-
-      instance.pressTimer = setTimeout(() => {
-        instance.grab(e.clientX, e.clientY)
-      }, PRESS_DELAY)
-    },
-
-    mousemove: function (e) {
-      if (instance.released) return
-      instance.move(e.clientX, e.clientY)
-    },
-
-    mouseup: function (e) {
-      if (e.button !== 0) return
-      clearTimeout(instance.pressTimer)
-
-      if (instance.released) instance.close()
-      else instance.release()
-    },
-
-    touchstart: function (e) {
-      e.preventDefault()
-
-      instance.pressTimer = setTimeout(() => {
-        processTouches(e.touches, instance.options.scaleExtra,
-          (x, y, scaleExtra) => {
-            instance.grab(x, y, scaleExtra)
-          })
-      }, PRESS_DELAY)
-    },
-
-    touchmove: function (e) {
-      if (instance.released) return
-
-      processTouches(e.touches, instance.options.scaleExtra,
-        (x, y, scaleExtra) => {
-          instance.move(x, y, scaleExtra)
-        })
-    },
-
-    touchend: function (e) {
-      if (e.targetTouches.length > 0) return
-      clearTimeout(instance.pressTimer)
-
-      if (instance.released) instance.close()
-      else instance.release()
+    if (this.shown) {
+      if (this.released) this.close()
+      else this.release()
+    } else {
+      this.open(e.currentTarget)
     }
   }
 
-  for (let fn in handler) {
-    handler[fn] = handler[fn].bind(instance)
+  scroll () {
+    const st = scrollTop()
+
+    if (this.lastScrollPosition === null) {
+      this.lastScrollPosition = st
+    }
+
+    const deltaY = this.lastScrollPosition - st
+
+    if (Math.abs(deltaY) >= this.options.scrollThreshold) {
+      this.lastScrollPosition = null
+      this.close()
+    }
   }
 
-  return handler
+  keydown (e) {
+    const code = e.key || e.code
+    if (code === 'Escape' || e.keyCode === 27) {
+      if (this.released) this.close()
+      else this.release(() => this.close())
+    }
+  }
+
+  mousedown (e) {
+    if (e.button !== 0) return
+    e.preventDefault()
+
+    this.pressTimer = setTimeout(() => {
+      this.grab(e.clientX, e.clientY)
+    }, PRESS_DELAY)
+  }
+
+  mousemove (e) {
+    if (this.released) return
+    this.move(e.clientX, e.clientY)
+  }
+
+  mouseup (e) {
+    if (e.button !== 0) return
+    clearTimeout(this.pressTimer)
+
+    if (this.released) this.close()
+    else this.release()
+  }
+
+  touchstart (e) {
+    e.preventDefault()
+
+    this.pressTimer = setTimeout(() => {
+      processTouches(e.touches, this.options.scaleExtra,
+        (x, y, scaleExtra) => {
+          this.grab(x, y, scaleExtra)
+        })
+    }, PRESS_DELAY)
+  }
+
+  touchmove (e) {
+    if (this.released) return
+
+    processTouches(e.touches, this.options.scaleExtra,
+      (x, y, scaleExtra) => {
+        this.move(x, y, scaleExtra)
+      })
+  }
+
+  touchend (e) {
+    if (e.targetTouches.length > 0) return
+    clearTimeout(this.pressTimer)
+
+    if (this.released) this.close()
+    else this.release()
+  }
 }
 
 function processTouches (touches, currScaleExtra, cb) {

@@ -8,34 +8,34 @@ import { loadImage, toggleListeners, transEndEvent, cursor } from './_helpers'
  * Zooming instance.
  * @param {Object} [options] Update default options if provided.
  */
-function Zooming (options) {
-  // elements
-  this.body = document.body
-  this.overlay = new Overlay(document.createElement('div'), this)
-  this.target = null
+export default class Zooming {
 
-  // state
-  this.shown = false       // target is open
-  this.lock  = false       // target is in transform
-  this.released = true     // mouse/finger is not pressing down
-  this.lastScrollPosition = null
-  this.pressTimer = null
+  constructor (options) {
+    // elements
+    this.body = document.body
+    this.overlay = new Overlay(document.createElement('div'), this)
+    this.target = null
 
-  this.options = Object.assign({}, OPTIONS)
-  if (options) this.config(options)
+    // state
+    this.shown = false       // target is open
+    this.lock  = false       // target is in transform
+    this.released = true     // mouse/finger is not pressing down
+    this.lastScrollPosition = null
+    this.pressTimer = null
 
-  this.eventHandler = new EventHandler(this)
-  this.overlay.init()
-}
+    this.options = Object.assign({}, OPTIONS)
+    if (options) this.config(options)
 
-Zooming.prototype = {
+    this.eventHandler = new EventHandler(this)
+    this.overlay.init()
+  }
 
   /**
    * Make element(s) zoomable.
    * @param  {string|Element} el A css selector or an Element.
    * @return {this}
    */
-  listen: function (el) {
+  listen (el) {
     if (typeof el === 'string') {
       let els = document.querySelectorAll(el), i = els.length
 
@@ -56,7 +56,7 @@ Zooming.prototype = {
     }
 
     return this
-  },
+  }
 
   /**
    * Open (zoom in) the Element.
@@ -66,7 +66,7 @@ Zooming.prototype = {
    * the target element as the argument.
    * @return {this}
    */
-  open: function (el, cb = this.options.onOpen) {
+  open (el, cb = this.options.onOpen) {
     if (this.shown || this.lock) return
 
     const target = typeof el === 'string'
@@ -110,7 +110,7 @@ Zooming.prototype = {
     target.addEventListener(transEndEvent, onEnd)
 
     return this
-  },
+  }
 
   /**
    * Close (zoom out) the Element currently opened.
@@ -119,7 +119,7 @@ Zooming.prototype = {
    * the target element as the argument.
    * @return {this}
    */
-  close: function (cb = this.options.onClose) {
+  close (cb = this.options.onClose) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -159,7 +159,7 @@ Zooming.prototype = {
     target.addEventListener(transEndEvent, onEnd)
 
     return this
-  },
+  }
 
   /**
    * Grab the Element currently opened given a position and apply extra zoom-in.
@@ -171,7 +171,7 @@ Zooming.prototype = {
    * will get the target element as the argument.
    * @return {this}
    */
-  grab: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
+  grab (x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -188,7 +188,7 @@ Zooming.prototype = {
     }
 
     target.addEventListener(transEndEvent, onEnd)
-  },
+  }
 
   /**
    * Move the Element currently grabbed given a position and apply extra zoom-in.
@@ -200,7 +200,7 @@ Zooming.prototype = {
    * get the target element as the argument.
    * @return {this}
    */
-  move: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
+  move (x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -219,7 +219,7 @@ Zooming.prototype = {
     }
 
     target.addEventListener(transEndEvent, onEnd)
-  },
+  }
 
   /**
    * Release the Element currently grabbed.
@@ -228,7 +228,7 @@ Zooming.prototype = {
    * will get the target element as the argument.
    * @return {this}
    */
-  release: function (cb = this.options.onRelease) {
+  release (cb = this.options.onRelease) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -253,14 +253,14 @@ Zooming.prototype = {
     target.addEventListener(transEndEvent, onEnd)
 
     return this
-  },
+  }
 
   /**
    * Update options.
    * @param  {Object} options An Object that contains this.options.
    * @return {this}
    */
-  config: function (options) {
+  config (options) {
     if (!options) return this.options
 
     for (let key in options) {
@@ -272,5 +272,3 @@ Zooming.prototype = {
     return this
   }
 }
-
-export default Zooming
