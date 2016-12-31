@@ -1,10 +1,9 @@
 import Style from './_style'
 import Overlay from './Overlay'
+import Target from './Target'
 import EventHandler from './_eventHandler'
 import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
-import { loadImage, getWindowCenter, toggleListeners,
-  transformCssProp, transEndEvent, setStyle } from './_helpers'
-import { calculateTranslate, calculateScale } from './_trans'
+import { loadImage, toggleListeners, transEndEvent } from './_helpers'
 
 /**
  * Zooming instance.
@@ -21,9 +20,6 @@ function Zooming (options) {
   this.lock  = false       // target is in transform
   this.released = true     // mouse/finger is not pressing down
   this.lastScrollPosition = null
-  this.translate = null
-  this.scale = null
-  this.srcThumbnail = null
   this.pressTimer = null
 
   this.options = Object.assign({}, OPTIONS)
@@ -76,47 +72,22 @@ Zooming.prototype = {
   open: function (el, cb = this.options.onOpen) {
     if (this.shown || this.lock) return
 
-    this.target = typeof el === 'string'
+    const target = typeof el === 'string'
       ? document.querySelector(el)
       : el
 
-    if (this.target.tagName !== 'IMG') return
+    if (target.tagName !== 'IMG') return
+
+    this.target = new Target(target, this)
 
     // onBeforeOpen event
-    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target)
+    if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
 
     this.shown = true
     this.lock = true
-    this.overlay.setParent(this.target.parentNode)
 
-    // load hi-res image if preloadImage option is disabled
-    if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
-      loadImage(this.target.getAttribute('data-original'))
-    }
-
-    const rect = this.target.getBoundingClientRect()
-    this.translate = calculateTranslate(rect)
-    this.scale = calculateScale(rect, this.options.scaleBase, this.options.customSize)
-
-    // force layout update
-    this.target.offsetWidth
-
-    this.style.target.open = {
-      position: 'relative',
-      zIndex: 999,
-      cursor: this.options.enableGrab
-        ? this.style.cursor.grab
-        : this.style.cursor.zoomOut,
-      transition: `${transformCssProp}
-        ${this.options.transitionDuration}s
-        ${this.options.transitionTimingFunction}`,
-      transform: `translate(${this.translate.x}px, ${this.translate.y}px)
-        scale(${this.scale.x},${this.scale.y})`
-    }
-
-    // trigger transition
-    this.style.target.close = setStyle(this.target, this.style.target.open, true)
-
+    this.target.open()
+    this.overlay.setParent(target.parentNode)
     this.overlay.insert()
     this.overlay.show()
 
@@ -124,7 +95,7 @@ Zooming.prototype = {
     document.addEventListener('keydown', this.eventHandler.keydown)
 
     const onEnd = () => {
-      this.target.removeEventListener(transEndEvent, onEnd)
+      target.removeEventListener(transEndEvent, onEnd)
 
       this.lock = false
 
@@ -132,28 +103,14 @@ Zooming.prototype = {
         toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, true)
       }
 
-      if (this.target.hasAttribute('data-original')) {
-        this.srcThumbnail = this.target.getAttribute('src')
-        const dataOriginal = this.target.getAttribute('data-original')
-        const temp = this.target.cloneNode(false)
-
-        // force compute the hi-res image in DOM to prevent
-        // image flickering while updating src
-        temp.setAttribute('src', dataOriginal)
-        temp.style.position = 'fixed'
-        temp.style.visibility = 'hidden'
-        this.body.appendChild(temp)
-
-        setTimeout(() => {
-          this.target.setAttribute('src', dataOriginal)
-          this.body.removeChild(temp)
-        }, 10)
+      if (target.hasAttribute('data-original')) {
+        this.target.upgradeSource()
       }
 
-      if (cb) cb(this.target)
+      if (cb) cb(target)
     }
 
-    this.target.addEventListener(transEndEvent, onEnd)
+    target.addEventListener(transEndEvent, onEnd)
 
     return this
   },
@@ -168,23 +125,25 @@ Zooming.prototype = {
   close: function (cb = this.options.onClose) {
     if (!this.shown || this.lock) return
 
+    const target = this.target.el
+
     // onBeforeClose event
-    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target)
+    if (this.options.onBeforeClose) this.options.onBeforeClose(target)
 
     this.lock = true
 
     // force layout update
-    this.target.offsetWidth
+    target.offsetWidth
 
     this.body.style.cursor = this.style.cursor.default
     this.overlay.hide()
-    setStyle(this.target, { transform: 'none' })
+    this.target.close()
 
     document.removeEventListener('scroll', this.eventHandler.scroll)
     document.removeEventListener('keydown', this.eventHandler.keydown)
 
     const onEnd = () => {
-      this.target.removeEventListener(transEndEvent, onEnd)
+      target.removeEventListener(transEndEvent, onEnd)
 
       this.shown = false
       this.lock = false
@@ -193,20 +152,17 @@ Zooming.prototype = {
         toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, false)
       }
 
-      if (this.target.hasAttribute('data-original')) {
-        // downgrade source
-        this.target.setAttribute('src', this.srcThumbnail)
+      if (target.hasAttribute('data-original')) {
+        this.target.downgradeSource()
       }
 
-      // trigger transition
-      setStyle(this.target, this.style.target.close)
-
+      this.target.restoreCloseStyle()
       this.overlay.remove()
 
-      if (cb) cb(this.target)
+      if (cb) cb(target)
     }
 
-    this.target.addEventListener(transEndEvent, onEnd)
+    target.addEventListener(transEndEvent, onEnd)
 
     return this
   },
@@ -224,27 +180,20 @@ Zooming.prototype = {
   grab: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
+    const target = this.target.el
+
     // onBeforeGrab event
-    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target)
+    if (this.options.onBeforeGrab) this.options.onBeforeGrab(target)
 
     this.released = false
-
-    const windowCenter = getWindowCenter()
-    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
-
-    setStyle(this.target, {
-      cursor: this.style.cursor.move,
-      transform: `translate(
-        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
-        scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
-    })
+    this.target.grab(x, y, scaleExtra)
 
     const onEnd = () => {
-      this.target.removeEventListener(transEndEvent, onEnd)
-      if (cb) cb(this.target)
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
     }
 
-    this.target.addEventListener(transEndEvent, onEnd)
+    target.addEventListener(transEndEvent, onEnd)
   },
 
   /**
@@ -260,29 +209,22 @@ Zooming.prototype = {
   move: function (x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
+    const target = this.target.el
+
     // onBeforeMove event
-    if (this.options.onBeforeMove) this.options.onBeforeMove(this.target)
+    if (this.options.onBeforeMove) this.options.onBeforeMove(target)
 
     this.released = false
 
-    const windowCenter = getWindowCenter()
-    const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
-
-    setStyle(this.target, {
-      transition: transformCssProp,
-      transform: `translate(
-        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
-        scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
-    })
-
+    this.target.move(x, y, scaleExtra)
     this.body.style.cursor = this.style.cursor.move
 
     const onEnd = () => {
-      this.target.removeEventListener(transEndEvent, onEnd)
-      if (cb) cb(this.target)
+      target.removeEventListener(transEndEvent, onEnd)
+      if (cb) cb(target)
     }
 
-    this.target.addEventListener(transEndEvent, onEnd)
+    target.addEventListener(transEndEvent, onEnd)
   },
 
   /**
@@ -295,24 +237,26 @@ Zooming.prototype = {
   release: function (cb = this.options.onRelease) {
     if (!this.shown || this.lock) return
 
+    const target = this.target.el
+
     // onBeforeRelease event
-    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target)
+    if (this.options.onBeforeRelease) this.options.onBeforeRelease(target)
 
     this.lock = true
 
-    setStyle(this.target, this.style.target.open)
+    this.target.restoreOpenStyle()
     this.body.style.cursor = this.style.cursor.default
 
     const onEnd = () => {
-      this.target.removeEventListener(transEndEvent, onEnd)
+      target.removeEventListener(transEndEvent, onEnd)
 
       this.lock = false
       this.released = true
 
-      if (cb) cb(this.target)
+      if (cb) cb(target)
     }
 
-    this.target.addEventListener(transEndEvent, onEnd)
+    target.addEventListener(transEndEvent, onEnd)
 
     return this
   },

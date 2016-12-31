@@ -197,6 +197,155 @@ Overlay.prototype = {
   }
 };
 
+var calculateTranslate = function calculateTranslate(rect) {
+  var windowCenter = getWindowCenter();
+  var targetCenter = {
+    x: rect.left + half(rect.width),
+    y: rect.top + half(rect.height)
+  };
+
+  // The vector to translate image to the window center
+  return {
+    x: windowCenter.x - targetCenter.x,
+    y: windowCenter.y - targetCenter.y
+  };
+};
+
+var calculateScale = function calculateScale(rect, scaleBase, customSize) {
+  if (customSize) {
+    return {
+      x: customSize.width / rect.width,
+      y: customSize.height / rect.height
+    };
+  } else {
+    var targetHalfWidth = half(rect.width);
+    var targetHalfHeight = half(rect.height);
+    var windowCenter = getWindowCenter();
+
+    // The distance between target edge and window edge
+    var targetEdgeToWindowEdge = {
+      x: windowCenter.x - targetHalfWidth,
+      y: windowCenter.y - targetHalfHeight
+    };
+
+    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
+
+    // The additional scale is based on the smaller value of
+    // scaling horizontally and scaling vertically
+    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+    return {
+      x: scale,
+      y: scale
+    };
+  }
+};
+
+function Target(el, instance) {
+  this.el = el;
+  this.instance = instance;
+  this.body = document.body;
+  this.translate = null;
+  this.scale = null;
+  this.srcThumbnail = null;
+  this.style = {
+    open: null,
+    close: null
+  };
+}
+
+Target.prototype = {
+
+  open: function open() {
+    var options = this.instance.options;
+    var style = this.instance.style;
+
+    // load hi-res image if preloadImage option is disabled
+    if (!options.preloadImage && this.el.hasAttribute('data-original')) {
+      loadImage(this.el.getAttribute('data-original'));
+    }
+
+    var rect = this.el.getBoundingClientRect();
+    this.translate = calculateTranslate(rect);
+    this.scale = calculateScale(rect, options.scaleBase, options.customSize);
+
+    // force layout update
+    this.el.offsetWidth;
+
+    this.style.open = {
+      position: 'relative',
+      zIndex: 999,
+      cursor: options.enableGrab ? style.cursor.grab : style.cursor.zoomOut,
+      transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
+      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
+    };
+
+    // trigger transition
+    this.style.close = setStyle(this.el, this.style.open, true);
+  },
+
+  close: function close() {
+    setStyle(this.el, { transform: 'none' });
+  },
+
+  grab: function grab(x, y, scaleExtra) {
+    var windowCenter = getWindowCenter();
+    var dx = windowCenter.x - x,
+        dy = windowCenter.y - y;
+
+
+    setStyle(this.el, {
+      cursor: this.instance.style.cursor.move,
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+    });
+  },
+
+  move: function move(x, y, scaleExtra) {
+    var windowCenter = getWindowCenter();
+    var dx = windowCenter.x - x,
+        dy = windowCenter.y - y;
+
+
+    setStyle(this.el, {
+      transition: transformCssProp,
+      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+    });
+  },
+
+  restoreCloseStyle: function restoreCloseStyle() {
+    setStyle(this.el, this.style.close);
+  },
+
+  restoreOpenStyle: function restoreOpenStyle() {
+    setStyle(this.el, this.style.open);
+  },
+
+  upgradeSource: function upgradeSource() {
+    var _this = this;
+
+    this.srcThumbnail = this.el.getAttribute('src');
+    var dataOriginal = this.el.getAttribute('data-original');
+    var temp = this.el.cloneNode(false);
+
+    // force compute the hi-res image in DOM to prevent
+    // image flickering while updating src
+    temp.setAttribute('src', dataOriginal);
+    temp.style.position = 'fixed';
+    temp.style.visibility = 'hidden';
+    this.body.appendChild(temp);
+
+    setTimeout(function () {
+      _this.el.setAttribute('src', dataOriginal);
+      _this.body.removeChild(temp);
+    }, 10);
+  },
+
+  downgradeSource: function downgradeSource() {
+    this.el.setAttribute('src', this.srcThumbnail);
+  }
+};
+
 /**
  * A list of options.
  *
@@ -495,55 +644,6 @@ function EventHandler(instance) {
   return handler;
 }
 
-var calculateTranslate = function calculateTranslate(rect) {
-  var windowCenter = getWindowCenter();
-  var targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
-  };
-
-  // The vector to translate image to the window center
-  return {
-    x: windowCenter.x - targetCenter.x,
-    y: windowCenter.y - targetCenter.y
-  };
-};
-
-var calculateScale = function calculateScale(rect, scaleBase, customSize) {
-  if (customSize) {
-    return {
-      x: customSize.width / rect.width,
-      y: customSize.height / rect.height
-    };
-  } else {
-    var targetHalfWidth = half(rect.width);
-    var targetHalfHeight = half(rect.height);
-    var windowCenter = getWindowCenter();
-
-    // The distance between target edge and window edge
-    var targetEdgeToWindowEdge = {
-      x: windowCenter.x - targetHalfWidth,
-      y: windowCenter.y - targetHalfHeight
-    };
-
-    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
-    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
-
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-    return {
-      x: scale,
-      y: scale
-    };
-  }
-};
-
-/**
- * Zooming instance.
- * @param {Object} [options] Update default options if provided.
- */
 function Zooming(options) {
   // elements
   this.body = document.body;
@@ -555,9 +655,6 @@ function Zooming(options) {
   this.lock = false; // target is in transform
   this.released = true; // mouse/finger is not pressing down
   this.lastScrollPosition = null;
-  this.translate = null;
-  this.scale = null;
-  this.srcThumbnail = null;
   this.pressTimer = null;
 
   this.options = Object.assign({}, OPTIONS);
@@ -615,40 +712,20 @@ Zooming.prototype = {
 
     if (this.shown || this.lock) return;
 
-    this.target = typeof el === 'string' ? document.querySelector(el) : el;
+    var target = typeof el === 'string' ? document.querySelector(el) : el;
 
-    if (this.target.tagName !== 'IMG') return;
+    if (target.tagName !== 'IMG') return;
+
+    this.target = new Target(target, this);
 
     // onBeforeOpen event
-    if (this.options.onBeforeOpen) this.options.onBeforeOpen(this.target);
+    if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
 
     this.shown = true;
     this.lock = true;
-    this.overlay.setParent(this.target.parentNode);
 
-    // load hi-res image if preloadImage option is disabled
-    if (!this.options.preloadImage && this.target.hasAttribute('data-original')) {
-      loadImage(this.target.getAttribute('data-original'));
-    }
-
-    var rect = this.target.getBoundingClientRect();
-    this.translate = calculateTranslate(rect);
-    this.scale = calculateScale(rect, this.options.scaleBase, this.options.customSize);
-
-    // force layout update
-    this.target.offsetWidth;
-
-    this.style.target.open = {
-      position: 'relative',
-      zIndex: 999,
-      cursor: this.options.enableGrab ? this.style.cursor.grab : this.style.cursor.zoomOut,
-      transition: transformCssProp + '\n        ' + this.options.transitionDuration + 's\n        ' + this.options.transitionTimingFunction,
-      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
-    };
-
-    // trigger transition
-    this.style.target.close = setStyle(this.target, this.style.target.open, true);
-
+    this.target.open();
+    this.overlay.setParent(target.parentNode);
     this.overlay.insert();
     this.overlay.show();
 
@@ -656,7 +733,7 @@ Zooming.prototype = {
     document.addEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this.target.removeEventListener(transEndEvent, onEnd);
+      target.removeEventListener(transEndEvent, onEnd);
 
       _this.lock = false;
 
@@ -664,30 +741,14 @@ Zooming.prototype = {
         toggleListeners(document, EVENT_TYPES_GRAB, _this.eventHandler, true);
       }
 
-      if (_this.target.hasAttribute('data-original')) {
-        (function () {
-          _this.srcThumbnail = _this.target.getAttribute('src');
-          var dataOriginal = _this.target.getAttribute('data-original');
-          var temp = _this.target.cloneNode(false);
-
-          // force compute the hi-res image in DOM to prevent
-          // image flickering while updating src
-          temp.setAttribute('src', dataOriginal);
-          temp.style.position = 'fixed';
-          temp.style.visibility = 'hidden';
-          _this.body.appendChild(temp);
-
-          setTimeout(function () {
-            _this.target.setAttribute('src', dataOriginal);
-            _this.body.removeChild(temp);
-          }, 10);
-        })();
+      if (target.hasAttribute('data-original')) {
+        _this.target.upgradeSource();
       }
 
-      if (cb) cb(_this.target);
+      if (cb) cb(target);
     };
 
-    this.target.addEventListener(transEndEvent, onEnd);
+    target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
@@ -706,23 +767,25 @@ Zooming.prototype = {
 
     if (!this.shown || this.lock) return;
 
+    var target = this.target.el;
+
     // onBeforeClose event
-    if (this.options.onBeforeClose) this.options.onBeforeClose(this.target);
+    if (this.options.onBeforeClose) this.options.onBeforeClose(target);
 
     this.lock = true;
 
     // force layout update
-    this.target.offsetWidth;
+    target.offsetWidth;
 
     this.body.style.cursor = this.style.cursor.default;
     this.overlay.hide();
-    setStyle(this.target, { transform: 'none' });
+    this.target.close();
 
     document.removeEventListener('scroll', this.eventHandler.scroll);
     document.removeEventListener('keydown', this.eventHandler.keydown);
 
     var onEnd = function onEnd() {
-      _this2.target.removeEventListener(transEndEvent, onEnd);
+      target.removeEventListener(transEndEvent, onEnd);
 
       _this2.shown = false;
       _this2.lock = false;
@@ -731,20 +794,17 @@ Zooming.prototype = {
         toggleListeners(document, EVENT_TYPES_GRAB, _this2.eventHandler, false);
       }
 
-      if (_this2.target.hasAttribute('data-original')) {
-        // downgrade source
-        _this2.target.setAttribute('src', _this2.srcThumbnail);
+      if (target.hasAttribute('data-original')) {
+        _this2.target.downgradeSource();
       }
 
-      // trigger transition
-      setStyle(_this2.target, _this2.style.target.close);
-
+      _this2.target.restoreCloseStyle();
       _this2.overlay.remove();
 
-      if (cb) cb(_this2.target);
+      if (cb) cb(target);
     };
 
-    this.target.addEventListener(transEndEvent, onEnd);
+    target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
@@ -760,34 +820,25 @@ Zooming.prototype = {
    * @return {this}
    */
   grab: function grab(x, y) {
-    var _this3 = this;
-
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
 
     if (!this.shown || this.lock) return;
 
+    var target = this.target.el;
+
     // onBeforeGrab event
-    if (this.options.onBeforeGrab) this.options.onBeforeGrab(this.target);
+    if (this.options.onBeforeGrab) this.options.onBeforeGrab(target);
 
     this.released = false;
-
-    var windowCenter = getWindowCenter();
-    var dx = windowCenter.x - x,
-        dy = windowCenter.y - y;
-
-
-    setStyle(this.target, {
-      cursor: this.style.cursor.move,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
-    });
+    this.target.grab(x, y, scaleExtra);
 
     var onEnd = function onEnd() {
-      _this3.target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(_this3.target);
+      target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(target);
     };
 
-    this.target.addEventListener(transEndEvent, onEnd);
+    target.addEventListener(transEndEvent, onEnd);
   },
 
   /**
@@ -801,36 +852,27 @@ Zooming.prototype = {
    * @return {this}
    */
   move: function move(x, y) {
-    var _this4 = this;
-
     var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
     var cb = arguments[3];
 
     if (!this.shown || this.lock) return;
 
+    var target = this.target.el;
+
     // onBeforeMove event
-    if (this.options.onBeforeMove) this.options.onBeforeMove(this.target);
+    if (this.options.onBeforeMove) this.options.onBeforeMove(target);
 
     this.released = false;
 
-    var windowCenter = getWindowCenter();
-    var dx = windowCenter.x - x,
-        dy = windowCenter.y - y;
-
-
-    setStyle(this.target, {
-      transition: transformCssProp,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
-    });
-
+    this.target.move(x, y, scaleExtra);
     this.body.style.cursor = this.style.cursor.move;
 
     var onEnd = function onEnd() {
-      _this4.target.removeEventListener(transEndEvent, onEnd);
-      if (cb) cb(_this4.target);
+      target.removeEventListener(transEndEvent, onEnd);
+      if (cb) cb(target);
     };
 
-    this.target.addEventListener(transEndEvent, onEnd);
+    target.addEventListener(transEndEvent, onEnd);
   },
 
   /**
@@ -841,30 +883,32 @@ Zooming.prototype = {
    * @return {this}
    */
   release: function release() {
-    var _this5 = this;
+    var _this3 = this;
 
     var cb = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.options.onRelease;
 
     if (!this.shown || this.lock) return;
 
+    var target = this.target.el;
+
     // onBeforeRelease event
-    if (this.options.onBeforeRelease) this.options.onBeforeRelease(this.target);
+    if (this.options.onBeforeRelease) this.options.onBeforeRelease(target);
 
     this.lock = true;
 
-    setStyle(this.target, this.style.target.open);
+    this.target.restoreOpenStyle();
     this.body.style.cursor = this.style.cursor.default;
 
     var onEnd = function onEnd() {
-      _this5.target.removeEventListener(transEndEvent, onEnd);
+      target.removeEventListener(transEndEvent, onEnd);
 
-      _this5.lock = false;
-      _this5.released = true;
+      _this3.lock = false;
+      _this3.released = true;
 
-      if (cb) cb(_this5.target);
+      if (cb) cb(target);
     };
 
-    this.target.addEventListener(transEndEvent, onEnd);
+    target.addEventListener(transEndEvent, onEnd);
 
     return this;
   },
