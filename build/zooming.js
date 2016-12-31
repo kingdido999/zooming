@@ -117,65 +117,6 @@ var cursor = {
   move: 'move'
 };
 
-function Overlay(el, instance) {
-  this.el = el;
-  this.instance = instance;
-  this.parent = null;
-}
-
-Overlay.prototype = {
-  init: function init() {
-    var options = this.instance.options;
-
-    setStyle(this.el, {
-      zIndex: 998,
-      backgroundColor: options.bgColor,
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      opacity: 0,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-    });
-
-    this.el.addEventListener('click', this.instance.close());
-  },
-
-  updateStyle: function updateStyle() {
-    var options = this.instance.options;
-
-    setStyle(this.el, {
-      backgroundColor: options.bgColor,
-      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-    });
-  },
-
-  setParent: function setParent(parent) {
-    this.parent = parent;
-  },
-
-  insert: function insert() {
-    this.parent.appendChild(this.el);
-  },
-
-  remove: function remove() {
-    this.parent.removeChild(this.el);
-  },
-
-  show: function show() {
-    var _this = this;
-
-    setTimeout(function () {
-      return _this.el.style.opacity = _this.instance.options.bgOpacity;
-    }, 30);
-  },
-
-  hide: function hide() {
-    this.el.style.opacity = 0;
-  }
-};
-
 function Target(el, instance) {
   this.el = el;
   this.instance = instance;
@@ -323,6 +264,65 @@ function calculateScale(rect, scaleBase, customSize) {
     };
   }
 }
+
+function Overlay(el, instance) {
+  this.el = el;
+  this.instance = instance;
+  this.parent = null;
+}
+
+Overlay.prototype = {
+  init: function init() {
+    var options = this.instance.options;
+
+    setStyle(this.el, {
+      zIndex: 998,
+      backgroundColor: options.bgColor,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    });
+
+    this.el.addEventListener('click', this.instance.close());
+  },
+
+  updateStyle: function updateStyle() {
+    var options = this.instance.options;
+
+    setStyle(this.el, {
+      backgroundColor: options.bgColor,
+      transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+    });
+  },
+
+  setParent: function setParent(parent) {
+    this.parent = parent;
+  },
+
+  insert: function insert() {
+    this.parent.appendChild(this.el);
+  },
+
+  remove: function remove() {
+    this.parent.removeChild(this.el);
+  },
+
+  show: function show() {
+    var _this = this;
+
+    setTimeout(function () {
+      return _this.el.style.opacity = _this.instance.options.bgOpacity;
+    }, 30);
+  },
+
+  hide: function hide() {
+    this.el.style.opacity = 0;
+  }
+};
 
 /**
  * A list of options.
@@ -622,6 +622,10 @@ function processTouches(touches, currScaleExtra, cb) {
   cb(xs / total, ys / total, scaleExtra);
 }
 
+/**
+ * Zooming instance.
+ * @param {Object} [options] Update default options if provided.
+ */
 function Zooming(options) {
   // elements
   this.body = document.body;
@@ -637,8 +641,8 @@ function Zooming(options) {
 
   this.options = Object.assign({}, OPTIONS);
   if (options) this.config(options);
-  this.eventHandler = new EventHandler(this);
 
+  this.eventHandler = new EventHandler(this);
   this.overlay.init();
 }
 
@@ -664,7 +668,6 @@ Zooming.prototype = {
     if (el.tagName !== 'IMG') return;
 
     el.style.cursor = cursor.zoomIn;
-
     el.addEventListener('click', this.eventHandler.click);
 
     if (this.options.preloadImage && el.hasAttribute('data-original')) {

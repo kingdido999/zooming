@@ -1,6 +1,6 @@
-import Overlay from './Overlay'
 import Target from './Target'
-import EventHandler from './_eventHandler'
+import Overlay from './Overlay'
+import EventHandler from './EventHandler'
 import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
 import { loadImage, toggleListeners, transEndEvent, cursor } from './_helpers'
 
@@ -23,8 +23,8 @@ function Zooming (options) {
 
   this.options = Object.assign({}, OPTIONS)
   if (options) this.config(options)
-  this.eventHandler = new EventHandler(this)
 
+  this.eventHandler = new EventHandler(this)
   this.overlay.init()
 }
 
@@ -49,7 +49,6 @@ Zooming.prototype = {
     if (el.tagName !== 'IMG') return
 
     el.style.cursor = cursor.zoomIn
-
     el.addEventListener('click', this.eventHandler.click)
 
     if (this.options.preloadImage && el.hasAttribute('data-original')) {
