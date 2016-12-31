@@ -48,6 +48,9 @@ Target.prototype = {
   },
 
   close: function () {
+    // force layout update
+    this.el.offsetWidth
+
     setStyle(this.el, { transform: 'none' })
   },
 

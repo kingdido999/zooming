@@ -160,6 +160,9 @@ Target.prototype = {
   },
 
   close: function close() {
+    // force layout update
+    this.el.offsetWidth;
+
     setStyle(this.el, { transform: 'none' });
   },
 
@@ -626,7 +629,7 @@ function processTouches(touches, currScaleExtra, cb) {
  * Zooming instance.
  * @param {Object} [options] Update default options if provided.
  */
-function Zooming(options) {
+function Zooming$1(options) {
   // elements
   this.body = document.body;
   this.overlay = new Overlay(document.createElement('div'), this);
@@ -646,7 +649,7 @@ function Zooming(options) {
   this.overlay.init();
 }
 
-Zooming.prototype = {
+Zooming$1.prototype = {
 
   /**
    * Make element(s) zoomable.
@@ -753,9 +756,6 @@ Zooming.prototype = {
     if (this.options.onBeforeClose) this.options.onBeforeClose(target);
 
     this.lock = true;
-
-    // force layout update
-    target.offsetWidth;
 
     this.body.style.cursor = cursor.default;
     this.overlay.hide();
@@ -912,10 +912,10 @@ Zooming.prototype = {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-  new Zooming().listen(OPTIONS.defaultZoomable);
+  new Zooming$1().listen(OPTIONS.defaultZoomable);
 });
 
-return Zooming;
+return Zooming$1;
 
 })));
 //# sourceMappingURL=zooming.js.map
