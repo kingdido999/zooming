@@ -26,7 +26,7 @@
  *   onBeforeRelease: null
  * }
  */
-const OPTIONS = {
+export default {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
    * @type {string|Element}
@@ -143,33 +143,4 @@ const OPTIONS = {
    * @type {Function}
    */
   onBeforeRelease: null
-}
-
-/**
- * Duration (ms) longer than or equal to this value will be recognized as grab,
- * otherwise click.
- * @type {number}
- */
-const PRESS_DELAY = 200
-
-/**
- * Event types related to grab.
- * @type {Array}
- */
-const EVENT_TYPES_GRAB = [
-  'mousedown', 'mousemove', 'mouseup',
-  'touchstart', 'touchmove', 'touchend'
-]
-
-/**
- * Scale factor for multi-touch.
- * @type {number}
- */
-const MULTITOUCH_SCALE_FACTOR = 2
-
-export {
-  OPTIONS,
-  PRESS_DELAY,
-  EVENT_TYPES_GRAB,
-  MULTITOUCH_SCALE_FACTOR
 }

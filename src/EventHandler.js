@@ -1,5 +1,17 @@
 import { scrollTop, bind } from './_helpers'
-import { PRESS_DELAY, MULTITOUCH_SCALE_FACTOR } from './_defaults'
+
+/**
+ * Press duration (ms) longer than or equal to this value will be recognized
+ * as grab, otherwise click.
+ * @type {number}
+ */
+const PRESS_DELAY = 200
+
+/**
+ * Scale factor for multi-touch.
+ * @type {number}
+ */
+const MULTITOUCH_SCALE_FACTOR = 2
 
 export default class EventHandler {
 

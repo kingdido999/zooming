@@ -1,8 +1,8 @@
 import Target from './Target'
 import Overlay from './Overlay'
 import EventHandler from './EventHandler'
-import { OPTIONS, EVENT_TYPES_GRAB } from './_defaults'
-import { loadImage, toggleListeners, transEndEvent, cursor } from './_helpers'
+import OPTIONS from './_options'
+import { loadImage, toggleGrabListeners, transEndEvent, cursor } from './_helpers'
 
 /**
  * Zooming instance.
@@ -97,7 +97,7 @@ export default class Zooming {
       this.lock = false
 
       if (this.options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, true)
+        toggleGrabListeners(document, this.eventHandler, true)
       }
 
       if (target.hasAttribute('data-original')) {
@@ -143,7 +143,7 @@ export default class Zooming {
       this.lock = false
 
       if (this.options.enableGrab) {
-        toggleListeners(document, EVENT_TYPES_GRAB, this.eventHandler, false)
+        toggleGrabListeners(document, this.eventHandler, false)
       }
 
       if (target.hasAttribute('data-original')) {

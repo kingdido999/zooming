@@ -25,7 +25,7 @@ export default class Overlay {
         ${options.transitionTimingFunction}`
     })
 
-    this.el.addEventListener('click', this.instance.close())
+    this.el.addEventListener('click', () => this.instance.close())
   }
 
   updateStyle () {

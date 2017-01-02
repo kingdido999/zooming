@@ -4,6 +4,19 @@ const webkitPrefix = 'WebkitAppearance' in document.documentElement.style
   ? '-webkit-'
   : ''
 
+  const cursor = {
+    default: 'auto',
+    zoomIn: `${webkitPrefix}zoom-in`,
+    zoomOut: `${webkitPrefix}zoom-out`,
+    grab: `${webkitPrefix}grab`,
+    move: 'move'
+  }
+
+const EVENT_TYPES_GRAB = [
+  'mousedown', 'mousemove', 'mouseup',
+  'touchstart', 'touchmove', 'touchend'
+]
+
 const divide = (denominator) => {
   return (numerator) => {
     return numerator / denominator
@@ -43,6 +56,10 @@ const toggleListeners = (el, types, handler, add = true) => {
       el.removeEventListener(t, handler[t])
     }
   })
+}
+
+const toggleGrabListeners = (el, handler, add) => {
+  return toggleListeners(el, EVENT_TYPES_GRAB, handler, add)
 }
 
 const sniffTransition = (el) => {
@@ -104,14 +121,6 @@ const setStyle = (el, styles, remember) => {
   return original
 }
 
-const cursor = {
-  default: 'auto',
-  zoomIn: `${webkitPrefix}zoom-in`,
-  zoomOut: `${webkitPrefix}zoom-out`,
-  grab: `${webkitPrefix}grab`,
-  move: 'move'
-}
-
 const bind = (_this, that) => {
   const methods = (
     Object.getOwnPropertyNames(
@@ -130,7 +139,7 @@ export {
   loadImage,
   scrollTop,
   getWindowCenter,
-  toggleListeners,
+  toggleGrabListeners,
   transformCssProp,
   transEndEvent,
   setStyle,
