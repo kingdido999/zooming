@@ -15,7 +15,7 @@ export default class Target {
     }
   }
 
-  open () {
+  zoomIn () {
     const options = this.instance.options
 
     // load hi-res image if preloadImage option is disabled
@@ -47,7 +47,7 @@ export default class Target {
     this.style.close = setStyle(this.el, this.style.open, true)
   }
 
-  close () {
+  zoomOut () {
     // force layout update
     this.el.offsetWidth
 

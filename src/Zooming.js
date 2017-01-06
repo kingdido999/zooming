@@ -6,10 +6,12 @@ import { loadImage, toggleGrabListeners, transEndEvent, cursor } from './_helper
 
 /**
  * Zooming instance.
- * @param {Object} [options] Update default options if provided.
  */
 export default class Zooming {
 
+  /**
+   * @param {Object} [options] Update default options if provided.
+   */
   constructor (options) {
     // elements
     this.body = document.body
@@ -83,7 +85,7 @@ export default class Zooming {
     this.shown = true
     this.lock = true
 
-    this.target.open()
+    this.target.zoomIn()
     this.overlay.setParent(target.parentNode)
     this.overlay.insert()
     this.overlay.show()
@@ -131,7 +133,7 @@ export default class Zooming {
 
     this.body.style.cursor = cursor.default
     this.overlay.hide()
-    this.target.close()
+    this.target.zoomOut()
 
     document.removeEventListener('scroll', this.eventHandler.scroll)
     document.removeEventListener('keydown', this.eventHandler.keydown)

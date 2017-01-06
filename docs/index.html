@@ -38,6 +38,12 @@
                       <li class='h5'><span>Instance members</span></li>
                       
                       <li><a
+                        href='#Zooming#constructor'
+                        class='regular pre-open'>
+                        #constructor
+                      </a></li>
+                      
+                      <li><a
                         href='#Zooming#listen'
                         class='regular pre-open'>
                         #listen
@@ -221,36 +227,6 @@
                 
                 </li>
               
-                
-                <li><a
-                  href='#press_delay'
-                  class="">
-                  PRESS_DELAY
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#event_types_grab'
-                  class="">
-                  EVENT_TYPES_GRAB
-                  
-                </a>
-                
-                </li>
-              
-                
-                <li><a
-                  href='#multitouch_scale_factor'
-                  class="">
-                  MULTITOUCH_SCALE_FACTOR
-                  
-                </a>
-                
-                </li>
-              
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
@@ -277,7 +253,47 @@
   <p>Zooming instance.</p>
 
 
-  <div class='pre p1 fill-light mt0'>new Zooming(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</div>
+  <div class='pre p1 fill-light mt0'>new Zooming()</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='Zooming#constructor'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>constructor(options?)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>constructor(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</div>
   
   
 
@@ -314,8 +330,12 @@
   
 
   
-    <div class='py1 quiet mt1 prose-big'>Instance Members</div>
-    <div class="clearfix">
+
+  
+</section>
+
+      </div>
+    </div>
   
     <div class='border-bottom' id='Zooming#listen'>
       <div class="clearfix small pointer toggle-sibling">
@@ -548,7 +568,7 @@ the target element as the argument.
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ) cb(target)}, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=  onEnd = () => {, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -582,7 +602,7 @@ the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ) cb(target)})</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=  onEnd = () => {)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -645,7 +665,7 @@ will get the target element as the argument.
   <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= istener(transEndEvent, , cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= body.style.cursor = cur, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -679,7 +699,7 @@ will get the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= istener(transEndEvent, )</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= body.style.cursor = cur)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -1804,155 +1824,6 @@ transition has ended. It will get the target element as the argument.</p>
     </div>
   
 </div>
-
-  
-
-  
-
-  
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='press_delay'>
-      PRESS_DELAY
-    </h3>
-    
-    
-  </div>
-  
-
-  <p>Duration (ms) longer than or equal to this value will be recognized as grab,
-otherwise click.</p>
-
-
-  <div class='pre p1 fill-light mt0'>PRESS_DELAY</div>
-  
-    <p>
-      Type:
-      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>
-    </p>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='event_types_grab'>
-      EVENT_TYPES_GRAB
-    </h3>
-    
-    
-  </div>
-  
-
-  <p>Event types related to grab.</p>
-
-
-  <div class='pre p1 fill-light mt0'>EVENT_TYPES_GRAB</div>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-</section>
-
-          
-        
-          
-            <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-  <div class='clearfix'>
-    
-    <h3 class='fl m0' id='multitouch_scale_factor'>
-      MULTITOUCH_SCALE_FACTOR
-    </h3>
-    
-    
-  </div>
-  
-
-  <p>Scale factor for multi-touch.</p>
-
-
-  <div class='pre p1 fill-light mt0'>MULTITOUCH_SCALE_FACTOR</div>
-  
-    <p>
-      Type:
-      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>
-    </p>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
 
   
 

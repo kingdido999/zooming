@@ -241,8 +241,8 @@ var Target = function () {
   }
 
   createClass(Target, [{
-    key: 'open',
-    value: function open() {
+    key: 'zoomIn',
+    value: function zoomIn() {
       var options = this.instance.options;
 
       // load hi-res image if preloadImage option is disabled
@@ -269,8 +269,8 @@ var Target = function () {
       this.style.close = setStyle(this.el, this.style.open, true);
     }
   }, {
-    key: 'close',
-    value: function close() {
+    key: 'zoomOut',
+    value: function zoomOut() {
       // force layout update
       this.el.offsetWidth;
 
@@ -463,11 +463,6 @@ var Overlay = function () {
 }();
 
 var PRESS_DELAY = 200;
-
-/**
- * Scale factor for multi-touch.
- * @type {number}
- */
 var MULTITOUCH_SCALE_FACTOR = 2;
 
 var EventHandler = function () {
@@ -781,6 +776,10 @@ var OPTIONS = {
 };
 
 var Zooming$1 = function () {
+
+  /**
+   * @param {Object} [options] Update default options if provided.
+   */
   function Zooming(options) {
     classCallCheck(this, Zooming);
 
@@ -866,7 +865,7 @@ var Zooming$1 = function () {
       this.shown = true;
       this.lock = true;
 
-      this.target.open();
+      this.target.zoomIn();
       this.overlay.setParent(target.parentNode);
       this.overlay.insert();
       this.overlay.show();
@@ -921,7 +920,7 @@ var Zooming$1 = function () {
 
       this.body.style.cursor = cursor.default;
       this.overlay.hide();
-      this.target.close();
+      this.target.zoomOut();
 
       document.removeEventListener('scroll', this.eventHandler.scroll);
       document.removeEventListener('keydown', this.eventHandler.keydown);
