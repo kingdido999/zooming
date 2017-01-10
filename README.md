@@ -52,7 +52,6 @@ There are two ways to supply a hi-res image:
 ```html
 <img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
 ```
-
 2. Provide an original image link that wraps around the image:
 ```html
 <a href="demo/img/journey.jpg">
