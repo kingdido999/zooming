@@ -133,6 +133,18 @@ const bind = (_this, that) => {
   })
 }
 
+const isLink = (el) => {
+  return el.tagName === 'A'
+}
+
+const isValidImage = (filename) => {
+  return (/\.(gif|jpg|jpeg|png)$/i).test(filename)
+}
+
+const isImageLink = (el) => {
+  return isLink(el) && isValidImage(el.getAttribute('href'))
+}
+
 export {
   webkitPrefix,
   half,
@@ -144,5 +156,6 @@ export {
   transEndEvent,
   setStyle,
   cursor,
-  bind
+  bind,
+  isImageLink
 }

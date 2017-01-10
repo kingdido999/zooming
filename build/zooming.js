@@ -131,6 +131,19 @@ var bind = function bind(_this, that) {
   });
 };
 
+var isLink = function isLink(el) {
+  return el.tagName === 'A';
+};
+
+var isValidImage = function isValidImage(filename) {
+  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
+  );
+};
+
+var isImageLink = function isImageLink(el) {
+  return isLink(el) && isValidImage(el.getAttribute('href'));
+};
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -230,10 +243,9 @@ var Target = function () {
 
     this.el = el;
     this.instance = instance;
-    this.body = document.body;
     this.translate = null;
     this.scale = null;
-    this.srcThumbnail = null;
+    this.srcThumbnail = this.el.getAttribute('src');
     this.style = {
       open: null,
       close: null
@@ -314,11 +326,10 @@ var Target = function () {
     }
   }, {
     key: 'upgradeSource',
-    value: function upgradeSource() {
+    value: function upgradeSource(dataOriginal) {
       var _this = this;
 
-      this.srcThumbnail = this.el.getAttribute('src');
-      var dataOriginal = this.el.getAttribute('data-original');
+      var parentNode = this.el.parentNode;
       var temp = this.el.cloneNode(false);
 
       // force compute the hi-res image in DOM to prevent
@@ -326,11 +337,11 @@ var Target = function () {
       temp.setAttribute('src', dataOriginal);
       temp.style.position = 'fixed';
       temp.style.visibility = 'hidden';
-      this.body.appendChild(temp);
+      parentNode.appendChild(temp);
 
       setTimeout(function () {
         _this.el.setAttribute('src', dataOriginal);
-        _this.body.removeChild(temp);
+        parentNode.removeChild(temp);
       }, 10);
     }
   }, {
@@ -393,7 +404,7 @@ var Overlay = function () {
 
     this.el = el;
     this.instance = instance;
-    this.parent = null;
+    this.parent = document.body;
   }
 
   createClass(Overlay, [{
@@ -428,11 +439,6 @@ var Overlay = function () {
         backgroundColor: options.bgColor,
         transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
       });
-    }
-  }, {
-    key: 'setParent',
-    value: function setParent(parent) {
-      this.parent = parent;
     }
   }, {
     key: 'insert',
@@ -775,6 +781,10 @@ var OPTIONS = {
   onBeforeRelease: null
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
 
   /**
@@ -828,8 +838,12 @@ var Zooming$1 = function () {
       el.style.cursor = cursor.zoomIn;
       el.addEventListener('click', this.eventHandler.click);
 
-      if (this.options.preloadImage && el.hasAttribute('data-original')) {
-        loadImage(el.getAttribute('data-original'));
+      if (this.options.preloadImage) {
+        if (el.hasAttribute('data-original')) {
+          loadImage(el.getAttribute('data-original'));
+        } else if (isImageLink(el.parentNode)) {
+          loadImage(el.parentNode.getAttribute('href'));
+        }
       }
 
       return this;
@@ -866,7 +880,6 @@ var Zooming$1 = function () {
       this.lock = true;
 
       this.target.zoomIn();
-      this.overlay.setParent(target.parentNode);
       this.overlay.insert();
       this.overlay.show();
 
@@ -883,7 +896,9 @@ var Zooming$1 = function () {
         }
 
         if (target.hasAttribute('data-original')) {
-          _this.target.upgradeSource();
+          _this.target.upgradeSource(target.getAttribute('data-original'));
+        } else if (isImageLink(target.parentNode)) {
+          _this.target.upgradeSource(target.parentNode.getAttribute('href'));
         }
 
         if (cb) cb(target);
@@ -935,7 +950,7 @@ var Zooming$1 = function () {
           toggleGrabListeners(document, _this2.eventHandler, false);
         }
 
-        if (target.hasAttribute('data-original')) {
+        if (target.hasAttribute('data-original') || isImageLink(target.parentNode)) {
           _this2.target.downgradeSource();
         }
 

@@ -44,11 +44,27 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 
 ## Advanced
 
-Add `data-original` attribute to supply a hi-res image when zooming in:
+#### Zoom into a high resolution image
+
+There are two ways to supply a hi-res image:
+
+1. Add `data-original` attribute to the image:
 
 ```html
 <img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
 ```
+
+2. Provide an original image link that wraps around the image:
+
+```html
+<a href="demo/img/journey.jpg">
+  <img src="demo/img/journey_thumbnail.jpg" data-action="zoom" />
+</a>
+```
+
+Notice that if both are provided, it takes the `data-original` value as hi-res image source.
+
+#### Multiple instances
 
 You can create multiple Zooming instances, each with its own configuration:
 
@@ -63,7 +79,7 @@ zooming.config({
 })
 ```
 
-To specify zoomable image(s):
+#### Define zoomable image(s) programmatically
 
 ```js
 // by a css selector

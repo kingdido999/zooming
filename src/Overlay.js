@@ -5,7 +5,7 @@ export default class Overlay {
   constructor (el, instance) {
     this.el = el
     this.instance = instance
-    this.parent = null
+    this.parent = document.body
   }
 
   init () {
@@ -37,10 +37,6 @@ export default class Overlay {
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`
     })
-  }
-
-  setParent (parent) {
-    this.parent = parent
   }
 
   insert () {

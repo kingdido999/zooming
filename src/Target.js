@@ -5,10 +5,9 @@ export default class Target {
   constructor (el, instance) {
     this.el = el
     this.instance = instance
-    this.body = document.body
     this.translate = null
     this.scale = null
-    this.srcThumbnail = null
+    this.srcThumbnail = this.el.getAttribute('src')
     this.style = {
       open: null,
       close: null
@@ -86,9 +85,8 @@ export default class Target {
     setStyle(this.el, this.style.open)
   }
 
-  upgradeSource () {
-    this.srcThumbnail = this.el.getAttribute('src')
-    const dataOriginal = this.el.getAttribute('data-original')
+  upgradeSource (dataOriginal) {
+    const parentNode = this.el.parentNode
     const temp = this.el.cloneNode(false)
 
     // force compute the hi-res image in DOM to prevent
@@ -96,11 +94,11 @@ export default class Target {
     temp.setAttribute('src', dataOriginal)
     temp.style.position = 'fixed'
     temp.style.visibility = 'hidden'
-    this.body.appendChild(temp)
+    parentNode.appendChild(temp)
 
     setTimeout(() => {
       this.el.setAttribute('src', dataOriginal)
-      this.body.removeChild(temp)
+      parentNode.removeChild(temp)
     }, 10)
   }
 

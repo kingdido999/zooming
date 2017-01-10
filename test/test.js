@@ -87,7 +87,7 @@ describe('API', function() {
     })
 
     it('should insert the overlay', function() {
-      var overlay = el.parentNode.lastElementChild
+      var overlay = document.body.lastElementChild
       expect(overlay.tagName).to.equal('DIV')
       var style = overlay.style
       expect(style.zIndex).to.equal('998')
@@ -142,7 +142,7 @@ describe('API', function() {
     })
 
     it('should remove the overlay', function() {
-      expect(el.parentNode.lastElementChild.tagName).to.equal('IMG')
+      expect(document.body.lastElementChild.tagName).to.not.equal('DIV')
     })
   })
 })
