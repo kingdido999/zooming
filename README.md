@@ -48,16 +48,16 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 
 There are two ways to supply a hi-res image:
 
-1. Add `data-original` attribute to the image:
-```html
-<img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
-```
-2. Provide an original image link that wraps around the image:
-```html
-<a href="demo/img/journey.jpg">
-  <img src="demo/img/journey_thumbnail.jpg" data-action="zoom" />
-</a>
-```
+  1. Add `data-original` attribute to the image:
+  ```html
+  <img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
+  ```
+  2. Provide an original image link that wraps around the image:
+  ```html
+  <a href="demo/img/journey.jpg">
+    <img src="demo/img/journey_thumbnail.jpg" data-action="zoom" />
+  </a>
+  ```
 
 Notice that if both are provided, it takes the `data-original` value as hi-res image source.
 
