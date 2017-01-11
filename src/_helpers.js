@@ -1,68 +1,22 @@
 const body = document.body
 const docElm = document.documentElement
-const webkitPrefix = 'WebkitAppearance' in document.documentElement.style
-  ? '-webkit-'
-  : ''
+const trans = sniffTransition(document.createElement('div'))
 
-  const cursor = {
-    default: 'auto',
-    zoomIn: `${webkitPrefix}zoom-in`,
-    zoomOut: `${webkitPrefix}zoom-out`,
-    grab: `${webkitPrefix}grab`,
-    move: 'move'
-  }
-
-const EVENT_TYPES_GRAB = [
-  'mousedown', 'mousemove', 'mouseup',
-  'touchstart', 'touchmove', 'touchend'
-]
-
-const divide = (denominator) => {
+function divide (denominator) {
   return (numerator) => {
     return numerator / denominator
   }
 }
 
-const half = divide(2)
-
-const loadImage = (url, cb) => {
-  const img = new Image()
-  img.onload = () => {
-    if (cb) cb(img)
-  }
-  img.src = url
-}
-
-const scrollTop = () => {
-  return window.pageYOffset ||
-    (docElm || body.parentNode || body).scrollTop
-}
-
-const getWindowCenter = () => {
-  const docWidth = docElm.clientWidth || body.clientWidth
-  const docHeight = docElm.clientHeight || body.clientHeight
-
-  return {
-    x: half(docWidth),
-    y: half(docHeight)
+function toggleListener (el, type, handler, add) {
+  if (add) {
+    el.addEventListener(type, handler[type])
+  } else {
+    el.removeEventListener(type, handler[type])
   }
 }
 
-const toggleListeners = (el, types, handler, add = true) => {
-  types.forEach(t => {
-    if (add) {
-      el.addEventListener(t, handler[t])
-    } else {
-      el.removeEventListener(t, handler[t])
-    }
-  })
-}
-
-const toggleGrabListeners = (el, handler, add) => {
-  return toggleListeners(el, EVENT_TYPES_GRAB, handler, add)
-}
-
-const sniffTransition = (el) => {
+function sniffTransition (el) {
   let ret     = {}
   const trans = ['webkitTransition', 'transition', 'mozTransition']
   const tform = ['webkitTransform', 'transform', 'mozTransform']
@@ -91,13 +45,10 @@ const sniffTransition = (el) => {
   return ret
 }
 
-const trans = sniffTransition(document.createElement('div'))
-const transitionProp = trans.transitionProp
-const transformProp = trans.transformProp
-const transformCssProp = trans.transformCssProp
-const transEndEvent = trans.transEndEvent
+function checkTrans (styles) {
+  const transitionProp = trans.transitionProp
+  const transformProp = trans.transformProp
 
-const setStyle = (el, styles, remember) => {
   let value
   if (styles.transition) {
     value = styles.transition
@@ -109,6 +60,64 @@ const setStyle = (el, styles, remember) => {
     delete styles.transform
     styles[transformProp] = value
   }
+}
+
+function isLink (el) {
+  return el.tagName === 'A'
+}
+
+function isValidImage (filename) {
+  return (/\.(gif|jpg|jpeg|png)$/i).test(filename)
+}
+
+export const webkitPrefix = 'WebkitAppearance' in docElm.style
+  ? '-webkit-'
+  : ''
+
+export const cursor = {
+  default: 'auto',
+  zoomIn: `${webkitPrefix}zoom-in`,
+  zoomOut: `${webkitPrefix}zoom-out`,
+  grab: `${webkitPrefix}grab`,
+  move: 'move'
+}
+
+export const half = divide(2)
+export const transformCssProp = trans.transformCssProp
+export const transEndEvent = trans.transEndEvent
+
+export function loadImage (url, cb) {
+  const img = new Image()
+  img.onload = function () {
+    if (cb) cb(img)
+  }
+  img.src = url
+}
+
+export function scrollTop () {
+  return window.pageYOffset ||
+    (docElm || body.parentNode || body).scrollTop
+}
+
+export function getWindowCenter () {
+  const docWidth = docElm.clientWidth || body.clientWidth
+  const docHeight = docElm.clientHeight || body.clientHeight
+
+  return {
+    x: half(docWidth),
+    y: half(docHeight)
+  }
+}
+
+export function toggleGrabListeners (el, handler, add) {
+  ['mousedown', 'mousemove', 'mouseup','touchstart', 'touchmove', 'touchend']
+  .forEach(type => {
+    toggleListener(el, type, handler, add)
+  })
+}
+
+export function setStyle (el, styles, remember) {
+  checkTrans(styles)
 
   let s = el.style
   let original = {}
@@ -121,41 +130,18 @@ const setStyle = (el, styles, remember) => {
   return original
 }
 
-const bind = (_this, that) => {
+export function bindAll (_this, that) {
   const methods = (
     Object.getOwnPropertyNames(
       Object.getPrototypeOf(_this)
     )
   )
 
-  methods.forEach(m => {
-    _this[m] = _this[m].bind(that)
+  methods.forEach(method => {
+    _this[method] = _this[method].bind(that)
   })
 }
 
-const isLink = (el) => {
-  return el.tagName === 'A'
-}
-
-const isValidImage = (filename) => {
-  return (/\.(gif|jpg|jpeg|png)$/i).test(filename)
-}
-
-const isImageLink = (el) => {
+export function isImageLink (el) {
   return isLink(el) && isValidImage(el.getAttribute('href'))
-}
-
-export {
-  webkitPrefix,
-  half,
-  loadImage,
-  scrollTop,
-  getWindowCenter,
-  toggleGrabListeners,
-  transformCssProp,
-  transEndEvent,
-  setStyle,
-  cursor,
-  bind,
-  isImageLink
 }

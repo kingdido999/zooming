@@ -6,65 +6,23 @@
 
 var body = document.body;
 var docElm = document.documentElement;
-var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
+var trans = sniffTransition(document.createElement('div'));
 
-var cursor = {
-  default: 'auto',
-  zoomIn: webkitPrefix + 'zoom-in',
-  zoomOut: webkitPrefix + 'zoom-out',
-  grab: webkitPrefix + 'grab',
-  move: 'move'
-};
-
-var EVENT_TYPES_GRAB = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
-
-var divide = function divide(denominator) {
+function divide(denominator) {
   return function (numerator) {
     return numerator / denominator;
   };
-};
+}
 
-var half = divide(2);
+function toggleListener(el, type, handler, add) {
+  if (add) {
+    el.addEventListener(type, handler[type]);
+  } else {
+    el.removeEventListener(type, handler[type]);
+  }
+}
 
-var loadImage = function loadImage(url, cb) {
-  var img = new Image();
-  img.onload = function () {
-    if (cb) cb(img);
-  };
-  img.src = url;
-};
-
-var scrollTop = function scrollTop() {
-  return window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
-};
-
-var getWindowCenter = function getWindowCenter() {
-  var docWidth = docElm.clientWidth || body.clientWidth;
-  var docHeight = docElm.clientHeight || body.clientHeight;
-
-  return {
-    x: half(docWidth),
-    y: half(docHeight)
-  };
-};
-
-var toggleListeners = function toggleListeners(el, types, handler) {
-  var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-
-  types.forEach(function (t) {
-    if (add) {
-      el.addEventListener(t, handler[t]);
-    } else {
-      el.removeEventListener(t, handler[t]);
-    }
-  });
-};
-
-var toggleGrabListeners = function toggleGrabListeners(el, handler, add) {
-  return toggleListeners(el, EVENT_TYPES_GRAB, handler, add);
-};
-
-var sniffTransition = function sniffTransition(el) {
+function sniffTransition(el) {
   var ret = {};
   var trans = ['webkitTransition', 'transition', 'mozTransition'];
   var tform = ['webkitTransform', 'transform', 'mozTransform'];
@@ -91,15 +49,12 @@ var sniffTransition = function sniffTransition(el) {
   });
 
   return ret;
-};
+}
 
-var trans = sniffTransition(document.createElement('div'));
-var transitionProp = trans.transitionProp;
-var transformProp = trans.transformProp;
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
+function checkTrans(styles) {
+  var transitionProp = trans.transitionProp;
+  var transformProp = trans.transformProp;
 
-var setStyle = function setStyle(el, styles, remember) {
   var value = void 0;
   if (styles.transition) {
     value = styles.transition;
@@ -111,6 +66,61 @@ var setStyle = function setStyle(el, styles, remember) {
     delete styles.transform;
     styles[transformProp] = value;
   }
+}
+
+function isLink(el) {
+  return el.tagName === 'A';
+}
+
+function isValidImage(filename) {
+  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
+  );
+}
+
+var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
+
+var cursor = {
+  default: 'auto',
+  zoomIn: webkitPrefix + 'zoom-in',
+  zoomOut: webkitPrefix + 'zoom-out',
+  grab: webkitPrefix + 'grab',
+  move: 'move'
+};
+
+var half = divide(2);
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+
+function loadImage(url, cb) {
+  var img = new Image();
+  img.onload = function () {
+    if (cb) cb(img);
+  };
+  img.src = url;
+}
+
+function scrollTop() {
+  return window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
+}
+
+function getWindowCenter() {
+  var docWidth = docElm.clientWidth || body.clientWidth;
+  var docHeight = docElm.clientHeight || body.clientHeight;
+
+  return {
+    x: half(docWidth),
+    y: half(docHeight)
+  };
+}
+
+function toggleGrabListeners(el, handler, add) {
+  ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(function (type) {
+    toggleListener(el, type, handler, add);
+  });
+}
+
+function setStyle(el, styles, remember) {
+  checkTrans(styles);
 
   var s = el.style;
   var original = {};
@@ -121,28 +131,19 @@ var setStyle = function setStyle(el, styles, remember) {
   }
 
   return original;
-};
+}
 
-var bind = function bind(_this, that) {
+function bindAll(_this, that) {
   var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
 
-  methods.forEach(function (m) {
-    _this[m] = _this[m].bind(that);
+  methods.forEach(function (method) {
+    _this[method] = _this[method].bind(that);
   });
-};
+}
 
-var isLink = function isLink(el) {
-  return el.tagName === 'A';
-};
-
-var isValidImage = function isValidImage(filename) {
-  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
-  );
-};
-
-var isImageLink = function isImageLink(el) {
+function isImageLink(el) {
   return isLink(el) && isValidImage(el.getAttribute('href'));
-};
+}
 
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -475,7 +476,7 @@ var EventHandler = function () {
   function EventHandler(instance) {
     classCallCheck(this, EventHandler);
 
-    bind(this, instance);
+    bindAll(this, instance);
   }
 
   createClass(EventHandler, [{
@@ -780,10 +781,6 @@ var OPTIONS = {
    */
   onBeforeRelease: null
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
 

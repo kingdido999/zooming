@@ -1,4 +1,4 @@
-import { scrollTop, bind } from './_helpers'
+import { scrollTop, bindAll } from './_helpers'
 
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2
@@ -6,7 +6,7 @@ const MULTITOUCH_SCALE_FACTOR = 2
 export default class EventHandler {
 
   constructor (instance) {
-    bind(this, instance)
+    bindAll(this, instance)
   }
 
   click (e) {
