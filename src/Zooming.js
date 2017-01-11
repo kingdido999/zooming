@@ -2,7 +2,13 @@ import Target from './Target'
 import Overlay from './Overlay'
 import EventHandler from './EventHandler'
 import OPTIONS from './_options'
-import { loadImage, toggleGrabListeners, transEndEvent, cursor, isImageLink } from './_helpers'
+import {
+  toggleGrabListeners,
+  transEndEvent,
+  cursor,
+  loadImage,
+  checkOriginalImage
+} from './_helpers'
 
 /**
  * Zooming instance.
@@ -54,11 +60,9 @@ export default class Zooming {
     el.addEventListener('click', this.eventHandler.click)
 
     if (this.options.preloadImage) {
-      if (el.hasAttribute('data-original')) {
-        loadImage(el.getAttribute('data-original'))
-      } else if (isImageLink(el.parentNode)) {
-        loadImage(el.parentNode.getAttribute('href'))
-      }
+      checkOriginalImage(el, srcOriginal => {
+        if (srcOriginal) loadImage(srcOriginal)
+      })
     }
 
     return this
@@ -101,14 +105,12 @@ export default class Zooming {
 
       this.lock = false
 
+      checkOriginalImage(target, srcOriginal => {
+        if (srcOriginal) this.target.upgradeSource(srcOriginal)
+      })
+
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, true)
-      }
-
-      if (target.hasAttribute('data-original')) {
-        this.target.upgradeSource(target.getAttribute('data-original'))
-      } else if (isImageLink(target.parentNode)) {
-        this.target.upgradeSource(target.parentNode.getAttribute('href'))
       }
 
       if (cb) cb(target)
@@ -149,12 +151,12 @@ export default class Zooming {
       this.shown = false
       this.lock = false
 
+      checkOriginalImage(target, srcOriginal => {
+        if (srcOriginal) this.target.downgradeSource()
+      })
+
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, false)
-      }
-
-      if (target.hasAttribute('data-original') || isImageLink(target.parentNode)) {
-        this.target.downgradeSource()
       }
 
       this.target.restoreCloseStyle()

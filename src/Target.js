@@ -1,4 +1,12 @@
-import { transformCssProp, setStyle, half, getWindowCenter, loadImage, cursor } from './_helpers'
+import {
+  transformCssProp,
+  setStyle,
+  half,
+  getWindowCenter,
+  cursor,
+  loadImage,
+  checkOriginalImage
+} from './_helpers'
 
 export default class Target {
 
@@ -18,8 +26,10 @@ export default class Target {
     const options = this.instance.options
 
     // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage && this.el.hasAttribute('data-original')) {
-      loadImage(this.el.getAttribute('data-original'))
+    if (!options.preloadImage) {
+      checkOriginalImage(this.el, srcOriginal => {
+        if (srcOriginal) loadImage(srcOriginal)
+      })
     }
 
     const rect = this.el.getBoundingClientRect()

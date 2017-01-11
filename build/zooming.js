@@ -77,6 +77,10 @@ function isValidImage(filename) {
   );
 }
 
+function isImageLink(el) {
+  return isLink(el) && isValidImage(el.getAttribute('href'));
+}
+
 var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
 
 var cursor = {
@@ -90,14 +94,6 @@ var cursor = {
 var half = divide(2);
 var transformCssProp = trans.transformCssProp;
 var transEndEvent = trans.transEndEvent;
-
-function loadImage(url, cb) {
-  var img = new Image();
-  img.onload = function () {
-    if (cb) cb(img);
-  };
-  img.src = url;
-}
 
 function scrollTop() {
   return window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
@@ -141,8 +137,24 @@ function bindAll(_this, that) {
   });
 }
 
-function isImageLink(el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'));
+function loadImage(url, cb) {
+  var img = new Image();
+  img.onload = function () {
+    if (cb) cb(img);
+  };
+  img.src = url;
+}
+
+function checkOriginalImage(el, cb) {
+  var srcOriginal = null;
+
+  if (el.hasAttribute('data-original')) {
+    srcOriginal = el.getAttribute('data-original');
+  } else if (isImageLink(el.parentNode)) {
+    srcOriginal = el.parentNode.getAttribute('href');
+  }
+
+  cb(srcOriginal);
 }
 
 var classCallCheck = function (instance, Constructor) {
@@ -259,8 +271,10 @@ var Target = function () {
       var options = this.instance.options;
 
       // load hi-res image if preloadImage option is disabled
-      if (!options.preloadImage && this.el.hasAttribute('data-original')) {
-        loadImage(this.el.getAttribute('data-original'));
+      if (!options.preloadImage) {
+        checkOriginalImage(this.el, function (srcOriginal) {
+          if (srcOriginal) loadImage(srcOriginal);
+        });
       }
 
       var rect = this.el.getBoundingClientRect();
@@ -782,6 +796,10 @@ var OPTIONS = {
   onBeforeRelease: null
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
 
   /**
@@ -836,11 +854,9 @@ var Zooming$1 = function () {
       el.addEventListener('click', this.eventHandler.click);
 
       if (this.options.preloadImage) {
-        if (el.hasAttribute('data-original')) {
-          loadImage(el.getAttribute('data-original'));
-        } else if (isImageLink(el.parentNode)) {
-          loadImage(el.parentNode.getAttribute('href'));
-        }
+        checkOriginalImage(el, function (srcOriginal) {
+          if (srcOriginal) loadImage(srcOriginal);
+        });
       }
 
       return this;
@@ -888,14 +904,12 @@ var Zooming$1 = function () {
 
         _this.lock = false;
 
+        checkOriginalImage(target, function (srcOriginal) {
+          if (srcOriginal) _this.target.upgradeSource(srcOriginal);
+        });
+
         if (_this.options.enableGrab) {
           toggleGrabListeners(document, _this.eventHandler, true);
-        }
-
-        if (target.hasAttribute('data-original')) {
-          _this.target.upgradeSource(target.getAttribute('data-original'));
-        } else if (isImageLink(target.parentNode)) {
-          _this.target.upgradeSource(target.parentNode.getAttribute('href'));
         }
 
         if (cb) cb(target);
@@ -943,12 +957,12 @@ var Zooming$1 = function () {
         _this2.shown = false;
         _this2.lock = false;
 
+        checkOriginalImage(target, function (srcOriginal) {
+          if (srcOriginal) _this2.target.downgradeSource();
+        });
+
         if (_this2.options.enableGrab) {
           toggleGrabListeners(document, _this2.eventHandler, false);
-        }
-
-        if (target.hasAttribute('data-original') || isImageLink(target.parentNode)) {
-          _this2.target.downgradeSource();
         }
 
         _this2.target.restoreCloseStyle();

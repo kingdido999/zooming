@@ -70,6 +70,10 @@ function isValidImage (filename) {
   return (/\.(gif|jpg|jpeg|png)$/i).test(filename)
 }
 
+function isImageLink (el) {
+  return isLink(el) && isValidImage(el.getAttribute('href'))
+}
+
 export const webkitPrefix = 'WebkitAppearance' in docElm.style
   ? '-webkit-'
   : ''
@@ -85,14 +89,6 @@ export const cursor = {
 export const half = divide(2)
 export const transformCssProp = trans.transformCssProp
 export const transEndEvent = trans.transEndEvent
-
-export function loadImage (url, cb) {
-  const img = new Image()
-  img.onload = function () {
-    if (cb) cb(img)
-  }
-  img.src = url
-}
 
 export function scrollTop () {
   return window.pageYOffset ||
@@ -142,6 +138,22 @@ export function bindAll (_this, that) {
   })
 }
 
-export function isImageLink (el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'))
+export function loadImage (url, cb) {
+  const img = new Image()
+  img.onload = function () {
+    if (cb) cb(img)
+  }
+  img.src = url
+}
+
+export function checkOriginalImage (el, cb) {
+  let srcOriginal = null
+
+  if (el.hasAttribute('data-original')) {
+    srcOriginal = el.getAttribute('data-original')
+  } else if (isImageLink(el.parentNode)) {
+    srcOriginal = el.parentNode.getAttribute('href')
+  }
+
+  cb(srcOriginal)
 }
