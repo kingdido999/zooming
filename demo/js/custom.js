@@ -95,3 +95,16 @@ function scaleSmall() {
 
   customZooming.config({ scaleBase: scaleBase })
 }
+
+function license() {
+  return '<a href="https://opensource.org/licenses/MIT">The MIT License</a>'
+}
+
+function copyright() {
+  return 'Copyright © ' + new Date().getFullYear() +
+  ' <a href="https://github.com/kingdido999">Desmond Ding</a>' +
+  ' and other <a href="https://github.com/kingdido999/zooming/graphs/contributors">contributors</a>'
+}
+
+document.getElementById('license').innerHTML = license()
+document.getElementById('copyright').innerHTML = copyright()
