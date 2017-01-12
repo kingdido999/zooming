@@ -1,4 +1,5 @@
-import { scrollTop, bindAll } from './_helpers'
+import { docElm, body } from './util/_dom'
+import { bindAll } from './util/_helpers'
 
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2
@@ -21,13 +22,14 @@ export default class EventHandler {
   }
 
   scroll () {
-    const st = scrollTop()
+    const scrollTop = window.pageYOffset ||
+      (docElm || body.parentNode || body).scrollTop
 
     if (this.lastScrollPosition === null) {
-      this.lastScrollPosition = st
+      this.lastScrollPosition = scrollTop
     }
 
-    const deltaY = this.lastScrollPosition - st
+    const deltaY = this.lastScrollPosition - scrollTop
 
     if (Math.abs(deltaY) >= this.options.scrollThreshold) {
       this.lastScrollPosition = null
@@ -36,15 +38,14 @@ export default class EventHandler {
   }
 
   keydown (e) {
-    const code = e.key || e.code
-    if (code === 'Escape' || e.keyCode === 27) {
+    if (isEscape(e)) {
       if (this.released) this.close()
       else this.release(() => this.close())
     }
   }
 
   mousedown (e) {
-    if (e.button !== 0) return
+    if (isNotLeftButton(e)) return
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
@@ -58,7 +59,7 @@ export default class EventHandler {
   }
 
   mouseup (e) {
-    if (e.button !== 0) return
+    if (isNotLeftButton(e)) return
     clearTimeout(this.pressTimer)
 
     if (this.released) this.close()
@@ -86,12 +87,25 @@ export default class EventHandler {
   }
 
   touchend (e) {
-    if (e.targetTouches.length > 0) return
+    if (isTouching(e)) return
     clearTimeout(this.pressTimer)
 
     if (this.released) this.close()
     else this.release()
   }
+}
+
+function isNotLeftButton (event) {
+  return event.button !== 0
+}
+
+function isEscape (event) {
+  const code = event.key || event.code
+  return code === 'Escape' || event.keyCode === 27
+}
+
+function isTouching (event) {
+  return event.targetTouches.length > 0
 }
 
 function processTouches (touches, currScaleExtra, cb) {

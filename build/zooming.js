@@ -4,184 +4,29 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-var body = document.body;
-var docElm = document.documentElement;
-var trans = sniffTransition(document.createElement('div'));
-
 function divide(denominator) {
   return function (numerator) {
     return numerator / denominator;
   };
 }
 
-function toggleListener(el, type, handler, add) {
-  if (add) {
-    el.addEventListener(type, handler[type]);
-  } else {
-    el.removeEventListener(type, handler[type]);
-  }
-}
+var half = divide(2);
 
-function sniffTransition(el) {
-  var ret = {};
-  var trans = ['webkitTransition', 'transition', 'mozTransition'];
-  var tform = ['webkitTransform', 'transform', 'mozTransform'];
-  var end = {
-    'transition': 'transitionend',
-    'mozTransition': 'transitionend',
-    'webkitTransition': 'webkitTransitionEnd'
-  };
-
-  trans.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transitionProp = prop;
-      ret.transEndEvent = end[prop];
-      return true;
-    }
-  });
-
-  tform.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transformProp = prop;
-      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
-      return true;
-    }
-  });
-
-  return ret;
-}
-
-function checkTrans(styles) {
-  var transitionProp = trans.transitionProp;
-  var transformProp = trans.transformProp;
-
-  var value = void 0;
-  if (styles.transition) {
-    value = styles.transition;
-    delete styles.transition;
-    styles[transitionProp] = value;
-  }
-  if (styles.transform) {
-    value = styles.transform;
-    delete styles.transform;
-    styles[transformProp] = value;
-  }
-}
-
-function isLink(el) {
-  return el.tagName === 'A';
-}
-
-function isValidImage(filename) {
-  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
-  );
-}
-
-function isImageLink(el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'));
-}
-
-function hasComputedStyle(el, prop, value) {
-  return getComputedStyle(el)[prop] === value;
-}
-
-var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
-
-var cursor = {
-  default: 'auto',
-  zoomIn: webkitPrefix + 'zoom-in',
-  zoomOut: webkitPrefix + 'zoom-out',
-  grab: webkitPrefix + 'grab',
-  move: 'move'
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 };
 
-var half = divide(2);
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
 
-function scrollTop() {
-  return window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
-}
 
-function getWindowCenter() {
-  var docWidth = docElm.clientWidth || body.clientWidth;
-  var docHeight = docElm.clientHeight || body.clientHeight;
 
-  return {
-    x: half(docWidth),
-    y: half(docHeight)
-  };
-}
 
-function toggleGrabListeners(el, handler, add) {
-  ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(function (type) {
-    toggleListener(el, type, handler, add);
-  });
-}
 
-function setStyle(el, styles, remember) {
-  checkTrans(styles);
 
-  var s = el.style;
-  var original = {};
 
-  for (var key in styles) {
-    if (remember) original[key] = s[key] || '';
-    s[key] = styles[key];
-  }
 
-  return original;
-}
 
-function bindAll(_this, that) {
-  var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
-
-  methods.forEach(function (method) {
-    _this[method] = _this[method].bind(that);
-  });
-}
-
-function loadImage(src, cb) {
-  if (!src) return;
-
-  var img = new Image();
-  img.onload = function () {
-    if (cb) cb(img);
-  };
-  img.src = src;
-}
-
-function checkOriginalImage(el, cb) {
-  var srcOriginal = null;
-
-  if (el.hasAttribute('data-original')) {
-    srcOriginal = el.getAttribute('data-original');
-  } else if (isImageLink(el.parentNode)) {
-    srcOriginal = el.parentNode.getAttribute('href');
-  }
-
-  cb(srcOriginal);
-}
-
-function getParents(el, match) {
-  var parents = [];
-
-  for (; el && el !== document; el = el.parentNode) {
-    if (match) {
-      if (match(el)) {
-        parents.push(el);
-      }
-    } else {
-      parents.push(el);
-    }
-  }
-
-  return parents;
-}
-
-function isOverflowHidden(el) {
-  return hasComputedStyle(el, 'overflow', 'hidden');
-}
 
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
@@ -275,6 +120,148 @@ var set = function set(object, property, value, receiver) {
 
   return value;
 };
+
+var body = document.body;
+var docElm = document.documentElement;
+var isString = checkType('string');
+var isLink = checkTag('A');
+var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
+
+function checkType(typeName) {
+  return function (el) {
+    return (typeof el === 'undefined' ? 'undefined' : _typeof(el)) === typeName;
+  };
+}
+
+function checkTag(tagName) {
+  return function (el) {
+    return el.tagName === tagName;
+  };
+}
+
+function getParents(el, match) {
+  var parents = [];
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el);
+      }
+    } else {
+      parents.push(el);
+    }
+  }
+
+  return parents;
+}
+
+var trans = sniffTransition(document.createElement('div'));
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+
+function checkTrans(styles) {
+  var transitionProp = trans.transitionProp;
+  var transformProp = trans.transformProp;
+
+  var value = void 0;
+  if (styles.transition) {
+    value = styles.transition;
+    delete styles.transition;
+    styles[transitionProp] = value;
+  }
+  if (styles.transform) {
+    value = styles.transform;
+    delete styles.transform;
+    styles[transformProp] = value;
+  }
+}
+
+function sniffTransition(el) {
+  var ret = {};
+  var trans = ['webkitTransition', 'transition', 'mozTransition'];
+  var tform = ['webkitTransform', 'transform', 'mozTransform'];
+  var end = {
+    'transition': 'transitionend',
+    'mozTransition': 'transitionend',
+    'webkitTransition': 'webkitTransitionEnd'
+  };
+
+  trans.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transitionProp = prop;
+      ret.transEndEvent = end[prop];
+      return true;
+    }
+  });
+
+  tform.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transformProp = prop;
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
+      return true;
+    }
+  });
+
+  return ret;
+}
+
+var cursor = {
+  default: 'auto',
+  zoomIn: webkitPrefix + 'zoom-in',
+  zoomOut: webkitPrefix + 'zoom-out',
+  grab: webkitPrefix + 'grab',
+  move: 'move'
+};
+
+function toggleListener(el, type, handler, add) {
+  if (add) {
+    el.addEventListener(type, handler[type]);
+  } else {
+    el.removeEventListener(type, handler[type]);
+  }
+}
+
+function getWindowCenter() {
+  var docWidth = docElm.clientWidth || body.clientWidth;
+  var docHeight = docElm.clientHeight || body.clientHeight;
+
+  return {
+    x: half(docWidth),
+    y: half(docHeight)
+  };
+}
+
+function toggleGrabListeners(el, handler, add) {
+  ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(function (type) {
+    toggleListener(el, type, handler, add);
+  });
+}
+
+function setStyle(el, styles, remember) {
+  checkTrans(styles);
+
+  var s = el.style;
+  var original = {};
+
+  for (var key in styles) {
+    if (remember) original[key] = s[key] || '';
+    s[key] = styles[key];
+  }
+
+  return original;
+}
+
+function bindAll(_this, that) {
+  var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
+
+  methods.forEach(function (method) {
+    _this[method] = _this[method].bind(that);
+  });
+}
+
+function isOverflowHidden(el) {
+  return getComputedStyle(el).overflow === 'hidden';
+}
 
 var Target = function () {
   function Target(el, instance) {
@@ -382,23 +369,23 @@ var Target = function () {
     }
   }, {
     key: 'upgradeSource',
-    value: function upgradeSource(dataOriginal) {
+    value: function upgradeSource(srcOriginal) {
       var _this3 = this;
 
-      if (!dataOriginal) return;
+      if (!srcOriginal) return;
 
       var parentNode = this.el.parentNode;
       var temp = this.el.cloneNode(false);
 
       // force compute the hi-res image in DOM to prevent
       // image flickering while updating src
-      temp.setAttribute('src', dataOriginal);
+      temp.setAttribute('src', srcOriginal);
       temp.style.position = 'fixed';
       temp.style.visibility = 'hidden';
       parentNode.appendChild(temp);
 
       setTimeout(function () {
-        _this3.el.setAttribute('src', dataOriginal);
+        _this3.el.setAttribute('src', srcOriginal);
         parentNode.removeChild(temp);
       }, 10);
     }
@@ -467,10 +454,8 @@ var Overlay = function () {
 
   createClass(Overlay, [{
     key: 'init',
-    value: function init() {
+    value: function init(options) {
       var _this = this;
-
-      var options = this.instance.options;
 
       setStyle(this.el, {
         zIndex: 998,
@@ -490,9 +475,7 @@ var Overlay = function () {
     }
   }, {
     key: 'updateStyle',
-    value: function updateStyle() {
-      var options = this.instance.options;
-
+    value: function updateStyle(options) {
       setStyle(this.el, {
         backgroundColor: options.bgColor,
         transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
@@ -550,13 +533,13 @@ var EventHandler = function () {
   }, {
     key: 'scroll',
     value: function scroll() {
-      var st = scrollTop();
+      var scrollTop = window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
 
       if (this.lastScrollPosition === null) {
-        this.lastScrollPosition = st;
+        this.lastScrollPosition = scrollTop;
       }
 
-      var deltaY = this.lastScrollPosition - st;
+      var deltaY = this.lastScrollPosition - scrollTop;
 
       if (Math.abs(deltaY) >= this.options.scrollThreshold) {
         this.lastScrollPosition = null;
@@ -568,8 +551,7 @@ var EventHandler = function () {
     value: function keydown(e) {
       var _this = this;
 
-      var code = e.key || e.code;
-      if (code === 'Escape' || e.keyCode === 27) {
+      if (isEscape(e)) {
         if (this.released) this.close();else this.release(function () {
           return _this.close();
         });
@@ -580,7 +562,7 @@ var EventHandler = function () {
     value: function mousedown(e) {
       var _this2 = this;
 
-      if (e.button !== 0) return;
+      if (isNotLeftButton(e)) return;
       e.preventDefault();
 
       this.pressTimer = setTimeout(function () {
@@ -596,7 +578,7 @@ var EventHandler = function () {
   }, {
     key: 'mouseup',
     value: function mouseup(e) {
-      if (e.button !== 0) return;
+      if (isNotLeftButton(e)) return;
       clearTimeout(this.pressTimer);
 
       if (this.released) this.close();else this.release();
@@ -628,7 +610,7 @@ var EventHandler = function () {
   }, {
     key: 'touchend',
     value: function touchend(e) {
-      if (e.targetTouches.length > 0) return;
+      if (isTouching(e)) return;
       clearTimeout(this.pressTimer);
 
       if (this.released) this.close();else this.release();
@@ -636,6 +618,19 @@ var EventHandler = function () {
   }]);
   return EventHandler;
 }();
+
+function isNotLeftButton(event) {
+  return event.button !== 0;
+}
+
+function isEscape(event) {
+  var code = event.key || event.code;
+  return code === 'Escape' || event.keyCode === 27;
+}
+
+function isTouching(event) {
+  return event.targetTouches.length > 0;
+}
 
 function processTouches(touches, currScaleExtra, cb) {
   var total = touches.length;
@@ -839,6 +834,41 @@ var OPTIONS = {
   onBeforeRelease: null
 };
 
+function isValidImage(filename) {
+  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
+  );
+}
+
+function isNotImage() {
+  return checkTag('IMG') === false;
+}
+
+function isImageLink(el) {
+  return isLink(el) && isValidImage(el.getAttribute('href'));
+}
+
+function loadImage(src, cb) {
+  if (!src) return;
+
+  var img = new Image();
+  img.onload = function () {
+    if (cb) cb(img);
+  };
+  img.src = src;
+}
+
+function checkOriginalImage(el, cb) {
+  var srcOriginal = null;
+
+  if (el.hasAttribute('data-original')) {
+    srcOriginal = el.getAttribute('data-original');
+  } else if (isImageLink(el.parentNode)) {
+    srcOriginal = el.parentNode.getAttribute('href');
+  }
+
+  cb(srcOriginal);
+}
+
 /**
  * Zooming instance.
  */
@@ -851,10 +881,17 @@ var Zooming$1 = function () {
   function Zooming(options) {
     classCallCheck(this, Zooming);
 
+
     // elements
-    this.body = document.body;
-    this.overlay = new Overlay(document.createElement('div'), this);
     this.target = null;
+    this.overlay = new Overlay(document.createElement('div'), this);
+    this.eventHandler = new EventHandler(this);
+    this.body = document.body;
+
+    // init
+    this.options = Object.assign({}, OPTIONS);
+    this.config(options);
+    this.overlay.init(this.options);
 
     // state
     this.shown = false; // target is open
@@ -862,12 +899,6 @@ var Zooming$1 = function () {
     this.released = true; // mouse/finger is not pressing down
     this.lastScrollPosition = null;
     this.pressTimer = null;
-
-    this.options = Object.assign({}, OPTIONS);
-    if (options) this.config(options);
-
-    this.eventHandler = new EventHandler(this);
-    this.overlay.init();
   }
 
   /**
@@ -880,7 +911,7 @@ var Zooming$1 = function () {
   createClass(Zooming, [{
     key: 'listen',
     value: function listen(el) {
-      if (typeof el === 'string') {
+      if (isString(el)) {
         var els = document.querySelectorAll(el),
             i = els.length;
 
@@ -891,16 +922,34 @@ var Zooming$1 = function () {
         return this;
       }
 
-      if (el.tagName !== 'IMG') return;
+      if (isNotImage(el)) return;
 
       el.style.cursor = cursor.zoomIn;
       el.addEventListener('click', this.eventHandler.click);
 
       if (this.options.preloadImage) {
-        checkOriginalImage(el, function (srcOriginal) {
-          return loadImage(srcOriginal);
-        });
+        checkOriginalImage(el, loadImage);
       }
+
+      return this;
+    }
+
+    /**
+     * Update options.
+     * @param  {Object} options An Object that contains this.options.
+     * @return {this}
+     */
+
+  }, {
+    key: 'config',
+    value: function config(options) {
+      if (!options) return this.options;
+
+      for (var key in options) {
+        this.options[key] = options[key];
+      }
+
+      this.overlay.updateStyle(this.options);
 
       return this;
     }
@@ -923,17 +972,15 @@ var Zooming$1 = function () {
 
       if (this.shown || this.lock) return;
 
-      var target = typeof el === 'string' ? document.querySelector(el) : el;
+      var target = isString(el) ? document.querySelector(el) : el;
 
-      if (target.tagName !== 'IMG') return;
+      if (isNotImage(target)) return;
 
       // onBeforeOpen event
       if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
 
       if (!this.options.preloadImage) {
-        checkOriginalImage(target, function (srcOriginal) {
-          return loadImage(srcOriginal);
-        });
+        checkOriginalImage(target, loadImage);
       }
 
       this.target = new Target(target, this);
@@ -1136,26 +1183,6 @@ var Zooming$1 = function () {
       };
 
       target.addEventListener(transEndEvent, onEnd);
-
-      return this;
-    }
-
-    /**
-     * Update options.
-     * @param  {Object} options An Object that contains this.options.
-     * @return {this}
-     */
-
-  }, {
-    key: 'config',
-    value: function config(options) {
-      if (!options) return this.options;
-
-      for (var key in options) {
-        this.options[key] = options[key];
-      }
-
-      this.overlay.updateStyle();
 
       return this;
     }

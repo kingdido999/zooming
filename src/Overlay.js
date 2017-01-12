@@ -1,4 +1,4 @@
-import { setStyle } from './_helpers'
+import { setStyle } from './util/_helpers'
 
 export default class Overlay {
 
@@ -8,9 +8,7 @@ export default class Overlay {
     this.parent = document.body
   }
 
-  init () {
-    const options = this.instance.options
-
+  init (options) {
     setStyle(this.el, {
       zIndex: 998,
       backgroundColor: options.bgColor,
@@ -28,9 +26,7 @@ export default class Overlay {
     this.el.addEventListener('click', () => this.instance.close())
   }
 
-  updateStyle () {
-    const options = this.instance.options
-
+  updateStyle (options) {
     setStyle(this.el, {
       backgroundColor: options.bgColor,
       transition: `opacity

@@ -2,13 +2,10 @@ import Target from './Target'
 import Overlay from './Overlay'
 import EventHandler from './EventHandler'
 import OPTIONS from './_options'
-import {
-  toggleGrabListeners,
-  transEndEvent,
-  cursor,
-  loadImage,
-  checkOriginalImage
-} from './_helpers'
+import { isString } from './util/_dom'
+import { transEndEvent } from './util/_trans'
+import { isNotImage, loadImage, checkOriginalImage } from './util/_image'
+import { cursor, toggleGrabListeners } from './util/_helpers'
 
 /**
  * Zooming instance.
@@ -19,10 +16,17 @@ export default class Zooming {
    * @param {Object} [options] Update default options if provided.
    */
   constructor (options) {
+
     // elements
-    this.body = document.body
-    this.overlay = new Overlay(document.createElement('div'), this)
     this.target = null
+    this.overlay = new Overlay(document.createElement('div'), this)
+    this.eventHandler = new EventHandler(this)
+    this.body = document.body
+
+    // init
+    this.options = Object.assign({}, OPTIONS)
+    this.config(options)
+    this.overlay.init(this.options)
 
     // state
     this.shown = false       // target is open
@@ -30,12 +34,6 @@ export default class Zooming {
     this.released = true     // mouse/finger is not pressing down
     this.lastScrollPosition = null
     this.pressTimer = null
-
-    this.options = Object.assign({}, OPTIONS)
-    if (options) this.config(options)
-
-    this.eventHandler = new EventHandler(this)
-    this.overlay.init()
   }
 
   /**
@@ -44,7 +42,7 @@ export default class Zooming {
    * @return {this}
    */
   listen (el) {
-    if (typeof el === 'string') {
+    if (isString(el)) {
       let els = document.querySelectorAll(el), i = els.length
 
       while (i--) {
@@ -54,14 +52,31 @@ export default class Zooming {
       return this
     }
 
-    if (el.tagName !== 'IMG') return
+    if (isNotImage(el)) return
 
     el.style.cursor = cursor.zoomIn
     el.addEventListener('click', this.eventHandler.click)
 
     if (this.options.preloadImage) {
-      checkOriginalImage(el, srcOriginal => loadImage(srcOriginal))
+      checkOriginalImage(el, loadImage)
     }
+
+    return this
+  }
+
+  /**
+   * Update options.
+   * @param  {Object} options An Object that contains this.options.
+   * @return {this}
+   */
+  config (options) {
+    if (!options) return this.options
+
+    for (let key in options) {
+      this.options[key] = options[key]
+    }
+
+    this.overlay.updateStyle(this.options)
 
     return this
   }
@@ -77,17 +92,17 @@ export default class Zooming {
   open (el, cb = this.options.onOpen) {
     if (this.shown || this.lock) return
 
-    const target = typeof el === 'string'
+    const target = isString(el)
       ? document.querySelector(el)
       : el
 
-    if (target.tagName !== 'IMG') return
+    if (isNotImage(target)) return
 
     // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
 
     if (!this.options.preloadImage) {
-      checkOriginalImage(target, srcOriginal => loadImage(srcOriginal))
+      checkOriginalImage(target, loadImage)
     }
 
     this.target = new Target(target, this)
@@ -262,23 +277,6 @@ export default class Zooming {
     }
 
     target.addEventListener(transEndEvent, onEnd)
-
-    return this
-  }
-
-  /**
-   * Update options.
-   * @param  {Object} options An Object that contains this.options.
-   * @return {this}
-   */
-  config (options) {
-    if (!options) return this.options
-
-    for (let key in options) {
-      this.options[key] = options[key]
-    }
-
-    this.overlay.updateStyle()
 
     return this
   }

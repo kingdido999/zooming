@@ -1,12 +1,7 @@
-import {
-  transformCssProp,
-  setStyle,
-  half,
-  getWindowCenter,
-  cursor,
-  getParents,
-  isOverflowHidden
-} from './_helpers'
+import { half } from './util/_math'
+import { getParents } from './util/_dom'
+import { transformCssProp } from './util/_trans'
+import { cursor, setStyle, getWindowCenter, isOverflowHidden } from './util/_helpers'
 
 export default class Target {
 
@@ -104,21 +99,21 @@ export default class Target {
     setStyle(this.el, this.style.open)
   }
 
-  upgradeSource (dataOriginal) {
-    if (!dataOriginal) return
+  upgradeSource (srcOriginal) {
+    if (!srcOriginal) return
 
     const parentNode = this.el.parentNode
     const temp = this.el.cloneNode(false)
 
     // force compute the hi-res image in DOM to prevent
     // image flickering while updating src
-    temp.setAttribute('src', dataOriginal)
+    temp.setAttribute('src', srcOriginal)
     temp.style.position = 'fixed'
     temp.style.visibility = 'hidden'
     parentNode.appendChild(temp)
 
     setTimeout(() => {
-      this.el.setAttribute('src', dataOriginal)
+      this.el.setAttribute('src', srcOriginal)
       parentNode.removeChild(temp)
     }, 10)
   }
