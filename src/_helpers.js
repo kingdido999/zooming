@@ -142,12 +142,14 @@ export function bindAll (_this, that) {
   })
 }
 
-export function loadImage (url, cb) {
+export function loadImage (src, cb) {
+  if (!src) return
+  
   const img = new Image()
   img.onload = function () {
     if (cb) cb(img)
   }
-  img.src = url
+  img.src = src
 }
 
 export function checkOriginalImage (el, cb) {
