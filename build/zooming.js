@@ -81,6 +81,10 @@ function isImageLink(el) {
   return isLink(el) && isValidImage(el.getAttribute('href'));
 }
 
+function hasComputedStyle(el, prop, value) {
+  return getComputedStyle(el)[prop] === value;
+}
+
 var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
 
 var cursor = {
@@ -155,6 +159,26 @@ function checkOriginalImage(el, cb) {
   }
 
   cb(srcOriginal);
+}
+
+function getParents(el, match) {
+  var parents = [];
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el);
+      }
+    } else {
+      parents.push(el);
+    }
+  }
+
+  return parents;
+}
+
+function isOverflowHidden(el) {
+  return hasComputedStyle(el, 'overflow', 'hidden');
 }
 
 var classCallCheck = function (instance, Constructor) {
@@ -256,18 +280,22 @@ var Target = function () {
 
     this.el = el;
     this.instance = instance;
+    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden);
     this.translate = null;
     this.scale = null;
     this.srcThumbnail = this.el.getAttribute('src');
     this.style = {
       open: null,
-      close: null
+      close: null,
+      overflowHiddenParents: {}
     };
   }
 
   createClass(Target, [{
     key: 'zoomIn',
     value: function zoomIn() {
+      var _this = this;
+
       var options = this.instance.options;
 
       // load hi-res image if preloadImage option is disabled
@@ -276,6 +304,12 @@ var Target = function () {
           if (srcOriginal) loadImage(srcOriginal);
         });
       }
+
+      this.overflowHiddenParents.forEach(function (parent) {
+        _this.style.overflowHiddenParents[parent] = setStyle(parent, {
+          overflow: 'visible'
+        }, true);
+      });
 
       var rect = this.el.getBoundingClientRect();
       this.translate = calculateTranslate(rect);
@@ -332,7 +366,13 @@ var Target = function () {
   }, {
     key: 'restoreCloseStyle',
     value: function restoreCloseStyle() {
+      var _this2 = this;
+
       setStyle(this.el, this.style.close);
+
+      this.overflowHiddenParents.forEach(function (parent) {
+        setStyle(parent, _this2.style.overflowHiddenParents[parent]);
+      });
     }
   }, {
     key: 'restoreOpenStyle',
@@ -342,7 +382,7 @@ var Target = function () {
   }, {
     key: 'upgradeSource',
     value: function upgradeSource(dataOriginal) {
-      var _this = this;
+      var _this3 = this;
 
       var parentNode = this.el.parentNode;
       var temp = this.el.cloneNode(false);
@@ -355,7 +395,7 @@ var Target = function () {
       parentNode.appendChild(temp);
 
       setTimeout(function () {
-        _this.el.setAttribute('src', dataOriginal);
+        _this3.el.setAttribute('src', dataOriginal);
         parentNode.removeChild(temp);
       }, 10);
     }
@@ -795,10 +835,6 @@ var OPTIONS = {
    */
   onBeforeRelease: null
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
 

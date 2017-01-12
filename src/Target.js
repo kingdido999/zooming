@@ -5,7 +5,9 @@ import {
   getWindowCenter,
   cursor,
   loadImage,
-  checkOriginalImage
+  checkOriginalImage,
+  getParents,
+  isOverflowHidden
 } from './_helpers'
 
 export default class Target {
@@ -13,12 +15,14 @@ export default class Target {
   constructor (el, instance) {
     this.el = el
     this.instance = instance
+    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden)
     this.translate = null
     this.scale = null
     this.srcThumbnail = this.el.getAttribute('src')
     this.style = {
       open: null,
-      close: null
+      close: null,
+      overflowHiddenParents: {}
     }
   }
 
@@ -31,6 +35,12 @@ export default class Target {
         if (srcOriginal) loadImage(srcOriginal)
       })
     }
+
+    this.overflowHiddenParents.forEach(parent => {
+      this.style.overflowHiddenParents[parent] = setStyle(parent, {
+        overflow: 'visible'
+      }, true)
+    })
 
     const rect = this.el.getBoundingClientRect()
     this.translate = calculateTranslate(rect)
@@ -89,6 +99,10 @@ export default class Target {
 
   restoreCloseStyle () {
     setStyle(this.el, this.style.close)
+
+    this.overflowHiddenParents.forEach(parent => {
+      setStyle(parent, this.style.overflowHiddenParents[parent])
+    })
   }
 
   restoreOpenStyle () {
