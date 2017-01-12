@@ -60,9 +60,7 @@ export default class Zooming {
     el.addEventListener('click', this.eventHandler.click)
 
     if (this.options.preloadImage) {
-      checkOriginalImage(el, srcOriginal => {
-        if (srcOriginal) loadImage(srcOriginal)
-      })
+      checkOriginalImage(el, srcOriginal => loadImage(srcOriginal))
     }
 
     return this
@@ -85,14 +83,19 @@ export default class Zooming {
 
     if (target.tagName !== 'IMG') return
 
-    this.target = new Target(target, this)
-
     // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
+
+    if (!this.options.preloadImage) {
+      checkOriginalImage(target, srcOriginal => loadImage(srcOriginal))
+    }
+
+    this.target = new Target(target, this)
 
     this.shown = true
     this.lock = true
 
+    this.target.removeOverflowHidden()
     this.target.zoomIn()
     this.overlay.insert()
     this.overlay.show()
@@ -105,9 +108,7 @@ export default class Zooming {
 
       this.lock = false
 
-      checkOriginalImage(target, srcOriginal => {
-        if (srcOriginal) this.target.upgradeSource(srcOriginal)
-      })
+      checkOriginalImage(target, srcOriginal => this.target.upgradeSource(srcOriginal))
 
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, true)
@@ -159,6 +160,7 @@ export default class Zooming {
         toggleGrabListeners(document, this.eventHandler, false)
       }
 
+      this.target.restoreOverflowHidden()
       this.target.restoreCloseStyle()
       this.overlay.remove()
 

@@ -81,6 +81,10 @@ function isImageLink(el) {
   return isLink(el) && isValidImage(el.getAttribute('href'));
 }
 
+function hasComputedStyle(el, prop, value) {
+  return getComputedStyle(el)[prop] === value;
+}
+
 var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
 
 var cursor = {
@@ -137,12 +141,14 @@ function bindAll(_this, that) {
   });
 }
 
-function loadImage(url, cb) {
+function loadImage(src, cb) {
+  if (!src) return;
+
   var img = new Image();
   img.onload = function () {
     if (cb) cb(img);
   };
-  img.src = url;
+  img.src = src;
 }
 
 function checkOriginalImage(el, cb) {
@@ -155,6 +161,26 @@ function checkOriginalImage(el, cb) {
   }
 
   cb(srcOriginal);
+}
+
+function getParents(el, match) {
+  var parents = [];
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el);
+      }
+    } else {
+      parents.push(el);
+    }
+  }
+
+  return parents;
+}
+
+function isOverflowHidden(el) {
+  return hasComputedStyle(el, 'overflow', 'hidden');
 }
 
 var classCallCheck = function (instance, Constructor) {
@@ -256,26 +282,41 @@ var Target = function () {
 
     this.el = el;
     this.instance = instance;
+    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden);
     this.translate = null;
     this.scale = null;
     this.srcThumbnail = this.el.getAttribute('src');
     this.style = {
       open: null,
-      close: null
+      close: null,
+      overflowHiddenParents: {}
     };
   }
 
   createClass(Target, [{
+    key: 'removeOverflowHidden',
+    value: function removeOverflowHidden() {
+      var _this = this;
+
+      this.overflowHiddenParents.forEach(function (parent) {
+        _this.style.overflowHiddenParents[parent] = setStyle(parent, {
+          overflow: 'visible'
+        }, true);
+      });
+    }
+  }, {
+    key: 'restoreOverflowHidden',
+    value: function restoreOverflowHidden() {
+      var _this2 = this;
+
+      this.overflowHiddenParents.forEach(function (parent) {
+        setStyle(parent, _this2.style.overflowHiddenParents[parent]);
+      });
+    }
+  }, {
     key: 'zoomIn',
     value: function zoomIn() {
       var options = this.instance.options;
-
-      // load hi-res image if preloadImage option is disabled
-      if (!options.preloadImage) {
-        checkOriginalImage(this.el, function (srcOriginal) {
-          if (srcOriginal) loadImage(srcOriginal);
-        });
-      }
 
       var rect = this.el.getBoundingClientRect();
       this.translate = calculateTranslate(rect);
@@ -342,7 +383,9 @@ var Target = function () {
   }, {
     key: 'upgradeSource',
     value: function upgradeSource(dataOriginal) {
-      var _this = this;
+      var _this3 = this;
+
+      if (!dataOriginal) return;
 
       var parentNode = this.el.parentNode;
       var temp = this.el.cloneNode(false);
@@ -355,7 +398,7 @@ var Target = function () {
       parentNode.appendChild(temp);
 
       setTimeout(function () {
-        _this.el.setAttribute('src', dataOriginal);
+        _this3.el.setAttribute('src', dataOriginal);
         parentNode.removeChild(temp);
       }, 10);
     }
@@ -855,7 +898,7 @@ var Zooming$1 = function () {
 
       if (this.options.preloadImage) {
         checkOriginalImage(el, function (srcOriginal) {
-          if (srcOriginal) loadImage(srcOriginal);
+          return loadImage(srcOriginal);
         });
       }
 
@@ -884,14 +927,21 @@ var Zooming$1 = function () {
 
       if (target.tagName !== 'IMG') return;
 
-      this.target = new Target(target, this);
-
       // onBeforeOpen event
       if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
+
+      if (!this.options.preloadImage) {
+        checkOriginalImage(target, function (srcOriginal) {
+          return loadImage(srcOriginal);
+        });
+      }
+
+      this.target = new Target(target, this);
 
       this.shown = true;
       this.lock = true;
 
+      this.target.removeOverflowHidden();
       this.target.zoomIn();
       this.overlay.insert();
       this.overlay.show();
@@ -905,7 +955,7 @@ var Zooming$1 = function () {
         _this.lock = false;
 
         checkOriginalImage(target, function (srcOriginal) {
-          if (srcOriginal) _this.target.upgradeSource(srcOriginal);
+          return _this.target.upgradeSource(srcOriginal);
         });
 
         if (_this.options.enableGrab) {
@@ -965,6 +1015,7 @@ var Zooming$1 = function () {
           toggleGrabListeners(document, _this2.eventHandler, false);
         }
 
+        _this2.target.restoreOverflowHidden();
         _this2.target.restoreCloseStyle();
         _this2.overlay.remove();
 

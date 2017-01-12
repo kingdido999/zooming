@@ -74,6 +74,10 @@ function isImageLink (el) {
   return isLink(el) && isValidImage(el.getAttribute('href'))
 }
 
+function hasComputedStyle (el, prop, value) {
+  return getComputedStyle(el)[prop] === value
+}
+
 export const webkitPrefix = 'WebkitAppearance' in docElm.style
   ? '-webkit-'
   : ''
@@ -138,12 +142,14 @@ export function bindAll (_this, that) {
   })
 }
 
-export function loadImage (url, cb) {
+export function loadImage (src, cb) {
+  if (!src) return
+  
   const img = new Image()
   img.onload = function () {
     if (cb) cb(img)
   }
-  img.src = url
+  img.src = src
 }
 
 export function checkOriginalImage (el, cb) {
@@ -156,4 +162,24 @@ export function checkOriginalImage (el, cb) {
   }
 
   cb(srcOriginal)
+}
+
+export function getParents (el, match) {
+  let parents = []
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el)
+      }
+    } else {
+      parents.push(el)
+    }
+  }
+
+  return parents
+}
+
+export function isOverflowHidden (el) {
+  return hasComputedStyle(el, 'overflow', 'hidden')
 }

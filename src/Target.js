@@ -4,8 +4,8 @@ import {
   half,
   getWindowCenter,
   cursor,
-  loadImage,
-  checkOriginalImage
+  getParents,
+  isOverflowHidden
 } from './_helpers'
 
 export default class Target {
@@ -13,24 +13,33 @@ export default class Target {
   constructor (el, instance) {
     this.el = el
     this.instance = instance
+    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden)
     this.translate = null
     this.scale = null
     this.srcThumbnail = this.el.getAttribute('src')
     this.style = {
       open: null,
-      close: null
+      close: null,
+      overflowHiddenParents: {}
     }
+  }
+
+  removeOverflowHidden () {
+    this.overflowHiddenParents.forEach(parent => {
+      this.style.overflowHiddenParents[parent] = setStyle(parent, {
+        overflow: 'visible'
+      }, true)
+    })
+  }
+
+  restoreOverflowHidden () {
+    this.overflowHiddenParents.forEach(parent => {
+      setStyle(parent, this.style.overflowHiddenParents[parent])
+    })
   }
 
   zoomIn () {
     const options = this.instance.options
-
-    // load hi-res image if preloadImage option is disabled
-    if (!options.preloadImage) {
-      checkOriginalImage(this.el, srcOriginal => {
-        if (srcOriginal) loadImage(srcOriginal)
-      })
-    }
 
     const rect = this.el.getBoundingClientRect()
     this.translate = calculateTranslate(rect)
@@ -96,6 +105,8 @@ export default class Target {
   }
 
   upgradeSource (dataOriginal) {
+    if (!dataOriginal) return
+
     const parentNode = this.el.parentNode
     const temp = this.el.cloneNode(false)
 
