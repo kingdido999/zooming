@@ -61,41 +61,50 @@ export function bindAll (_this, that) {
   })
 }
 
-const overflowHiddenMap = new Map()
-const overflowHiddenStyle = new Map()
+export const overflowHiddenParents = {
 
-export function isOverflowHidden (el) {
+  // Map from Element to its overflow:hidden parents
+  map: new Map(),
+
+  // Map from parent to its original style
+  style: new Map(),
+
+  disable: disableOverflowHiddenParents,
+  enable: enableOverflowHiddenParents
+}
+
+function isOverflowHidden (el) {
   return getComputedStyle(el).overflow === 'hidden'
 }
 
-export function getOverflowHiddenParents (el) {
-  if (overflowHiddenMap.has(el)) {
-    return overflowHiddenMap.get(el)
+function getOverflowHiddenParents (el) {
+  if (overflowHiddenParents.map.has(el)) {
+    return overflowHiddenParents.map.get(el)
   } else {
     const parents = getParents(el.parentNode, isOverflowHidden)
-    overflowHiddenMap.set(el, parents)
+    overflowHiddenParents.map.set(el, parents)
     return parents
   }
 }
 
-export function disableOverflowHiddenParents (el) {
+function disableOverflowHiddenParents (el) {
   getOverflowHiddenParents(el).forEach(parent => {
-    if (overflowHiddenStyle.has(parent)) {
+    if (overflowHiddenParents.style.has(parent)) {
       setStyle(parent, {
         overflow: 'visible'
       })
     } else {
-      overflowHiddenStyle.set(parent, setStyle(parent, {
+      overflowHiddenParents.style.set(parent, setStyle(parent, {
         overflow: 'visible'
       }, true))
     }
   })
 }
 
-export function enableOverflowHiddenParents (el) {
-  if (overflowHiddenMap.has(el)) {
-    overflowHiddenMap.get(el).forEach(parent => {
-      setStyle(parent, overflowHiddenStyle.get(parent))
+function enableOverflowHiddenParents (el) {
+  if (overflowHiddenParents.map.has(el)) {
+    overflowHiddenParents.map.get(el).forEach(parent => {
+      setStyle(parent, overflowHiddenParents.style.get(parent))
     })
   }
 }
