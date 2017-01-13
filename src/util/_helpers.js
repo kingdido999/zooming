@@ -1,6 +1,6 @@
 import { half } from './_math'
 import { checkTrans } from './_trans'
-import { body, docElm, webkitPrefix } from './_dom'
+import { body, docElm, webkitPrefix, getParents } from './_dom'
 
 export const cursor = {
   default: 'auto',
@@ -61,6 +61,41 @@ export function bindAll (_this, that) {
   })
 }
 
+const overflowHiddenMap = new Map()
+const overflowHiddenStyle = new Map()
+
 export function isOverflowHidden (el) {
   return getComputedStyle(el).overflow === 'hidden'
+}
+
+export function getOverflowHiddenParents (el) {
+  if (overflowHiddenMap.has(el)) {
+    return overflowHiddenMap.get(el)
+  } else {
+    const parents = getParents(el.parentNode, isOverflowHidden)
+    overflowHiddenMap.set(el, parents)
+    return parents
+  }
+}
+
+export function disableOverflowHiddenParents (el) {
+  getOverflowHiddenParents(el).forEach(parent => {
+    if (overflowHiddenStyle.has(parent)) {
+      setStyle(parent, {
+        overflow: 'visible'
+      })
+    } else {
+      overflowHiddenStyle.set(parent, setStyle(parent, {
+        overflow: 'visible'
+      }, true))
+    }
+  })
+}
+
+export function enableOverflowHiddenParents (el) {
+  if (overflowHiddenMap.has(el)) {
+    overflowHiddenMap.get(el).forEach(parent => {
+      setStyle(parent, overflowHiddenStyle.get(parent))
+    })
+  }
 }

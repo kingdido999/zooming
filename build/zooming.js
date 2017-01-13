@@ -12,6 +12,56 @@ function divide(denominator) {
 
 var half = divide(2);
 
+var trans = sniffTransition(document.createElement('div'));
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+
+function checkTrans(styles) {
+  var transitionProp = trans.transitionProp;
+  var transformProp = trans.transformProp;
+
+  var value = void 0;
+  if (styles.transition) {
+    value = styles.transition;
+    delete styles.transition;
+    styles[transitionProp] = value;
+  }
+  if (styles.transform) {
+    value = styles.transform;
+    delete styles.transform;
+    styles[transformProp] = value;
+  }
+}
+
+function sniffTransition(el) {
+  var ret = {};
+  var trans = ['webkitTransition', 'transition', 'mozTransition'];
+  var tform = ['webkitTransform', 'transform', 'mozTransform'];
+  var end = {
+    'transition': 'transitionend',
+    'mozTransition': 'transitionend',
+    'webkitTransition': 'webkitTransitionEnd'
+  };
+
+  trans.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transitionProp = prop;
+      ret.transEndEvent = end[prop];
+      return true;
+    }
+  });
+
+  tform.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transformProp = prop;
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
+      return true;
+    }
+  });
+
+  return ret;
+}
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
 } : function (obj) {
@@ -155,56 +205,6 @@ function getParents(el, match) {
   return parents;
 }
 
-var trans = sniffTransition(document.createElement('div'));
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
-
-function checkTrans(styles) {
-  var transitionProp = trans.transitionProp;
-  var transformProp = trans.transformProp;
-
-  var value = void 0;
-  if (styles.transition) {
-    value = styles.transition;
-    delete styles.transition;
-    styles[transitionProp] = value;
-  }
-  if (styles.transform) {
-    value = styles.transform;
-    delete styles.transform;
-    styles[transformProp] = value;
-  }
-}
-
-function sniffTransition(el) {
-  var ret = {};
-  var trans = ['webkitTransition', 'transition', 'mozTransition'];
-  var tform = ['webkitTransform', 'transform', 'mozTransform'];
-  var end = {
-    'transition': 'transitionend',
-    'mozTransition': 'transitionend',
-    'webkitTransition': 'webkitTransitionEnd'
-  };
-
-  trans.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transitionProp = prop;
-      ret.transEndEvent = end[prop];
-      return true;
-    }
-  });
-
-  tform.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transformProp = prop;
-      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
-      return true;
-    }
-  });
-
-  return ret;
-}
-
 var cursor = {
   default: 'auto',
   zoomIn: webkitPrefix + 'zoom-in',
@@ -259,8 +259,43 @@ function bindAll(_this, that) {
   });
 }
 
+var overflowHiddenMap = new Map();
+var overflowHiddenStyle = new Map();
+
 function isOverflowHidden(el) {
   return getComputedStyle(el).overflow === 'hidden';
+}
+
+function getOverflowHiddenParents(el) {
+  if (overflowHiddenMap.has(el)) {
+    return overflowHiddenMap.get(el);
+  } else {
+    var parents = getParents(el.parentNode, isOverflowHidden);
+    overflowHiddenMap.set(el, parents);
+    return parents;
+  }
+}
+
+function disableOverflowHiddenParents(el) {
+  getOverflowHiddenParents(el).forEach(function (parent) {
+    if (overflowHiddenStyle.has(parent)) {
+      setStyle(parent, {
+        overflow: 'visible'
+      });
+    } else {
+      overflowHiddenStyle.set(parent, setStyle(parent, {
+        overflow: 'visible'
+      }, true));
+    }
+  });
+}
+
+function enableOverflowHiddenParents(el) {
+  if (overflowHiddenMap.has(el)) {
+    overflowHiddenMap.get(el).forEach(function (parent) {
+      setStyle(parent, overflowHiddenStyle.get(parent));
+    });
+  }
 }
 
 var Target = function () {
@@ -269,38 +304,16 @@ var Target = function () {
 
     this.el = el;
     this.instance = instance;
-    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden);
     this.translate = null;
     this.scale = null;
     this.srcThumbnail = this.el.getAttribute('src');
     this.style = {
       open: null,
-      close: null,
-      overflowHiddenParents: {}
+      close: null
     };
   }
 
   createClass(Target, [{
-    key: 'removeOverflowHidden',
-    value: function removeOverflowHidden() {
-      var _this = this;
-
-      this.overflowHiddenParents.forEach(function (parent) {
-        _this.style.overflowHiddenParents[parent] = setStyle(parent, {
-          overflow: 'visible'
-        }, true);
-      });
-    }
-  }, {
-    key: 'restoreOverflowHidden',
-    value: function restoreOverflowHidden() {
-      var _this2 = this;
-
-      this.overflowHiddenParents.forEach(function (parent) {
-        setStyle(parent, _this2.style.overflowHiddenParents[parent]);
-      });
-    }
-  }, {
     key: 'zoomIn',
     value: function zoomIn() {
       var options = this.instance.options;
@@ -370,7 +383,7 @@ var Target = function () {
   }, {
     key: 'upgradeSource',
     value: function upgradeSource(srcOriginal) {
-      var _this3 = this;
+      var _this = this;
 
       if (!srcOriginal) return;
 
@@ -385,7 +398,7 @@ var Target = function () {
       parentNode.appendChild(temp);
 
       setTimeout(function () {
-        _this3.el.setAttribute('src', srcOriginal);
+        _this.el.setAttribute('src', srcOriginal);
         parentNode.removeChild(temp);
       }, 10);
     }
@@ -988,7 +1001,7 @@ var Zooming$1 = function () {
       this.shown = true;
       this.lock = true;
 
-      this.target.removeOverflowHidden();
+      disableOverflowHiddenParents(target);
       this.target.zoomIn();
       this.overlay.insert();
       this.overlay.show();
@@ -1062,7 +1075,7 @@ var Zooming$1 = function () {
           toggleGrabListeners(document, _this2.eventHandler, false);
         }
 
-        _this2.target.restoreOverflowHidden();
+        enableOverflowHiddenParents(target);
         _this2.target.restoreCloseStyle();
         _this2.overlay.remove();
 

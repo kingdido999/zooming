@@ -5,7 +5,12 @@ import OPTIONS from './_options'
 import { isString } from './util/_dom'
 import { transEndEvent } from './util/_trans'
 import { isNotImage, loadImage, checkOriginalImage } from './util/_image'
-import { cursor, toggleGrabListeners } from './util/_helpers'
+import {
+  cursor,
+  toggleGrabListeners,
+  disableOverflowHiddenParents,
+  enableOverflowHiddenParents
+} from './util/_helpers'
 
 /**
  * Zooming instance.
@@ -110,7 +115,7 @@ export default class Zooming {
     this.shown = true
     this.lock = true
 
-    this.target.removeOverflowHidden()
+    disableOverflowHiddenParents(target)
     this.target.zoomIn()
     this.overlay.insert()
     this.overlay.show()
@@ -175,7 +180,7 @@ export default class Zooming {
         toggleGrabListeners(document, this.eventHandler, false)
       }
 
-      this.target.restoreOverflowHidden()
+      enableOverflowHiddenParents(target)
       this.target.restoreCloseStyle()
       this.overlay.remove()
 

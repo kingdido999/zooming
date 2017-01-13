@@ -1,36 +1,19 @@
 import { half } from './util/_math'
-import { getParents } from './util/_dom'
 import { transformCssProp } from './util/_trans'
-import { cursor, setStyle, getWindowCenter, isOverflowHidden } from './util/_helpers'
+import { cursor, setStyle, getWindowCenter } from './util/_helpers'
 
 export default class Target {
 
   constructor (el, instance) {
     this.el = el
     this.instance = instance
-    this.overflowHiddenParents = getParents(this.el.parentNode, isOverflowHidden)
     this.translate = null
     this.scale = null
     this.srcThumbnail = this.el.getAttribute('src')
     this.style = {
       open: null,
-      close: null,
-      overflowHiddenParents: {}
+      close: null
     }
-  }
-
-  removeOverflowHidden () {
-    this.overflowHiddenParents.forEach(parent => {
-      this.style.overflowHiddenParents[parent] = setStyle(parent, {
-        overflow: 'visible'
-      }, true)
-    })
-  }
-
-  restoreOverflowHidden () {
-    this.overflowHiddenParents.forEach(parent => {
-      setStyle(parent, this.style.overflowHiddenParents[parent])
-    })
   }
 
   zoomIn () {
