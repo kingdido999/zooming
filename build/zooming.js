@@ -222,8 +222,8 @@ function toggleListener(el, type, handler, add) {
 }
 
 function getWindowCenter() {
-  var windowWidth = Math.min(docElm.clientWidth, body.clientWidth, window.innerWidth);
-  var windowHeight = Math.min(docElm.clientHeight, body.clientHeight, window.innerHeight);
+  var windowWidth = Math.min(docElm.clientWidth, window.innerWidth);
+  var windowHeight = Math.min(docElm.clientHeight, window.innerHeight);
 
   return {
     x: half(windowWidth),

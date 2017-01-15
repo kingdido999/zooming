@@ -1,6 +1,6 @@
 import { half } from './_math'
 import { checkTrans } from './_trans'
-import { body, docElm, webkitPrefix, getParents } from './_dom'
+import { docElm, webkitPrefix, getParents } from './_dom'
 
 export const cursor = {
   default: 'auto',
@@ -19,8 +19,8 @@ export function toggleListener (el, type, handler, add) {
 }
 
 export function getWindowCenter () {
-  const windowWidth = Math.min(docElm.clientWidth, body.clientWidth, window.innerWidth)
-  const windowHeight = Math.min(docElm.clientHeight, body.clientHeight, window.innerHeight)
+  const windowWidth = Math.min(docElm.clientWidth, window.innerWidth)
+  const windowHeight = Math.min(docElm.clientHeight, window.innerHeight)
 
   return {
     x: half(windowWidth),
