@@ -19,12 +19,12 @@ export function toggleListener (el, type, handler, add) {
 }
 
 export function getWindowCenter () {
-  const docWidth = docElm.clientWidth || body.clientWidth
-  const docHeight = docElm.clientHeight || body.clientHeight
+  const windowWidth = Math.min(docElm.clientWidth, body.clientWidth, window.innerWidth)
+  const windowHeight = Math.min(docElm.clientHeight, body.clientHeight, window.innerHeight)
 
   return {
-    x: half(docWidth),
-    y: half(docHeight)
+    x: half(windowWidth),
+    y: half(windowHeight)
   }
 }
 

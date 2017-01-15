@@ -222,12 +222,12 @@ function toggleListener(el, type, handler, add) {
 }
 
 function getWindowCenter() {
-  var docWidth = docElm.clientWidth || body.clientWidth;
-  var docHeight = docElm.clientHeight || body.clientHeight;
+  var windowWidth = Math.min(docElm.clientWidth, body.clientWidth, window.innerWidth);
+  var windowHeight = Math.min(docElm.clientHeight, body.clientHeight, window.innerHeight);
 
   return {
-    x: half(docWidth),
-    y: half(docHeight)
+    x: half(windowWidth),
+    y: half(windowHeight)
   };
 }
 
@@ -890,10 +890,6 @@ function checkOriginalImage(el, cb) {
 
   cb(srcOriginal);
 }
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
 
