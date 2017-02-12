@@ -891,6 +891,10 @@ function checkOriginalImage(el, cb) {
   cb(srcOriginal);
 }
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
 
   /**
