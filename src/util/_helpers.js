@@ -1,6 +1,6 @@
-import { half } from './_math'
-import { checkTrans } from './_trans'
 import { docElm, webkitPrefix, getParents } from './_dom'
+import { checkTrans } from './_trans'
+import { half } from './_math'
 
 export const cursor = {
   default: 'auto',

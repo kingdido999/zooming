@@ -1,6 +1,6 @@
-import { half } from './util/_math'
+import { cursor, setStyle, getWindowCenter, overflowHiddenParents } from './util/_helpers'
 import { transformCssProp } from './util/_trans'
-import { cursor, setStyle, getWindowCenter } from './util/_helpers'
+import { half } from './util/_math'
 
 export default class Target {
 
@@ -18,8 +18,12 @@ export default class Target {
 
   zoomIn () {
     const options = this.instance.options
-
     const rect = this.el.getBoundingClientRect()
+
+    // Remove overflow:hidden from target's parent nodes if any. It prevents
+    // parent nodes from hiding the target after zooming in
+    overflowHiddenParents.disable(this.el)
+
     this.translate = calculateTranslate(rect)
     this.scale = calculateScale(rect, options.scaleBase, options.customSize)
 
@@ -44,6 +48,9 @@ export default class Target {
   }
 
   zoomOut () {
+    // Restore overflow:hidden to target's parent nodes if any
+    overflowHiddenParents.enable(this.el)
+    
     // force layout update
     this.el.offsetWidth
 

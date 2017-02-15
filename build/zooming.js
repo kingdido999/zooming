@@ -4,63 +4,152 @@
   (global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-function divide(denominator) {
-  return function (numerator) {
-    return numerator / denominator;
-  };
-}
+/**
+ * A list of options.
+ *
+ * @type {Object}
+ * @example
+ * // Default options
+ * var options = {
+ *   defaultZoomable: 'img[data-action="zoom"]',
+ *   enableGrab: true,
+ *   preloadImage: true,
+ *   transitionDuration: 0.4,
+ *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
+ *   bgColor: 'rgb(255, 255, 255)',
+ *   bgOpacity: 1,
+ *   scaleBase: 1.0,
+ *   scaleExtra: 0.5,
+ *   scrollThreshold: 40,
+ *   customSize: null,
+ *   onOpen: null,
+ *   onClose: null,
+ *   onRelease: null,
+ *   onBeforeOpen: null,
+ *   onBeforeClose: null,
+ *   onBeforeGrab: null,
+ *   onBeforeMove: null,
+ *   onBeforeRelease: null
+ * }
+ */
+var OPTIONS = {
+  /**
+   * Zoomable elements by default. It can be a css selector or an element.
+   * @type {string|Element}
+   */
+  defaultZoomable: 'img[data-action="zoom"]',
 
-var half = divide(2);
+  /**
+   * To be able to grab and drag the image for extra zoom-in.
+   * @type {boolean}
+   */
+  enableGrab: true,
 
-var trans = sniffTransition(document.createElement('div'));
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
+  /**
+   * Preload images with attribute "data-original".
+   * @type {boolean}
+   */
+  preloadImage: true,
 
-function checkTrans(styles) {
-  var transitionProp = trans.transitionProp;
-  var transformProp = trans.transformProp;
+  /**
+   * Transition duration in seconds.
+   * @type {number}
+   */
+  transitionDuration: 0.4,
 
-  var value = void 0;
-  if (styles.transition) {
-    value = styles.transition;
-    delete styles.transition;
-    styles[transitionProp] = value;
-  }
-  if (styles.transform) {
-    value = styles.transform;
-    delete styles.transform;
-    styles[transformProp] = value;
-  }
-}
+  /**
+   * Transition timing function.
+   * @type {string}
+   */
+  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
 
-function sniffTransition(el) {
-  var ret = {};
-  var trans = ['webkitTransition', 'transition', 'mozTransition'];
-  var tform = ['webkitTransform', 'transform', 'mozTransform'];
-  var end = {
-    'transition': 'transitionend',
-    'mozTransition': 'transitionend',
-    'webkitTransition': 'webkitTransitionEnd'
-  };
+  /**
+   * Overlay background color.
+   * @type {string}
+   */
+  bgColor: 'rgb(255, 255, 255)',
 
-  trans.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transitionProp = prop;
-      ret.transEndEvent = end[prop];
-      return true;
-    }
-  });
+  /**
+   * Overlay background opacity.
+   * @type {number}
+   */
+  bgOpacity: 1,
 
-  tform.some(function (prop) {
-    if (el.style[prop] !== undefined) {
-      ret.transformProp = prop;
-      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
-      return true;
-    }
-  });
+  /**
+   * The base scale factor for zooming. By default scale to fit the window.
+   * @type {number}
+   */
+  scaleBase: 1.0,
 
-  return ret;
-}
+  /**
+   * The extra scale factor when grabbing the image.
+   * @type {number}
+   */
+  scaleExtra: 0.5,
+
+  /**
+   * How much scrolling it takes before closing out.
+   * @type {number}
+   */
+  scrollThreshold: 40,
+
+  /**
+   * Scale (zoom in) to given width and height. Ignore scaleBase if set.
+   * @type {Object}
+   * @example
+   * customSize: { width: 800, height: 400 }
+   */
+  customSize: null,
+
+  /**
+   * A callback function that will be called when a target is opened and
+   * transition has ended. It will get the target element as the argument.
+   * @type {Function}
+   */
+  onOpen: null,
+
+  /**
+   * Same as above, except fired when closed.
+   * @type {Function}
+   */
+  onClose: null,
+
+  /**
+   * Same as above, except fired when released.
+   * @type {Function}
+   */
+  onRelease: null,
+
+  /**
+   * A callback function that will be called before open.
+   * @type {Function}
+   */
+  onBeforeOpen: null,
+
+  /**
+   * A callback function that will be called before close.
+   * @type {Function}
+   */
+  onBeforeClose: null,
+
+  /**
+   * A callback function that will be called before grab.
+   * @type {Function}
+   */
+  onBeforeGrab: null,
+
+  /**
+   * A callback function that will be called before move.
+   * @type {Function}
+   */
+  onBeforeMove: null,
+
+  /**
+   * A callback function that will be called before release.
+   * @type {Function}
+   */
+  onBeforeRelease: null
+};
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
   return typeof obj;
@@ -219,6 +308,99 @@ function getParents(el, match) {
   return parents;
 }
 
+function isValidImage(filename) {
+  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
+  );
+}
+
+function isNotImage() {
+  return checkTag('IMG') === false;
+}
+
+function isImageLink(el) {
+  return isLink(el) && isValidImage(el.getAttribute('href'));
+}
+
+function loadImage(src, cb) {
+  if (!src) return;
+
+  var img = new Image();
+  img.onload = function () {
+    if (cb) cb(img);
+  };
+  img.src = src;
+}
+
+function checkOriginalImage(el, cb) {
+  var srcOriginal = null;
+
+  if (el.hasAttribute('data-original')) {
+    srcOriginal = el.getAttribute('data-original');
+  } else if (isImageLink(el.parentNode)) {
+    srcOriginal = el.parentNode.getAttribute('href');
+  }
+
+  cb(srcOriginal);
+}
+
+var trans = sniffTransition(document.createElement('div'));
+var transformCssProp = trans.transformCssProp;
+var transEndEvent = trans.transEndEvent;
+
+function checkTrans(styles) {
+  var transitionProp = trans.transitionProp;
+  var transformProp = trans.transformProp;
+
+  var value = void 0;
+  if (styles.transition) {
+    value = styles.transition;
+    delete styles.transition;
+    styles[transitionProp] = value;
+  }
+  if (styles.transform) {
+    value = styles.transform;
+    delete styles.transform;
+    styles[transformProp] = value;
+  }
+}
+
+function sniffTransition(el) {
+  var ret = {};
+  var trans = ['webkitTransition', 'transition', 'mozTransition'];
+  var tform = ['webkitTransform', 'transform', 'mozTransform'];
+  var end = {
+    'transition': 'transitionend',
+    'mozTransition': 'transitionend',
+    'webkitTransition': 'webkitTransitionEnd'
+  };
+
+  trans.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transitionProp = prop;
+      ret.transEndEvent = end[prop];
+      return true;
+    }
+  });
+
+  tform.some(function (prop) {
+    if (el.style[prop] !== undefined) {
+      ret.transformProp = prop;
+      ret.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
+      return true;
+    }
+  });
+
+  return ret;
+}
+
+function divide(denominator) {
+  return function (numerator) {
+    return numerator / denominator;
+  };
+}
+
+var half = divide(2);
+
 var cursor = {
   default: 'auto',
   zoomIn: webkitPrefix + 'zoom-in',
@@ -320,230 +502,6 @@ function enableOverflowHiddenParents(el) {
     });
   }
 }
-
-var Target = function () {
-  function Target(el, instance) {
-    classCallCheck(this, Target);
-
-    this.el = el;
-    this.instance = instance;
-    this.translate = null;
-    this.scale = null;
-    this.srcThumbnail = this.el.getAttribute('src');
-    this.style = {
-      open: null,
-      close: null
-    };
-  }
-
-  createClass(Target, [{
-    key: 'zoomIn',
-    value: function zoomIn() {
-      var options = this.instance.options;
-
-      var rect = this.el.getBoundingClientRect();
-      this.translate = calculateTranslate(rect);
-      this.scale = calculateScale(rect, options.scaleBase, options.customSize);
-
-      // force layout update
-      this.el.offsetWidth;
-
-      this.style.open = {
-        position: 'relative',
-        zIndex: 999,
-        cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
-        transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
-        transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
-      };
-
-      // trigger transition
-      this.style.close = setStyle(this.el, this.style.open, true);
-    }
-  }, {
-    key: 'zoomOut',
-    value: function zoomOut() {
-      // force layout update
-      this.el.offsetWidth;
-
-      setStyle(this.el, { transform: 'none' });
-    }
-  }, {
-    key: 'grab',
-    value: function grab(x, y, scaleExtra) {
-      var windowCenter = getWindowCenter();
-      var dx = windowCenter.x - x,
-          dy = windowCenter.y - y;
-
-
-      setStyle(this.el, {
-        cursor: cursor.move,
-        transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
-      });
-    }
-  }, {
-    key: 'move',
-    value: function move(x, y, scaleExtra) {
-      var windowCenter = getWindowCenter();
-      var dx = windowCenter.x - x,
-          dy = windowCenter.y - y;
-
-
-      setStyle(this.el, {
-        transition: transformCssProp,
-        transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
-      });
-    }
-  }, {
-    key: 'restoreCloseStyle',
-    value: function restoreCloseStyle() {
-      setStyle(this.el, this.style.close);
-    }
-  }, {
-    key: 'restoreOpenStyle',
-    value: function restoreOpenStyle() {
-      setStyle(this.el, this.style.open);
-    }
-  }, {
-    key: 'upgradeSource',
-    value: function upgradeSource(srcOriginal) {
-      var _this = this;
-
-      if (!srcOriginal) return;
-
-      var parentNode = this.el.parentNode;
-      var temp = this.el.cloneNode(false);
-
-      // force compute the hi-res image in DOM to prevent
-      // image flickering while updating src
-      temp.setAttribute('src', srcOriginal);
-      temp.style.position = 'fixed';
-      temp.style.visibility = 'hidden';
-      parentNode.appendChild(temp);
-
-      setTimeout(function () {
-        _this.el.setAttribute('src', srcOriginal);
-        parentNode.removeChild(temp);
-      }, 10);
-    }
-  }, {
-    key: 'downgradeSource',
-    value: function downgradeSource() {
-      this.el.setAttribute('src', this.srcThumbnail);
-    }
-  }]);
-  return Target;
-}();
-
-function calculateTranslate(rect) {
-  var windowCenter = getWindowCenter();
-  var targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
-  };
-
-  // The vector to translate image to the window center
-  return {
-    x: windowCenter.x - targetCenter.x,
-    y: windowCenter.y - targetCenter.y
-  };
-}
-
-function calculateScale(rect, scaleBase, customSize) {
-  if (customSize) {
-    return {
-      x: customSize.width / rect.width,
-      y: customSize.height / rect.height
-    };
-  } else {
-    var targetHalfWidth = half(rect.width);
-    var targetHalfHeight = half(rect.height);
-    var windowCenter = getWindowCenter();
-
-    // The distance between target edge and window edge
-    var targetEdgeToWindowEdge = {
-      x: windowCenter.x - targetHalfWidth,
-      y: windowCenter.y - targetHalfHeight
-    };
-
-    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
-    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
-
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-    return {
-      x: scale,
-      y: scale
-    };
-  }
-}
-
-var Overlay = function () {
-  function Overlay(el, instance) {
-    classCallCheck(this, Overlay);
-
-    this.el = el;
-    this.instance = instance;
-    this.parent = document.body;
-  }
-
-  createClass(Overlay, [{
-    key: 'init',
-    value: function init(options) {
-      var _this = this;
-
-      setStyle(this.el, {
-        zIndex: 998,
-        backgroundColor: options.bgColor,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        opacity: 0,
-        transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-      });
-
-      this.el.addEventListener('click', function () {
-        return _this.instance.close();
-      });
-    }
-  }, {
-    key: 'updateStyle',
-    value: function updateStyle(options) {
-      setStyle(this.el, {
-        backgroundColor: options.bgColor,
-        transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-      });
-    }
-  }, {
-    key: 'insert',
-    value: function insert() {
-      this.parent.appendChild(this.el);
-    }
-  }, {
-    key: 'remove',
-    value: function remove() {
-      this.parent.removeChild(this.el);
-    }
-  }, {
-    key: 'show',
-    value: function show() {
-      var _this2 = this;
-
-      setTimeout(function () {
-        return _this2.el.style.opacity = _this2.instance.options.bgOpacity;
-      }, 30);
-    }
-  }, {
-    key: 'hide',
-    value: function hide() {
-      this.el.style.opacity = 0;
-    }
-  }]);
-  return Overlay;
-}();
 
 var PRESS_DELAY = 200;
 var MULTITOUCH_SCALE_FACTOR = 2;
@@ -723,191 +681,236 @@ function processTouches(touches, currScaleExtra, cb) {
   cb(xs / total, ys / total, scaleExtra);
 }
 
-/**
- * A list of options.
- *
- * @type {Object}
- * @example
- * // Default options
- * var options = {
- *   defaultZoomable: 'img[data-action="zoom"]',
- *   enableGrab: true,
- *   preloadImage: true,
- *   transitionDuration: 0.4,
- *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
- *   bgColor: 'rgb(255, 255, 255)',
- *   bgOpacity: 1,
- *   scaleBase: 1.0,
- *   scaleExtra: 0.5,
- *   scrollThreshold: 40,
- *   customSize: null,
- *   onOpen: null,
- *   onClose: null,
- *   onRelease: null,
- *   onBeforeOpen: null,
- *   onBeforeClose: null,
- *   onBeforeGrab: null,
- *   onBeforeMove: null,
- *   onBeforeRelease: null
- * }
- */
-var OPTIONS = {
-  /**
-   * Zoomable elements by default. It can be a css selector or an element.
-   * @type {string|Element}
-   */
-  defaultZoomable: 'img[data-action="zoom"]',
+var Overlay = function () {
+  function Overlay(el, instance) {
+    classCallCheck(this, Overlay);
 
-  /**
-   * To be able to grab and drag the image for extra zoom-in.
-   * @type {boolean}
-   */
-  enableGrab: true,
-
-  /**
-   * Preload images with attribute "data-original".
-   * @type {boolean}
-   */
-  preloadImage: true,
-
-  /**
-   * Transition duration in seconds.
-   * @type {number}
-   */
-  transitionDuration: 0.4,
-
-  /**
-   * Transition timing function.
-   * @type {string}
-   */
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
-
-  /**
-   * Overlay background color.
-   * @type {string}
-   */
-  bgColor: 'rgb(255, 255, 255)',
-
-  /**
-   * Overlay background opacity.
-   * @type {number}
-   */
-  bgOpacity: 1,
-
-  /**
-   * The base scale factor for zooming. By default scale to fit the window.
-   * @type {number}
-   */
-  scaleBase: 1.0,
-
-  /**
-   * The extra scale factor when grabbing the image.
-   * @type {number}
-   */
-  scaleExtra: 0.5,
-
-  /**
-   * How much scrolling it takes before closing out.
-   * @type {number}
-   */
-  scrollThreshold: 40,
-
-  /**
-   * Scale (zoom in) to given width and height. Ignore scaleBase if set.
-   * @type {Object}
-   * @example
-   * customSize: { width: 800, height: 400 }
-   */
-  customSize: null,
-
-  /**
-   * A callback function that will be called when a target is opened and
-   * transition has ended. It will get the target element as the argument.
-   * @type {Function}
-   */
-  onOpen: null,
-
-  /**
-   * Same as above, except fired when closed.
-   * @type {Function}
-   */
-  onClose: null,
-
-  /**
-   * Same as above, except fired when released.
-   * @type {Function}
-   */
-  onRelease: null,
-
-  /**
-   * A callback function that will be called before open.
-   * @type {Function}
-   */
-  onBeforeOpen: null,
-
-  /**
-   * A callback function that will be called before close.
-   * @type {Function}
-   */
-  onBeforeClose: null,
-
-  /**
-   * A callback function that will be called before grab.
-   * @type {Function}
-   */
-  onBeforeGrab: null,
-
-  /**
-   * A callback function that will be called before move.
-   * @type {Function}
-   */
-  onBeforeMove: null,
-
-  /**
-   * A callback function that will be called before release.
-   * @type {Function}
-   */
-  onBeforeRelease: null
-};
-
-function isValidImage(filename) {
-  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
-  );
-}
-
-function isNotImage() {
-  return checkTag('IMG') === false;
-}
-
-function isImageLink(el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'));
-}
-
-function loadImage(src, cb) {
-  if (!src) return;
-
-  var img = new Image();
-  img.onload = function () {
-    if (cb) cb(img);
-  };
-  img.src = src;
-}
-
-function checkOriginalImage(el, cb) {
-  var srcOriginal = null;
-
-  if (el.hasAttribute('data-original')) {
-    srcOriginal = el.getAttribute('data-original');
-  } else if (isImageLink(el.parentNode)) {
-    srcOriginal = el.parentNode.getAttribute('href');
+    this.el = el;
+    this.instance = instance;
+    this.parent = document.body;
   }
 
-  cb(srcOriginal);
+  createClass(Overlay, [{
+    key: 'init',
+    value: function init(options) {
+      var _this = this;
+
+      setStyle(this.el, {
+        zIndex: 998,
+        backgroundColor: options.bgColor,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0,
+        transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+      });
+
+      this.el.addEventListener('click', function () {
+        return _this.instance.close();
+      });
+    }
+  }, {
+    key: 'updateStyle',
+    value: function updateStyle(options) {
+      setStyle(this.el, {
+        backgroundColor: options.bgColor,
+        transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
+      });
+    }
+  }, {
+    key: 'insert',
+    value: function insert() {
+      this.parent.appendChild(this.el);
+    }
+  }, {
+    key: 'remove',
+    value: function remove() {
+      this.parent.removeChild(this.el);
+    }
+  }, {
+    key: 'show',
+    value: function show() {
+      var _this2 = this;
+
+      setTimeout(function () {
+        return _this2.el.style.opacity = _this2.instance.options.bgOpacity;
+      }, 30);
+    }
+  }, {
+    key: 'hide',
+    value: function hide() {
+      this.el.style.opacity = 0;
+    }
+  }]);
+  return Overlay;
+}();
+
+var Target = function () {
+  function Target(el, instance) {
+    classCallCheck(this, Target);
+
+    this.el = el;
+    this.instance = instance;
+    this.translate = null;
+    this.scale = null;
+    this.srcThumbnail = this.el.getAttribute('src');
+    this.style = {
+      open: null,
+      close: null
+    };
+  }
+
+  createClass(Target, [{
+    key: 'zoomIn',
+    value: function zoomIn() {
+      var options = this.instance.options;
+      var rect = this.el.getBoundingClientRect();
+
+      // Remove overflow:hidden from target's parent nodes if any. It prevents
+      // parent nodes from hiding the target after zooming in
+      overflowHiddenParents.disable(this.el);
+
+      this.translate = calculateTranslate(rect);
+      this.scale = calculateScale(rect, options.scaleBase, options.customSize);
+
+      // force layout update
+      this.el.offsetWidth;
+
+      this.style.open = {
+        position: 'relative',
+        zIndex: 999,
+        cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
+        transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
+        transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
+      };
+
+      // trigger transition
+      this.style.close = setStyle(this.el, this.style.open, true);
+    }
+  }, {
+    key: 'zoomOut',
+    value: function zoomOut() {
+      // Restore overflow:hidden to target's parent nodes if any
+      overflowHiddenParents.enable(this.el);
+
+      // force layout update
+      this.el.offsetWidth;
+
+      setStyle(this.el, { transform: 'none' });
+    }
+  }, {
+    key: 'grab',
+    value: function grab(x, y, scaleExtra) {
+      var windowCenter = getWindowCenter();
+      var dx = windowCenter.x - x,
+          dy = windowCenter.y - y;
+
+
+      setStyle(this.el, {
+        cursor: cursor.move,
+        transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+      });
+    }
+  }, {
+    key: 'move',
+    value: function move(x, y, scaleExtra) {
+      var windowCenter = getWindowCenter();
+      var dx = windowCenter.x - x,
+          dy = windowCenter.y - y;
+
+
+      setStyle(this.el, {
+        transition: transformCssProp,
+        transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+      });
+    }
+  }, {
+    key: 'restoreCloseStyle',
+    value: function restoreCloseStyle() {
+      setStyle(this.el, this.style.close);
+    }
+  }, {
+    key: 'restoreOpenStyle',
+    value: function restoreOpenStyle() {
+      setStyle(this.el, this.style.open);
+    }
+  }, {
+    key: 'upgradeSource',
+    value: function upgradeSource(srcOriginal) {
+      var _this = this;
+
+      if (!srcOriginal) return;
+
+      var parentNode = this.el.parentNode;
+      var temp = this.el.cloneNode(false);
+
+      // force compute the hi-res image in DOM to prevent
+      // image flickering while updating src
+      temp.setAttribute('src', srcOriginal);
+      temp.style.position = 'fixed';
+      temp.style.visibility = 'hidden';
+      parentNode.appendChild(temp);
+
+      setTimeout(function () {
+        _this.el.setAttribute('src', srcOriginal);
+        parentNode.removeChild(temp);
+      }, 10);
+    }
+  }, {
+    key: 'downgradeSource',
+    value: function downgradeSource() {
+      this.el.setAttribute('src', this.srcThumbnail);
+    }
+  }]);
+  return Target;
+}();
+
+function calculateTranslate(rect) {
+  var windowCenter = getWindowCenter();
+  var targetCenter = {
+    x: rect.left + half(rect.width),
+    y: rect.top + half(rect.height)
+  };
+
+  // The vector to translate image to the window center
+  return {
+    x: windowCenter.x - targetCenter.x,
+    y: windowCenter.y - targetCenter.y
+  };
 }
 
-/**
- * Zooming instance.
- */
+function calculateScale(rect, scaleBase, customSize) {
+  if (customSize) {
+    return {
+      x: customSize.width / rect.width,
+      y: customSize.height / rect.height
+    };
+  } else {
+    var targetHalfWidth = half(rect.width);
+    var targetHalfHeight = half(rect.height);
+    var windowCenter = getWindowCenter();
+
+    // The distance between target edge and window edge
+    var targetEdgeToWindowEdge = {
+      x: windowCenter.x - targetHalfWidth,
+      y: windowCenter.y - targetHalfHeight
+    };
+
+    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
+
+    // The additional scale is based on the smaller value of
+    // scaling horizontally and scaling vertically
+    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+    return {
+      x: scale,
+      y: scale
+    };
+  }
+}
 
 var Zooming$1 = function () {
 
@@ -981,10 +984,7 @@ var Zooming$1 = function () {
     value: function config(options) {
       if (!options) return this.options;
 
-      for (var key in options) {
-        this.options[key] = options[key];
-      }
-
+      _extends(this.options, options);
       this.overlay.updateStyle(this.options);
 
       return this;
@@ -1024,7 +1024,6 @@ var Zooming$1 = function () {
       this.shown = true;
       this.lock = true;
 
-      overflowHiddenParents.disable(target);
       this.target.zoomIn();
       this.overlay.insert();
       this.overlay.show();
@@ -1098,7 +1097,6 @@ var Zooming$1 = function () {
           toggleGrabListeners(document, _this2.eventHandler, false);
         }
 
-        overflowHiddenParents.enable(target);
         _this2.target.restoreCloseStyle();
         _this2.overlay.remove();
 

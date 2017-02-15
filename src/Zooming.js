@@ -1,11 +1,13 @@
-import Target from './Target'
-import Overlay from './Overlay'
-import EventHandler from './EventHandler'
-import OPTIONS from './_options'
-import { isString } from './util/_dom'
-import { transEndEvent } from './util/_trans'
 import { isNotImage, loadImage, checkOriginalImage } from './util/_image'
-import { cursor, toggleGrabListeners, overflowHiddenParents } from './util/_helpers'
+import { cursor, toggleGrabListeners } from './util/_helpers'
+import { transEndEvent } from './util/_trans'
+import { isString } from './util/_dom'
+
+import EventHandler from './EventHandler'
+import Overlay from './Overlay'
+import Target from './Target'
+
+import DEFAULT_OPTIONS from './_options'
 
 /**
  * Zooming instance.
@@ -24,7 +26,7 @@ export default class Zooming {
     this.body = document.body
 
     // init
-    this.options = Object.assign({}, OPTIONS)
+    this.options = Object.assign({}, DEFAULT_OPTIONS)
     this.config(options)
     this.overlay.init(this.options)
 
@@ -72,10 +74,7 @@ export default class Zooming {
   config (options) {
     if (!options) return this.options
 
-    for (let key in options) {
-      this.options[key] = options[key]
-    }
-
+    Object.assign(this.options, options)
     this.overlay.updateStyle(this.options)
 
     return this
@@ -110,7 +109,6 @@ export default class Zooming {
     this.shown = true
     this.lock = true
 
-    overflowHiddenParents.disable(target)
     this.target.zoomIn()
     this.overlay.insert()
     this.overlay.show()
@@ -175,7 +173,6 @@ export default class Zooming {
         toggleGrabListeners(document, this.eventHandler, false)
       }
 
-      overflowHiddenParents.enable(target)
       this.target.restoreCloseStyle()
       this.overlay.remove()
 

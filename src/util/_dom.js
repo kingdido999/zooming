@@ -6,7 +6,6 @@ export const webkitPrefix = 'WebkitAppearance' in docElm.style
   ? '-webkit-'
   : ''
 
-
 export function checkType (typeName) {
   return function (el) {
     return typeof el === typeName
