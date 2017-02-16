@@ -308,17 +308,8 @@ function getParents(el, match) {
   return parents;
 }
 
-function isValidImage(filename) {
-  return (/\.(gif|jpg|jpeg|png)$/i.test(filename)
-  );
-}
-
 function isNotImage() {
   return checkTag('IMG') === false;
-}
-
-function isImageLink(el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'));
 }
 
 function loadImage(src, cb) {
@@ -328,6 +319,7 @@ function loadImage(src, cb) {
   img.onload = function () {
     if (cb) cb(img);
   };
+
   img.src = src;
 }
 
@@ -336,7 +328,7 @@ function checkOriginalImage(el, cb) {
 
   if (el.hasAttribute('data-original')) {
     srcOriginal = el.getAttribute('data-original');
-  } else if (isImageLink(el.parentNode)) {
+  } else if (isLink(el.parentNode)) {
     srcOriginal = el.parentNode.getAttribute('href');
   }
 
@@ -860,7 +852,9 @@ var Target = function () {
     }
   }, {
     key: 'downgradeSource',
-    value: function downgradeSource() {
+    value: function downgradeSource(srcOriginal) {
+      if (!srcOriginal) return;
+
       this.el.setAttribute('src', this.srcThumbnail);
     }
   }]);
@@ -911,6 +905,10 @@ function calculateScale(rect, scaleBase, customSize) {
     };
   }
 }
+
+/**
+ * Zooming instance.
+ */
 
 var Zooming$1 = function () {
 
@@ -1090,7 +1088,7 @@ var Zooming$1 = function () {
         _this2.lock = false;
 
         checkOriginalImage(target, function (srcOriginal) {
-          if (srcOriginal) _this2.target.downgradeSource();
+          return _this2.target.downgradeSource(srcOriginal);
         });
 
         if (_this2.options.enableGrab) {

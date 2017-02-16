@@ -1,15 +1,7 @@
 import { checkTag, isLink } from './_dom'
 
-export function isValidImage (filename) {
-  return (/\.(gif|jpg|jpeg|png)$/i).test(filename)
-}
-
 export function isNotImage () {
   return checkTag('IMG') === false
-}
-
-export function isImageLink (el) {
-  return isLink(el) && isValidImage(el.getAttribute('href'))
 }
 
 export function loadImage (src, cb) {
@@ -19,6 +11,7 @@ export function loadImage (src, cb) {
   img.onload = function () {
     if (cb) cb(img)
   }
+  
   img.src = src
 }
 
@@ -27,7 +20,7 @@ export function checkOriginalImage (el, cb) {
 
   if (el.hasAttribute('data-original')) {
     srcOriginal = el.getAttribute('data-original')
-  } else if (isImageLink(el.parentNode)) {
+  } else if (isLink(el.parentNode)) {
     srcOriginal = el.parentNode.getAttribute('href')
   }
 

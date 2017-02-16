@@ -165,9 +165,7 @@ export default class Zooming {
       this.shown = false
       this.lock = false
 
-      checkOriginalImage(target, srcOriginal => {
-        if (srcOriginal) this.target.downgradeSource()
-      })
+      checkOriginalImage(target, srcOriginal => this.target.downgradeSource(srcOriginal))
 
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, false)

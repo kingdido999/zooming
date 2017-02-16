@@ -50,7 +50,7 @@ export default class Target {
   zoomOut () {
     // Restore overflow:hidden to target's parent nodes if any
     overflowHiddenParents.enable(this.el)
-    
+
     // force layout update
     this.el.offsetWidth
 
@@ -108,7 +108,9 @@ export default class Target {
     }, 10)
   }
 
-  downgradeSource () {
+  downgradeSource (srcOriginal) {
+    if (!srcOriginal) return
+    
     this.el.setAttribute('src', this.srcThumbnail)
   }
 }
