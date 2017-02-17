@@ -1,5 +1,7 @@
-var customZooming = new Zooming()
-customZooming.listen('#img-custom')
+var customZooming = new Zooming({
+  defaultZoomable: '#img-custom'
+})
+
 var config = customZooming.config(),
     TRANSITION_DURATION_DEFAULT = config.transitionDuration,
     TRANSITION_DURATION_SLOW    = 1.0,

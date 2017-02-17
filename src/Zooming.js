@@ -25,17 +25,18 @@ export default class Zooming {
     this.eventHandler = new EventHandler(this)
     this.body = document.body
 
-    // init
-    this.options = Object.assign({}, DEFAULT_OPTIONS)
-    this.config(options)
-    this.overlay.init(this.options)
-
     // state
     this.shown = false       // target is open
     this.lock  = false       // target is in transform
     this.released = true     // mouse/finger is not pressing down
     this.lastScrollPosition = null
     this.pressTimer = null
+
+    // init
+    this.options = Object.assign({}, DEFAULT_OPTIONS)
+    this.config(options)
+    this.listen(this.options.defaultZoomable)
+    this.overlay.init(this.options)
   }
 
   /**
