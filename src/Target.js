@@ -40,7 +40,9 @@ export default class Target {
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
       transform: `translate(${this.translate.x}px, ${this.translate.y}px)
-        scale(${this.scale.x},${this.scale.y})`
+        scale(${this.scale.x},${this.scale.y})`,
+      width: `${rect.width}px`,
+      height: `${rect.height}px`
     }
 
     // trigger transition
@@ -105,12 +107,12 @@ export default class Target {
     setTimeout(() => {
       this.el.setAttribute('src', srcOriginal)
       parentNode.removeChild(temp)
-    }, 10)
+    }, 100)
   }
 
   downgradeSource (srcOriginal) {
     if (!srcOriginal) return
-    
+
     this.el.setAttribute('src', this.srcThumbnail)
   }
 }

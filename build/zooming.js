@@ -628,7 +628,9 @@ var Target = function () {
         zIndex: 999,
         cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
         transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
-        transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')'
+        transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
+        width: rect.width + 'px',
+        height: rect.height + 'px'
       };
 
       // trigger transition
@@ -701,7 +703,7 @@ var Target = function () {
       setTimeout(function () {
         _this.el.setAttribute('src', srcOriginal);
         parentNode.removeChild(temp);
-      }, 10);
+      }, 100);
     }
   }, {
     key: 'downgradeSource',
@@ -905,10 +907,6 @@ var OPTIONS = {
    */
   onBeforeRelease: null
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
 

@@ -21,10 +21,6 @@ footer {
   margin: 2em 0;
 }
 
-img {
-  max-width: 100%;
-}
-
 @media (min-width: 550px) {
   .header {
     margin-top: 10rem;
