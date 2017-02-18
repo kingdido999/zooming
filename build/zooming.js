@@ -256,9 +256,9 @@ var cursor = {
 
 function toggleListener(el, type, handler, add) {
   if (add) {
-    el.addEventListener(type, handler[type]);
+    el.addEventListener(type, handler[type], { passive: false });
   } else {
-    el.removeEventListener(type, handler[type]);
+    el.removeEventListener(type, handler[type], { passive: false });
   }
 }
 
@@ -961,7 +961,7 @@ var Zooming$1 = function () {
       if (isNotImage(el)) return;
 
       el.style.cursor = cursor.zoomIn;
-      el.addEventListener('click', this.eventHandler.click);
+      el.addEventListener('click', this.eventHandler.click, { passive: false });
 
       if (this.options.preloadImage) {
         checkOriginalImage(el, loadImage);

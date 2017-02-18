@@ -58,7 +58,7 @@ export default class Zooming {
     if (isNotImage(el)) return
 
     el.style.cursor = cursor.zoomIn
-    el.addEventListener('click', this.eventHandler.click)
+    el.addEventListener('click', this.eventHandler.click, { passive: false })
 
     if (this.options.preloadImage) {
       checkOriginalImage(el, loadImage)

@@ -12,9 +12,9 @@ export const cursor = {
 
 export function toggleListener (el, type, handler, add) {
   if (add) {
-    el.addEventListener(type, handler[type])
+    el.addEventListener(type, handler[type], { passive: false })
   } else {
-    el.removeEventListener(type, handler[type])
+    el.removeEventListener(type, handler[type], { passive: false })
   }
 }
 
