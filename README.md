@@ -84,7 +84,7 @@ zooming.config({
 zooming.listen('.img-zoomable')
 
 // by an Element
-var img = document.getElementByID('img-zoomable')
+var img = document.getElementById('img-zoomable')
 zooming.listen(img)
 ```
 
