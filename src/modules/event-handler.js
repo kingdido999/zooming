@@ -1,5 +1,5 @@
-import { docElm, body } from './util/_dom'
-import { bindAll } from './util/_helpers'
+import { docElm, body } from '../utils/dom'
+import { bindAll } from '../utils/helpers'
 
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2

@@ -1,13 +1,13 @@
-import { isNotImage, loadImage, checkOriginalImage } from './util/_image'
-import { cursor, toggleGrabListeners } from './util/_helpers'
-import { transEndEvent } from './util/_trans'
-import { isString } from './util/_dom'
+import { isNotImage, loadImage, checkOriginalImage } from '../utils/image'
+import { cursor, toggleGrabListeners } from '../utils/helpers'
+import { transEndEvent } from '../utils/trans'
+import { isString } from '../utils/dom'
 
-import EventHandler from './EventHandler'
-import Overlay from './Overlay'
-import Target from './Target'
+import EventHandler from './event-handler'
+import Overlay from './overlay'
+import Target from './target'
 
-import DEFAULT_OPTIONS from './_options'
+import DEFAULT_OPTIONS from '../options'
 
 /**
  * Zooming instance.

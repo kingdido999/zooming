@@ -908,6 +908,10 @@ var OPTIONS = {
   onBeforeRelease: null
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
 
   /**

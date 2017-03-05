@@ -1,6 +1,6 @@
-import { cursor, setStyle, getWindowCenter, overflowHiddenParents } from './util/_helpers'
-import { transformCssProp } from './util/_trans'
-import { half } from './util/_math'
+import { cursor, setStyle, getWindowCenter, overflowHiddenParents } from '../utils/helpers'
+import { transformCssProp } from '../utils/trans'
+import { half } from '../utils/math'
 
 export default class Target {
 

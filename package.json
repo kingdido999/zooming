@@ -17,7 +17,7 @@
   "scripts": {
     "test": "node scripts/test.js",
     "watch": "node scripts/build.js",
-    "docs": "documentation build src/main.js -f html -o docs"
+    "docs": "node_modules/documentation/bin/documentation.js build src/index.js -f html -o docs"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
   "license": "MIT",
@@ -27,8 +27,9 @@
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
     "babel-plugin-transform-object-assign": "^6.22.0",
-    "babel-preset-es2015-rollup": "^1.2.0",
+    "babel-preset-es2015-rollup": "^3.0.0",
     "chai": "^3.5.0",
+    "documentation": "^4.0.0-beta.18",
     "mocha": "^3.2.0",
     "open": "^0.0.5",
     "rollup": "^0.36.4",

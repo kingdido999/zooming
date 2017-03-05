@@ -28,7 +28,7 @@ const defaultPlugins = [
 
 const config = (dest, plugins) => {
   return {
-    entry: 'src/main.js',
+    entry: 'src/index.js',
     dest: dest,
     format: 'umd',
     moduleName: 'Zooming',

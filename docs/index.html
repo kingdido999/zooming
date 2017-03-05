@@ -50,6 +50,12 @@
                       </a></li>
                       
                       <li><a
+                        href='#Zooming#config'
+                        class='regular pre-open'>
+                        #config
+                      </a></li>
+                      
+                      <li><a
                         href='#Zooming#open'
                         class='regular pre-open'>
                         #open
@@ -77,12 +83,6 @@
                         href='#Zooming#release'
                         class='regular pre-open'>
                         #release
-                      </a></li>
-                      
-                      <li><a
-                        href='#Zooming#config'
-                        class='regular pre-open'>
-                        #config
                       </a></li>
                       
                     </ul>
@@ -404,6 +404,73 @@
       </div>
     </div>
   
+    <div class='border-bottom' id='Zooming#config'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>config(options)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Update options.</p>
+
+
+  <div class='pre p1 fill-light mt0'>config(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): this</div>
+  
+  
+
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>options</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
+	    An Object that contains this.options.
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>this</code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
     <div class='border-bottom' id='Zooming#open'>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
@@ -568,7 +635,7 @@ the target element as the argument.
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=  onEnd = () => {, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=}/*** Move t, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -602,7 +669,7 @@ the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=  onEnd = () => {)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=}/*** Move t)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -665,7 +732,7 @@ will get the target element as the argument.
   <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= body.style.cursor = cur, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= get.addEventListener(tr, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -699,7 +766,7 @@ will get the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= body.style.cursor = cur)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= get.addEventListener(tr)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -783,73 +850,6 @@ get the target element as the argument.
 	    A callback function that
 will be called when a target is released and transition has ended. It
 will get the target element as the argument.
-
-          </div>
-          
-        </div>
-      
-    </div>
-  
-
-  
-
-  
-    
-      <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code>this</code>:
-        
-
-      
-    
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-</section>
-
-      </div>
-    </div>
-  
-    <div class='border-bottom' id='Zooming#config'>
-      <div class="clearfix small pointer toggle-sibling">
-        <div class="py1 contain">
-            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>config(options)</span>
-        </div>
-      </div>
-      <div class="clearfix display-none toggle-target">
-        <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-
-  <p>Update options.</p>
-
-
-  <div class='pre p1 fill-light mt0'>config(options: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>): this</div>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-    <div class='py1 quiet mt1 prose-big'>Parameters</div>
-    <div class='prose'>
-      
-        <div class='space-bottom0'>
-          <div>
-            <span class='code bold'>options</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</code>
-	    An Object that contains this.options.
 
           </div>
           

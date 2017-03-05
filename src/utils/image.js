@@ -1,4 +1,4 @@
-import { checkTag, isLink } from './_dom'
+import { checkTag, isLink } from './dom'
 
 export function isNotImage () {
   return checkTag('IMG') === false
@@ -11,7 +11,7 @@ export function loadImage (src, cb) {
   img.onload = function () {
     if (cb) cb(img)
   }
-  
+
   img.src = src
 }
 

@@ -1,4 +1,4 @@
-import { setStyle } from './util/_helpers'
+import { setStyle } from '../utils/helpers'
 
 export default class Overlay {
 
