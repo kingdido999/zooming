@@ -44,7 +44,7 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 
 ## Example
 
-The source code of [demo](http://desmonding.me/zooming/) page is a  simple demonstration on how to integrate Zooming and personalize it on your web page. You can take a look at `index.html` and `demo/js/custom.js`.
+The source code of [demo](http://desmonding.me/zooming/) page is a  simple demonstration on how to integrate Zooming and personalize it on your web page. Take a look at [index.html](https://github.com/kingdido999/zooming/blob/master/index.html) and [demo/js/custom.js](https://github.com/kingdido999/zooming/blob/master/demo/js/custom.js).
 
 ## Advanced
 
