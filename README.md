@@ -32,7 +32,7 @@ To integrate with your web app:
 // via Browserify
 var Zooming = require('zooming')
 
-// via ES6 syntax
+// via import statement
 import Zooming from 'zooming'
 ```
 
@@ -41,6 +41,10 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 ```html
 <img src="img/journey.jpg" data-action="zoom" />
 ```
+
+## Example
+
+The source code of [demo](http://desmonding.me/zooming/) page is a  simple demonstration on how to integrate Zooming and personalize it on your web page. You can take a look at `index.html` and `demo/js/custom.js`.
 
 ## Advanced
 
@@ -67,12 +71,16 @@ Notice that if both are provided, it takes the `data-original` value as hi-res i
 You can create multiple Zooming instances, each with its own configuration:
 
 ```js
-var zooming = new Zooming({
-  // optional configuration here
+const zoomingLight = new Zooming({
+  bgColor: '#fff'
 })
 
-// or just change the options later
-zooming.config({
+const zoomingDark = new Zooming({
+  bgColor: '#000'
+})
+
+// you can change options later
+zoomingLight.config({
   // ...
 })
 ```
@@ -88,7 +96,7 @@ var img = document.getElementById('img-zoomable')
 zooming.listen(img)
 ```
 
-For all supported APIs and options, see [Documentation](http://desmonding.me/zooming/docs/index.html).
+**For all supported APIs and options, see [Documentation](http://desmonding.me/zooming/docs/index.html).**
 
 ## Development
 

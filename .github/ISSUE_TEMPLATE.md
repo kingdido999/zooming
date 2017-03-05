@@ -1,4 +1,4 @@
-*For feature request or questions, ignore everything below. Remove this line also.*
+*For feature request or questions (please make sure to read through [Documentation](http://desmonding.me/zooming/docs/index.html)), ignore everything below. Remove this line also.*
 
 I see an issue in [demo](http://desmonding.me/zooming/) page:
 
@@ -7,4 +7,4 @@ I see an issue in [demo](http://desmonding.me/zooming/) page:
 
 Steps to reproduce:
 
-1. 
+1.
