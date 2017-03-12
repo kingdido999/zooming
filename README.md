@@ -64,7 +64,7 @@ Option 2: Provide an original image link that wraps around the image:
 
 Notice that if both are provided, it takes the `data-original` value as hi-res image source.
 
-To preload hi-res images, set `preloadImage` option to `true`.
+To preload hi-res images, set `preloadImage` option to `true`. Keep in mind enabling this option might cause performance issue on a page with lots of images or huge image file size.
 
 #### Define zoomable image(s) programmatically
 
