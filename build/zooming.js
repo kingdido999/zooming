@@ -770,7 +770,7 @@ function calculateScale(rect, scaleBase, customSize) {
  * var options = {
  *   defaultZoomable: 'img[data-action="zoom"]',
  *   enableGrab: true,
- *   preloadImage: true,
+ *   preloadImage: false,
  *   transitionDuration: 0.4,
  *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
  *   bgColor: 'rgb(255, 255, 255)',
@@ -806,7 +806,7 @@ var OPTIONS = {
    * Preload images with attribute "data-original".
    * @type {boolean}
    */
-  preloadImage: true,
+  preloadImage: false,
 
   /**
    * Transition duration in seconds.
