@@ -15,6 +15,7 @@
  *   scaleBase: 1.0,
  *   scaleExtra: 0.5,
  *   scrollThreshold: 40,
+ *   zIndex: 998,
  *   customSize: null,
  *   onOpen: null,
  *   onClose: null,
