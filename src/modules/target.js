@@ -32,7 +32,7 @@ export default class Target {
 
     this.style.open = {
       position: 'relative',
-      zIndex: 999,
+      zIndex: options.zIndex + 1,
       cursor: options.enableGrab
         ? cursor.grab
         : cursor.zoomOut,
