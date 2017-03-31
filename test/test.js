@@ -26,6 +26,7 @@ describe('API', function() {
       scaleBase: 0.8,
       scaleExtra: 0.3,
       scrollThreshold: 50,
+      zIndex: 998,
       customSize: { width: 800, height: 400 },
       onOpen: function() { return 'onOpen' },
       onClose: function() { return 'onClose' },

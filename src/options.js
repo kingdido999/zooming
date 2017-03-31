@@ -88,6 +88,12 @@ const OPTIONS = {
   scrollThreshold: 40,
 
   /**
+   * The z-index that the overlay will be added with.
+   * @type {number}
+   */
+  zIndex: 998,
+
+  /**
    * Scale (zoom in) to given width and height. Ignore scaleBase if set.
    * @type {Object}
    * @example

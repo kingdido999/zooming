@@ -541,7 +541,7 @@ var Overlay = function () {
       var _this = this;
 
       setStyle(this.el, {
-        zIndex: 998,
+        zIndex: options.zIndex,
         backgroundColor: options.bgColor,
         position: 'fixed',
         top: 0,
@@ -560,6 +560,7 @@ var Overlay = function () {
     key: 'updateStyle',
     value: function updateStyle(options) {
       setStyle(this.el, {
+        zIndex: options.zIndex,
         backgroundColor: options.bgColor,
         transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
       });
@@ -625,7 +626,7 @@ var Target = function () {
 
       this.style.open = {
         position: 'relative',
-        zIndex: 999,
+        zIndex: options.zIndex + 1,
         cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
         transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
         transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
@@ -849,6 +850,12 @@ var OPTIONS = {
    * @type {number}
    */
   scrollThreshold: 40,
+
+  /**
+   * The z-index that the overlay will be added with.
+   * @type {number}
+   */
+  zIndex: 998,
 
   /**
    * Scale (zoom in) to given width and height. Ignore scaleBase if set.

@@ -10,7 +10,7 @@ export default class Overlay {
 
   init (options) {
     setStyle(this.el, {
-      zIndex: 998,
+      zIndex: options.zIndex,
       backgroundColor: options.bgColor,
       position: 'fixed',
       top: 0,
@@ -28,6 +28,7 @@ export default class Overlay {
 
   updateStyle (options) {
     setStyle(this.el, {
+      zIndex: options.zIndex,
       backgroundColor: options.bgColor,
       transition: `opacity
         ${options.transitionDuration}s
