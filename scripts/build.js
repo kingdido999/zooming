@@ -26,6 +26,9 @@ const defaultPlugins = [
   })
 ]
 
+const destDefault = 'build/zooming.js'
+const destMinify = 'build/zooming.min.js'
+
 const config = (dest, plugins) => {
   return {
     entry: 'src/index.js',
@@ -46,16 +49,15 @@ const config = (dest, plugins) => {
 const stderr = console.error.bind(console) // eslint-disable-line no-console
 let opened = false
 
-const eventHandler = (event) => {
+const eventHandler = (event, filename) => {
   switch (event.code) {
     case 'STARTING':
-      stderr('checking rollup-watch version...')
       break
     case 'BUILD_START':
-      stderr('bundling...')
+      stderr(`bundling ${filename}...`)
       break
     case 'BUILD_END':
-      stderr('bundled in ' + event.duration + 'ms. Watching for changes...')
+      stderr(`${filename} bundled in ${event.duration}ms. Watching for changes...`)
       if (!opened) {
         open(__dirname + '/../index.html')
         opened = true
@@ -70,13 +72,14 @@ const eventHandler = (event) => {
 }
 
 const watcherDefault = watch(rollup, config(
-  'build/zooming.js',
+  destDefault,
   defaultPlugins
 ))
 
-watch(rollup, config(
-  'build/zooming.min.js',
+const watcherUglify = watch(rollup, config(
+  destMinify,
   defaultPlugins.concat([uglify({})])
 ))
 
-watcherDefault.on('event', eventHandler)
+watcherDefault.on('event', (event) => eventHandler(event, destDefault))
+watcherUglify.on('event', (event) => eventHandler(event, destMinify))
