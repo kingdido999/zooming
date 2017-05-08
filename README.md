@@ -42,6 +42,8 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 <img src="img/journey.jpg" data-action="zoom" />
 ```
 
+If you click while holding your meta key (⌘ on mac) or (ctrl on windows), it opens the image in a new tab.
+
 ## Advanced
 
 For all supported APIs and options, see [Documentation](http://desmonding.me/zooming/docs/index.html).
