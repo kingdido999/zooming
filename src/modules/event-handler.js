@@ -1,17 +1,26 @@
 import { docElm, body } from '../utils/dom'
 import { bindAll } from '../utils/helpers'
+import { checkOriginalImage } from '../utils/image'
 
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2
 
 export default class EventHandler {
-
-  constructor (instance) {
+  constructor(instance) {
     bindAll(this, instance)
   }
 
-  click (e) {
+  click(e) {
     e.preventDefault()
+
+    if (isPressingMetaKey(e)) {
+      checkOriginalImage(e.currentTarget, srcOriginal => {
+        const url = srcOriginal ? srcOriginal : e.currentTarget.src
+        window.open(url, '_blank')
+      })
+
+      return
+    }
 
     if (this.shown) {
       if (this.released) this.close()
@@ -21,9 +30,9 @@ export default class EventHandler {
     }
   }
 
-  scroll () {
-    const scrollTop = window.pageYOffset ||
-      (docElm || body.parentNode || body).scrollTop
+  scroll() {
+    const scrollTop =
+      window.pageYOffset || (docElm || body.parentNode || body).scrollTop
 
     if (this.lastScrollPosition === null) {
       this.lastScrollPosition = scrollTop
@@ -37,15 +46,15 @@ export default class EventHandler {
     }
   }
 
-  keydown (e) {
+  keydown(e) {
     if (isEscape(e)) {
       if (this.released) this.close()
       else this.release(() => this.close())
     }
   }
 
-  mousedown (e) {
-    if (isNotLeftButton(e)) return
+  mousedown(e) {
+    if (isNotLeftButton(e) || isPressingMetaKey(e)) return
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
@@ -53,40 +62,38 @@ export default class EventHandler {
     }, PRESS_DELAY)
   }
 
-  mousemove (e) {
+  mousemove(e) {
     if (this.released) return
     this.move(e.clientX, e.clientY)
   }
 
-  mouseup (e) {
-    if (isNotLeftButton(e)) return
+  mouseup(e) {
+    if (isNotLeftButton(e) || isPressingMetaKey(e)) return
     clearTimeout(this.pressTimer)
 
     if (this.released) this.close()
     else this.release()
   }
 
-  touchstart (e) {
+  touchstart(e) {
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
-      processTouches(e.touches, this.options.scaleExtra,
-        (x, y, scaleExtra) => {
-          this.grab(x, y, scaleExtra)
-        })
+      processTouches(e.touches, this.options.scaleExtra, (x, y, scaleExtra) => {
+        this.grab(x, y, scaleExtra)
+      })
     }, PRESS_DELAY)
   }
 
-  touchmove (e) {
+  touchmove(e) {
     if (this.released) return
 
-    processTouches(e.touches, this.options.scaleExtra,
-      (x, y, scaleExtra) => {
-        this.move(x, y, scaleExtra)
-      })
+    processTouches(e.touches, this.options.scaleExtra, (x, y, scaleExtra) => {
+      this.move(x, y, scaleExtra)
+    })
   }
 
-  touchend (e) {
+  touchend(e) {
     if (isTouching(e)) return
     clearTimeout(this.pressTimer)
 
@@ -95,20 +102,24 @@ export default class EventHandler {
   }
 }
 
-function isNotLeftButton (event) {
+function isNotLeftButton(event) {
   return event.button !== 0
 }
 
-function isEscape (event) {
+function isPressingMetaKey(event) {
+  return event.metaKey || event.ctrlKey
+}
+
+function isEscape(event) {
   const code = event.key || event.code
   return code === 'Escape' || event.keyCode === 27
 }
 
-function isTouching (event) {
+function isTouching(event) {
   return event.targetTouches.length > 0
 }
 
-function processTouches (touches, currScaleExtra, cb) {
+function processTouches(touches, currScaleExtra, cb) {
   const total = touches.length
   const firstTouch = touches[0]
   const multitouch = total > 1
@@ -147,9 +158,9 @@ function processTouches (touches, currScaleExtra, cb) {
     const [distX, distY] = [max.x - min.x, max.y - min.y]
 
     if (distX > distY) {
-      scaleExtra = (distX / window.innerWidth) * MULTITOUCH_SCALE_FACTOR
+      scaleExtra = distX / window.innerWidth * MULTITOUCH_SCALE_FACTOR
     } else {
-      scaleExtra = (distY / window.innerHeight) * MULTITOUCH_SCALE_FACTOR
+      scaleExtra = distY / window.innerHeight * MULTITOUCH_SCALE_FACTOR
     }
   }
 

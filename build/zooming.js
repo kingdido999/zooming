@@ -363,6 +363,15 @@ var EventHandler = function () {
     value: function click(e) {
       e.preventDefault();
 
+      if (isPressingMetaKey(e)) {
+        checkOriginalImage(e.currentTarget, function (srcOriginal) {
+          var url = srcOriginal ? srcOriginal : e.currentTarget.src;
+          window.open(url, '_blank');
+        });
+
+        return;
+      }
+
       if (this.shown) {
         if (this.released) this.close();else this.release();
       } else {
@@ -401,7 +410,7 @@ var EventHandler = function () {
     value: function mousedown(e) {
       var _this2 = this;
 
-      if (isNotLeftButton(e)) return;
+      if (isNotLeftButton(e) || isPressingMetaKey(e)) return;
       e.preventDefault();
 
       this.pressTimer = setTimeout(function () {
@@ -417,7 +426,7 @@ var EventHandler = function () {
   }, {
     key: 'mouseup',
     value: function mouseup(e) {
-      if (isNotLeftButton(e)) return;
+      if (isNotLeftButton(e) || isPressingMetaKey(e)) return;
       clearTimeout(this.pressTimer);
 
       if (this.released) this.close();else this.release();
@@ -460,6 +469,10 @@ var EventHandler = function () {
 
 function isNotLeftButton(event) {
   return event.button !== 0;
+}
+
+function isPressingMetaKey(event) {
+  return event.metaKey || event.ctrlKey;
 }
 
 function isEscape(event) {
@@ -915,10 +928,6 @@ var OPTIONS = {
    */
   onBeforeRelease: null
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
 
