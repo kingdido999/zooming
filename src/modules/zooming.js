@@ -1,7 +1,11 @@
-import { isNotImage, loadImage, checkOriginalImage } from '../utils/image'
-import { cursor, toggleGrabListeners } from '../utils/helpers'
-import { transEndEvent } from '../utils/trans'
-import { isString } from '../utils/dom'
+import {
+  cursor,
+  isString,
+  isImage,
+  loadImage,
+  transEndEvent,
+  getOriginalSource
+} from '../utils'
 
 import EventHandler from './event-handler'
 import Overlay from './overlay'
@@ -13,22 +17,20 @@ import DEFAULT_OPTIONS from '../options'
  * Zooming instance.
  */
 export default class Zooming {
-
   /**
    * @param {Object} [options] Update default options if provided.
    */
-  constructor (options) {
-
+  constructor(options) {
     // elements
     this.target = null
-    this.overlay = new Overlay(document.createElement('div'), this)
+    this.overlay = new Overlay(this)
     this.eventHandler = new EventHandler(this)
     this.body = document.body
 
     // state
-    this.shown = false       // target is open
-    this.lock  = false       // target is in transform
-    this.released = true     // mouse/finger is not pressing down
+    this.shown = false // target is open
+    this.lock = false // target is in transform
+    this.released = true // mouse/finger is not pressing down
     this.lastScrollPosition = null
     this.pressTimer = null
 
@@ -44,7 +46,7 @@ export default class Zooming {
    * @param  {string|Element} el A css selector or an Element.
    * @return {this}
    */
-  listen (el) {
+  listen(el) {
     if (isString(el)) {
       let els = document.querySelectorAll(el), i = els.length
 
@@ -55,13 +57,13 @@ export default class Zooming {
       return this
     }
 
-    if (isNotImage(el)) return
+    if (!isImage(el)) return
 
     el.style.cursor = cursor.zoomIn
     el.addEventListener('click', this.eventHandler.click, { passive: false })
 
     if (this.options.preloadImage) {
-      checkOriginalImage(el, loadImage)
+      loadImage(getOriginalSource(el))
     }
 
     return this
@@ -72,7 +74,7 @@ export default class Zooming {
    * @param  {Object} options An Object that contains this.options.
    * @return {this}
    */
-  config (options) {
+  config(options) {
     if (!options) return this.options
 
     Object.assign(this.options, options)
@@ -89,29 +91,27 @@ export default class Zooming {
    * the target element as the argument.
    * @return {this}
    */
-  open (el, cb = this.options.onOpen) {
+  open(el, cb = this.options.onOpen) {
     if (this.shown || this.lock) return
 
-    const target = isString(el)
-      ? document.querySelector(el)
-      : el
+    const target = isString(el) ? document.querySelector(el) : el
 
-    if (isNotImage(target)) return
+    if (!isImage(target)) return
 
     // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
 
-    if (!this.options.preloadImage) {
-      checkOriginalImage(target, loadImage)
-    }
-
     this.target = new Target(target, this)
+
+    if (!this.options.preloadImage) {
+      loadImage(this.target.srcOriginal)
+    }
 
     this.shown = true
     this.lock = true
 
     this.target.zoomIn()
-    this.overlay.insert()
+    this.overlay.create()
     this.overlay.show()
 
     document.addEventListener('scroll', this.eventHandler.scroll)
@@ -122,7 +122,7 @@ export default class Zooming {
 
       this.lock = false
 
-      checkOriginalImage(target, srcOriginal => this.target.upgradeSource(srcOriginal))
+      this.target.upgradeSource()
 
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, true)
@@ -143,7 +143,7 @@ export default class Zooming {
    * the target element as the argument.
    * @return {this}
    */
-  close (cb = this.options.onClose) {
+  close(cb = this.options.onClose) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -166,14 +166,14 @@ export default class Zooming {
       this.shown = false
       this.lock = false
 
-      checkOriginalImage(target, srcOriginal => this.target.downgradeSource(srcOriginal))
+      this.target.downgradeSource()
 
       if (this.options.enableGrab) {
         toggleGrabListeners(document, this.eventHandler, false)
       }
 
       this.target.restoreCloseStyle()
-      this.overlay.remove()
+      this.overlay.destroy()
 
       if (cb) cb(target)
     }
@@ -193,7 +193,7 @@ export default class Zooming {
    * will get the target element as the argument.
    * @return {this}
    */
-  grab (x, y, scaleExtra = this.options.scaleExtra, cb) {
+  grab(x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -222,7 +222,7 @@ export default class Zooming {
    * get the target element as the argument.
    * @return {this}
    */
-  move (x, y, scaleExtra = this.options.scaleExtra, cb) {
+  move(x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -250,7 +250,7 @@ export default class Zooming {
    * will get the target element as the argument.
    * @return {this}
    */
-  release (cb = this.options.onRelease) {
+  release(cb = this.options.onRelease) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -276,4 +276,23 @@ export default class Zooming {
 
     return this
   }
+}
+
+function toggleGrabListeners(el, handler, add) {
+  const types = [
+    'mousedown',
+    'mousemove',
+    'mouseup',
+    'touchstart',
+    'touchmove',
+    'touchend'
+  ]
+
+  types.forEach(type => {
+    if (add) {
+      el.addEventListener(type, handler[type], { passive: false })
+    } else {
+      el.removeEventListener(type, handler[type], { passive: false })
+    }
+  })
 }

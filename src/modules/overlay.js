@@ -1,14 +1,13 @@
-import { setStyle } from '../utils/helpers'
+import { setStyle } from '../utils'
 
 export default class Overlay {
-
-  constructor (el, instance) {
-    this.el = el
+  constructor(instance) {
+    this.el = document.createElement('div')
     this.instance = instance
     this.parent = document.body
   }
 
-  init (options) {
+  init(options) {
     setStyle(this.el, {
       zIndex: options.zIndex,
       backgroundColor: options.bgColor,
@@ -26,7 +25,7 @@ export default class Overlay {
     this.el.addEventListener('click', () => this.instance.close())
   }
 
-  updateStyle (options) {
+  updateStyle(options) {
     setStyle(this.el, {
       zIndex: options.zIndex,
       backgroundColor: options.bgColor,
@@ -36,19 +35,22 @@ export default class Overlay {
     })
   }
 
-  insert () {
+  create() {
     this.parent.appendChild(this.el)
   }
 
-  remove () {
+  destroy() {
     this.parent.removeChild(this.el)
   }
 
-  show () {
-    setTimeout(() => this.el.style.opacity = this.instance.options.bgOpacity, 30)
+  show() {
+    setTimeout(
+      () => this.el.style.opacity = this.instance.options.bgOpacity,
+      30
+    )
   }
 
-  hide () {
+  hide() {
     this.el.style.opacity = 0
   }
 }

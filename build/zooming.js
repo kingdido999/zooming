@@ -1,7 +1,7 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.Zooming = factory());
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.Zooming = factory());
 }(this, (function () { 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -64,74 +64,18 @@ var _extends = Object.assign || function (target) {
   return target;
 };
 
-var get = function get(object, property, receiver) {
-  if (object === null) object = Function.prototype;
-  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-  if (desc === undefined) {
-    var parent = Object.getPrototypeOf(object);
-
-    if (parent === null) {
-      return undefined;
-    } else {
-      return get(parent, property, receiver);
-    }
-  } else if ("value" in desc) {
-    return desc.value;
-  } else {
-    var getter = desc.get;
-
-    if (getter === undefined) {
-      return undefined;
-    }
-
-    return getter.call(receiver);
-  }
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var set = function set(object, property, value, receiver) {
-  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-  if (desc === undefined) {
-    var parent = Object.getPrototypeOf(object);
-
-    if (parent !== null) {
-      set(parent, property, value, receiver);
-    }
-  } else if ("value" in desc && desc.writable) {
-    desc.value = value;
-  } else {
-    var setter = desc.set;
-
-    if (setter !== undefined) {
-      setter.call(receiver, value);
-    }
-  }
-
-  return value;
-};
-
-var body = document.body;
-var docElm = document.documentElement;
 var isString = checkType('string');
 var isLink = checkTag('A');
-var webkitPrefix = 'WebkitAppearance' in docElm.style ? '-webkit-' : '';
+var isImage = checkTag('IMG');
+var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
+
+var cursor = {
+  default: 'auto',
+  zoomIn: webkitPrefix + 'zoom-in',
+  zoomOut: webkitPrefix + 'zoom-out',
+  grab: webkitPrefix + 'grab',
+  move: 'move'
+};
 
 function checkType(typeName) {
   return function (el) {
@@ -145,26 +89,6 @@ function checkTag(tagName) {
   };
 }
 
-function getParents(el, match) {
-  var parents = [];
-
-  for (; el && el !== document; el = el.parentNode) {
-    if (match) {
-      if (match(el)) {
-        parents.push(el);
-      }
-    } else {
-      parents.push(el);
-    }
-  }
-
-  return parents;
-}
-
-function isNotImage() {
-  return checkTag('IMG') === false;
-}
-
 function loadImage(src, cb) {
   if (!src) return;
 
@@ -176,16 +100,36 @@ function loadImage(src, cb) {
   img.src = src;
 }
 
-function checkOriginalImage(el, cb) {
-  var srcOriginal = null;
-
+function getOriginalSource(el) {
   if (el.hasAttribute('data-original')) {
-    srcOriginal = el.getAttribute('data-original');
+    return el.getAttribute('data-original');
   } else if (isLink(el.parentNode)) {
-    srcOriginal = el.parentNode.getAttribute('href');
+    return el.parentNode.getAttribute('href');
   }
 
-  cb(srcOriginal);
+  return null;
+}
+
+function setStyle(el, styles, remember) {
+  checkTrans(styles);
+
+  var s = el.style;
+  var original = {};
+
+  for (var key in styles) {
+    if (remember) original[key] = s[key] || '';
+    s[key] = styles[key];
+  }
+
+  return original;
+}
+
+function bindAll(_this, that) {
+  var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
+
+  methods.forEach(function (method) {
+    _this[method] = _this[method].bind(that);
+  });
 }
 
 var trans = sniffTransition(document.createElement('div'));
@@ -214,9 +158,9 @@ function sniffTransition(el) {
   var trans = ['webkitTransition', 'transition', 'mozTransition'];
   var tform = ['webkitTransform', 'transform', 'mozTransform'];
   var end = {
-    'transition': 'transitionend',
-    'mozTransition': 'transitionend',
-    'webkitTransition': 'webkitTransitionEnd'
+    transition: 'transitionend',
+    mozTransition: 'transitionend',
+    webkitTransition: 'webkitTransitionEnd'
   };
 
   trans.some(function (prop) {
@@ -238,116 +182,6 @@ function sniffTransition(el) {
   return ret;
 }
 
-function divide(denominator) {
-  return function (numerator) {
-    return numerator / denominator;
-  };
-}
-
-var half = divide(2);
-
-var cursor = {
-  default: 'auto',
-  zoomIn: webkitPrefix + 'zoom-in',
-  zoomOut: webkitPrefix + 'zoom-out',
-  grab: webkitPrefix + 'grab',
-  move: 'move'
-};
-
-function toggleListener(el, type, handler, add) {
-  if (add) {
-    el.addEventListener(type, handler[type], { passive: false });
-  } else {
-    el.removeEventListener(type, handler[type], { passive: false });
-  }
-}
-
-function getWindowCenter() {
-  var windowWidth = Math.min(docElm.clientWidth, window.innerWidth);
-  var windowHeight = Math.min(docElm.clientHeight, window.innerHeight);
-
-  return {
-    x: half(windowWidth),
-    y: half(windowHeight)
-  };
-}
-
-function toggleGrabListeners(el, handler, add) {
-  ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(function (type) {
-    toggleListener(el, type, handler, add);
-  });
-}
-
-function setStyle(el, styles, remember) {
-  checkTrans(styles);
-
-  var s = el.style;
-  var original = {};
-
-  for (var key in styles) {
-    if (remember) original[key] = s[key] || '';
-    s[key] = styles[key];
-  }
-
-  return original;
-}
-
-function bindAll(_this, that) {
-  var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
-
-  methods.forEach(function (method) {
-    _this[method] = _this[method].bind(that);
-  });
-}
-
-var overflowHiddenParents = {
-
-  // Map from Element to its overflow:hidden parents
-  map: new Map(),
-
-  // Map from parent to its original style
-  style: new Map(),
-
-  disable: disableOverflowHiddenParents,
-  enable: enableOverflowHiddenParents
-};
-
-function isOverflowHidden(el) {
-  return getComputedStyle(el).overflow === 'hidden';
-}
-
-function getOverflowHiddenParents(el) {
-  if (overflowHiddenParents.map.has(el)) {
-    return overflowHiddenParents.map.get(el);
-  } else {
-    var parents = getParents(el.parentNode, isOverflowHidden);
-    overflowHiddenParents.map.set(el, parents);
-    return parents;
-  }
-}
-
-function disableOverflowHiddenParents(el) {
-  getOverflowHiddenParents(el).forEach(function (parent) {
-    if (overflowHiddenParents.style.has(parent)) {
-      setStyle(parent, {
-        overflow: 'visible'
-      });
-    } else {
-      overflowHiddenParents.style.set(parent, setStyle(parent, {
-        overflow: 'visible'
-      }, true));
-    }
-  });
-}
-
-function enableOverflowHiddenParents(el) {
-  if (overflowHiddenParents.map.has(el)) {
-    overflowHiddenParents.map.get(el).forEach(function (parent) {
-      setStyle(parent, overflowHiddenParents.style.get(parent));
-    });
-  }
-}
-
 var PRESS_DELAY = 200;
 var MULTITOUCH_SCALE_FACTOR = 2;
 
@@ -364,12 +198,7 @@ var EventHandler = function () {
       e.preventDefault();
 
       if (isPressingMetaKey(e)) {
-        checkOriginalImage(e.currentTarget, function (srcOriginal) {
-          var url = srcOriginal ? srcOriginal : e.currentTarget.src;
-          window.open(url, '_blank');
-        });
-
-        return;
+        return window.open(this.target.srcOriginal || e.currentTarget.src, '_blank');
       }
 
       if (this.shown) {
@@ -381,7 +210,7 @@ var EventHandler = function () {
   }, {
     key: 'scroll',
     value: function scroll() {
-      var scrollTop = window.pageYOffset || (docElm || body.parentNode || body).scrollTop;
+      var scrollTop = window.pageYOffset || (document.documentElement || document.body.parentNode || document.body).scrollTop;
 
       if (this.lastScrollPosition === null) {
         this.lastScrollPosition = scrollTop;
@@ -410,7 +239,7 @@ var EventHandler = function () {
     value: function mousedown(e) {
       var _this2 = this;
 
-      if (isNotLeftButton(e) || isPressingMetaKey(e)) return;
+      if (!isLeftButton(e) || isPressingMetaKey(e)) return;
       e.preventDefault();
 
       this.pressTimer = setTimeout(function () {
@@ -426,7 +255,7 @@ var EventHandler = function () {
   }, {
     key: 'mouseup',
     value: function mouseup(e) {
-      if (isNotLeftButton(e) || isPressingMetaKey(e)) return;
+      if (!isLeftButton(e) || isPressingMetaKey(e)) return;
       clearTimeout(this.pressTimer);
 
       if (this.released) this.close();else this.release();
@@ -467,8 +296,8 @@ var EventHandler = function () {
   return EventHandler;
 }();
 
-function isNotLeftButton(event) {
-  return event.button !== 0;
+function isLeftButton(event) {
+  return event.button === 0;
 }
 
 function isPressingMetaKey(event) {
@@ -540,10 +369,10 @@ function processTouches(touches, currScaleExtra, cb) {
 }
 
 var Overlay = function () {
-  function Overlay(el, instance) {
+  function Overlay(instance) {
     classCallCheck(this, Overlay);
 
-    this.el = el;
+    this.el = document.createElement('div');
     this.instance = instance;
     this.parent = document.body;
   }
@@ -579,13 +408,13 @@ var Overlay = function () {
       });
     }
   }, {
-    key: 'insert',
-    value: function insert() {
+    key: 'create',
+    value: function create() {
       this.parent.appendChild(this.el);
     }
   }, {
-    key: 'remove',
-    value: function remove() {
+    key: 'destroy',
+    value: function destroy() {
       this.parent.removeChild(this.el);
     }
   }, {
@@ -615,6 +444,7 @@ var Target = function () {
     this.translate = null;
     this.scale = null;
     this.srcThumbnail = this.el.getAttribute('src');
+    this.srcOriginal = getOriginalSource(this.el);
     this.style = {
       open: null,
       close: null
@@ -699,30 +529,30 @@ var Target = function () {
     }
   }, {
     key: 'upgradeSource',
-    value: function upgradeSource(srcOriginal) {
+    value: function upgradeSource() {
       var _this = this;
 
-      if (!srcOriginal) return;
+      if (!this.srcOriginal) return;
 
       var parentNode = this.el.parentNode;
       var temp = this.el.cloneNode(false);
 
       // force compute the hi-res image in DOM to prevent
       // image flickering while updating src
-      temp.setAttribute('src', srcOriginal);
+      temp.setAttribute('src', this.srcOriginal);
       temp.style.position = 'fixed';
       temp.style.visibility = 'hidden';
       parentNode.appendChild(temp);
 
       setTimeout(function () {
-        _this.el.setAttribute('src', srcOriginal);
+        _this.el.setAttribute('src', _this.srcOriginal);
         parentNode.removeChild(temp);
       }, 100);
     }
   }, {
     key: 'downgradeSource',
-    value: function downgradeSource(srcOriginal) {
-      if (!srcOriginal) return;
+    value: function downgradeSource() {
+      if (!this.srcOriginal) return;
 
       this.el.setAttribute('src', this.srcThumbnail);
     }
@@ -733,8 +563,8 @@ var Target = function () {
 function calculateTranslate(rect) {
   var windowCenter = getWindowCenter();
   var targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
   };
 
   // The vector to translate image to the window center
@@ -751,8 +581,8 @@ function calculateScale(rect, scaleBase, customSize) {
       y: customSize.height / rect.height
     };
   } else {
-    var targetHalfWidth = half(rect.width);
-    var targetHalfHeight = half(rect.height);
+    var targetHalfWidth = rect.width / 2;
+    var targetHalfHeight = rect.width / 2;
     var windowCenter = getWindowCenter();
 
     // The distance between target edge and window edge
@@ -772,6 +602,79 @@ function calculateScale(rect, scaleBase, customSize) {
       x: scale,
       y: scale
     };
+  }
+}
+
+function getWindowCenter() {
+  var windowWidth = Math.min(document.documentElement.clientWidth, window.innerWidth);
+  var windowHeight = Math.min(document.documentElement.clientHeight, window.innerHeight);
+
+  return {
+    x: windowWidth / 2,
+    y: windowHeight / 2
+  };
+}
+
+var overflowHiddenParents = {
+  // Map from Element to its overflow:hidden parents
+  map: new Map(),
+
+  // Map from parent to its original style
+  style: new Map(),
+
+  disable: disableOverflowHiddenParents,
+  enable: enableOverflowHiddenParents
+};
+
+function isOverflowHidden(el) {
+  return getComputedStyle(el).overflow === 'hidden';
+}
+
+function getParents(el, match) {
+  var parents = [];
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el);
+      }
+    } else {
+      parents.push(el);
+    }
+  }
+
+  return parents;
+}
+
+function getOverflowHiddenParents(el) {
+  if (overflowHiddenParents.map.has(el)) {
+    return overflowHiddenParents.map.get(el);
+  } else {
+    var parents = getParents(el.parentNode, isOverflowHidden);
+    overflowHiddenParents.map.set(el, parents);
+    return parents;
+  }
+}
+
+function disableOverflowHiddenParents(el) {
+  getOverflowHiddenParents(el).forEach(function (parent) {
+    if (overflowHiddenParents.style.has(parent)) {
+      setStyle(parent, {
+        overflow: 'visible'
+      });
+    } else {
+      overflowHiddenParents.style.set(parent, setStyle(parent, {
+        overflow: 'visible'
+      }, true));
+    }
+  });
+}
+
+function enableOverflowHiddenParents(el) {
+  if (overflowHiddenParents.map.has(el)) {
+    overflowHiddenParents.map.get(el).forEach(function (parent) {
+      setStyle(parent, overflowHiddenParents.style.get(parent));
+    });
   }
 }
 
@@ -930,17 +833,15 @@ var OPTIONS = {
 };
 
 var Zooming$1 = function () {
-
   /**
    * @param {Object} [options] Update default options if provided.
    */
   function Zooming(options) {
     classCallCheck(this, Zooming);
 
-
     // elements
     this.target = null;
-    this.overlay = new Overlay(document.createElement('div'), this);
+    this.overlay = new Overlay(this);
     this.eventHandler = new EventHandler(this);
     this.body = document.body;
 
@@ -979,13 +880,13 @@ var Zooming$1 = function () {
         return this;
       }
 
-      if (isNotImage(el)) return;
+      if (!isImage(el)) return;
 
       el.style.cursor = cursor.zoomIn;
       el.addEventListener('click', this.eventHandler.click, { passive: false });
 
       if (this.options.preloadImage) {
-        checkOriginalImage(el, loadImage);
+        loadImage(getOriginalSource(el));
       }
 
       return this;
@@ -1028,22 +929,22 @@ var Zooming$1 = function () {
 
       var target = isString(el) ? document.querySelector(el) : el;
 
-      if (isNotImage(target)) return;
+      if (!isImage(target)) return;
 
       // onBeforeOpen event
       if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
 
-      if (!this.options.preloadImage) {
-        checkOriginalImage(target, loadImage);
-      }
-
       this.target = new Target(target, this);
+
+      if (!this.options.preloadImage) {
+        loadImage(this.target.srcOriginal);
+      }
 
       this.shown = true;
       this.lock = true;
 
       this.target.zoomIn();
-      this.overlay.insert();
+      this.overlay.create();
       this.overlay.show();
 
       document.addEventListener('scroll', this.eventHandler.scroll);
@@ -1054,9 +955,7 @@ var Zooming$1 = function () {
 
         _this.lock = false;
 
-        checkOriginalImage(target, function (srcOriginal) {
-          return _this.target.upgradeSource(srcOriginal);
-        });
+        _this.target.upgradeSource();
 
         if (_this.options.enableGrab) {
           toggleGrabListeners(document, _this.eventHandler, true);
@@ -1107,16 +1006,14 @@ var Zooming$1 = function () {
         _this2.shown = false;
         _this2.lock = false;
 
-        checkOriginalImage(target, function (srcOriginal) {
-          return _this2.target.downgradeSource(srcOriginal);
-        });
+        _this2.target.downgradeSource();
 
         if (_this2.options.enableGrab) {
           toggleGrabListeners(document, _this2.eventHandler, false);
         }
 
         _this2.target.restoreCloseStyle();
-        _this2.overlay.remove();
+        _this2.overlay.destroy();
 
         if (cb) cb(target);
       };
@@ -1241,6 +1138,18 @@ var Zooming$1 = function () {
   }]);
   return Zooming;
 }();
+
+function toggleGrabListeners(el, handler, add) {
+  var types = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
+
+  types.forEach(function (type) {
+    if (add) {
+      el.addEventListener(type, handler[type], { passive: false });
+    } else {
+      el.removeEventListener(type, handler[type], { passive: false });
+    }
+  });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
   new Zooming$1();

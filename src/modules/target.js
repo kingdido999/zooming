@@ -1,22 +1,20 @@
-import { cursor, setStyle, getWindowCenter, overflowHiddenParents } from '../utils/helpers'
-import { transformCssProp } from '../utils/trans'
-import { half } from '../utils/math'
+import { cursor, setStyle, getOriginalSource, transformCssProp } from '../utils'
 
 export default class Target {
-
-  constructor (el, instance) {
+  constructor(el, instance) {
     this.el = el
     this.instance = instance
     this.translate = null
     this.scale = null
     this.srcThumbnail = this.el.getAttribute('src')
+    this.srcOriginal = getOriginalSource(this.el)
     this.style = {
       open: null,
       close: null
     }
   }
 
-  zoomIn () {
+  zoomIn() {
     const options = this.instance.options
     const rect = this.el.getBoundingClientRect()
 
@@ -33,9 +31,7 @@ export default class Target {
     this.style.open = {
       position: 'relative',
       zIndex: options.zIndex + 1,
-      cursor: options.enableGrab
-        ? cursor.grab
-        : cursor.zoomOut,
+      cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
@@ -49,7 +45,7 @@ export default class Target {
     this.style.close = setStyle(this.el, this.style.open, true)
   }
 
-  zoomOut () {
+  zoomOut() {
     // Restore overflow:hidden to target's parent nodes if any
     overflowHiddenParents.enable(this.el)
 
@@ -59,7 +55,7 @@ export default class Target {
     setStyle(this.el, { transform: 'none' })
   }
 
-  grab (x, y, scaleExtra) {
+  grab(x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
@@ -71,7 +67,7 @@ export default class Target {
     })
   }
 
-  move (x, y, scaleExtra) {
+  move(x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
@@ -83,45 +79,45 @@ export default class Target {
     })
   }
 
-  restoreCloseStyle () {
+  restoreCloseStyle() {
     setStyle(this.el, this.style.close)
   }
 
-  restoreOpenStyle () {
+  restoreOpenStyle() {
     setStyle(this.el, this.style.open)
   }
 
-  upgradeSource (srcOriginal) {
-    if (!srcOriginal) return
+  upgradeSource() {
+    if (!this.srcOriginal) return
 
     const parentNode = this.el.parentNode
     const temp = this.el.cloneNode(false)
 
     // force compute the hi-res image in DOM to prevent
     // image flickering while updating src
-    temp.setAttribute('src', srcOriginal)
+    temp.setAttribute('src', this.srcOriginal)
     temp.style.position = 'fixed'
     temp.style.visibility = 'hidden'
     parentNode.appendChild(temp)
 
     setTimeout(() => {
-      this.el.setAttribute('src', srcOriginal)
+      this.el.setAttribute('src', this.srcOriginal)
       parentNode.removeChild(temp)
     }, 100)
   }
 
-  downgradeSource (srcOriginal) {
-    if (!srcOriginal) return
+  downgradeSource() {
+    if (!this.srcOriginal) return
 
     this.el.setAttribute('src', this.srcThumbnail)
   }
 }
 
-function calculateTranslate (rect) {
+function calculateTranslate(rect) {
   const windowCenter = getWindowCenter()
   const targetCenter = {
-    x: rect.left + half(rect.width),
-    y: rect.top + half(rect.height)
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2
   }
 
   // The vector to translate image to the window center
@@ -131,15 +127,15 @@ function calculateTranslate (rect) {
   }
 }
 
-function calculateScale (rect, scaleBase, customSize) {
+function calculateScale(rect, scaleBase, customSize) {
   if (customSize) {
     return {
       x: customSize.width / rect.width,
       y: customSize.height / rect.height
     }
   } else {
-    const targetHalfWidth = half(rect.width)
-    const targetHalfHeight = half(rect.height)
+    const targetHalfWidth = rect.width / 2
+    const targetHalfHeight = rect.width / 2
     const windowCenter = getWindowCenter()
 
     // The distance between target edge and window edge
@@ -159,5 +155,91 @@ function calculateScale (rect, scaleBase, customSize) {
       x: scale,
       y: scale
     }
+  }
+}
+
+function getWindowCenter() {
+  const windowWidth = Math.min(
+    document.documentElement.clientWidth,
+    window.innerWidth
+  )
+  const windowHeight = Math.min(
+    document.documentElement.clientHeight,
+    window.innerHeight
+  )
+
+  return {
+    x: windowWidth / 2,
+    y: windowHeight / 2
+  }
+}
+
+const overflowHiddenParents = {
+  // Map from Element to its overflow:hidden parents
+  map: new Map(),
+
+  // Map from parent to its original style
+  style: new Map(),
+
+  disable: disableOverflowHiddenParents,
+  enable: enableOverflowHiddenParents
+}
+
+function isOverflowHidden(el) {
+  return getComputedStyle(el).overflow === 'hidden'
+}
+
+function getParents(el, match) {
+  let parents = []
+
+  for (; el && el !== document; el = el.parentNode) {
+    if (match) {
+      if (match(el)) {
+        parents.push(el)
+      }
+    } else {
+      parents.push(el)
+    }
+  }
+
+  return parents
+}
+
+function getOverflowHiddenParents(el) {
+  if (overflowHiddenParents.map.has(el)) {
+    return overflowHiddenParents.map.get(el)
+  } else {
+    const parents = getParents(el.parentNode, isOverflowHidden)
+    overflowHiddenParents.map.set(el, parents)
+    return parents
+  }
+}
+
+function disableOverflowHiddenParents(el) {
+  getOverflowHiddenParents(el).forEach(parent => {
+    if (overflowHiddenParents.style.has(parent)) {
+      setStyle(parent, {
+        overflow: 'visible'
+      })
+    } else {
+      overflowHiddenParents.style.set(
+        parent,
+        setStyle(
+          parent,
+          {
+            overflow: 'visible'
+          },
+          true
+        )
+      )
+    }
+  })
+}
+
+function enableOverflowHiddenParents(el) {
+  if (overflowHiddenParents.map.has(el)) {
+    overflowHiddenParents.map.get(el).forEach(parent => {
+      setStyle(parent, overflowHiddenParents.style.get(parent))
+    })
   }
 }

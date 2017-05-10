@@ -1,6 +1,4 @@
-import { docElm, body } from '../utils/dom'
-import { bindAll } from '../utils/helpers'
-import { checkOriginalImage } from '../utils/image'
+import { bindAll } from '../utils'
 
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2
@@ -14,12 +12,10 @@ export default class EventHandler {
     e.preventDefault()
 
     if (isPressingMetaKey(e)) {
-      checkOriginalImage(e.currentTarget, srcOriginal => {
-        const url = srcOriginal ? srcOriginal : e.currentTarget.src
-        window.open(url, '_blank')
-      })
-
-      return
+      return window.open(
+        this.target.srcOriginal || e.currentTarget.src,
+        '_blank'
+      )
     }
 
     if (this.shown) {
@@ -32,7 +28,9 @@ export default class EventHandler {
 
   scroll() {
     const scrollTop =
-      window.pageYOffset || (docElm || body.parentNode || body).scrollTop
+      window.pageYOffset ||
+      (document.documentElement || document.body.parentNode || document.body)
+        .scrollTop
 
     if (this.lastScrollPosition === null) {
       this.lastScrollPosition = scrollTop
@@ -54,7 +52,7 @@ export default class EventHandler {
   }
 
   mousedown(e) {
-    if (isNotLeftButton(e) || isPressingMetaKey(e)) return
+    if (!isLeftButton(e) || isPressingMetaKey(e)) return
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
@@ -68,7 +66,7 @@ export default class EventHandler {
   }
 
   mouseup(e) {
-    if (isNotLeftButton(e) || isPressingMetaKey(e)) return
+    if (!isLeftButton(e) || isPressingMetaKey(e)) return
     clearTimeout(this.pressTimer)
 
     if (this.released) this.close()
@@ -102,8 +100,8 @@ export default class EventHandler {
   }
 }
 
-function isNotLeftButton(event) {
-  return event.button !== 0
+function isLeftButton(event) {
+  return event.button === 0
 }
 
 function isPressingMetaKey(event) {
