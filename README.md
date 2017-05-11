@@ -42,13 +42,15 @@ At this point, any image with attribute `data-action="zoom"` is zoomable by defa
 <img src="img/journey.jpg" data-action="zoom" />
 ```
 
-If you click while holding your meta key (⌘ on mac) or (ctrl on windows), it opens the image in a new tab.
+If you click while holding your meta key (`⌘` or `Ctrl`), it opens the image in a new tab.
 
 ## Advanced
 
 For all supported APIs and options, see [Documentation](http://desmonding.me/zooming/docs/index.html).
 
 #### Zoom into a high resolution image
+
+Prerequisite: the hi-res image should have the exact same aspect ratio as your regular image.
 
 Option 1: Add `data-original` attribute to the image:
 
@@ -64,9 +66,9 @@ Option 2: Provide an original image link that wraps around the image:
 </a>
 ```
 
-Notice that if both are provided, it takes the `data-original` value as hi-res image source.
+Notice that if both are provided, it takes the `data-original` value as hi-res image source. 
 
-To preload hi-res images, set `preloadImage` option to `true`. Keep in mind enabling this option might cause performance issue on a page with lots of images or huge image file size.
+To preload hi-res images, set `preloadImage` option to `true`. Keep in mind enabling this option might cause performance issue on a page with lots of images or large image size.
 
 #### Define zoomable image(s) programmatically
 
@@ -100,9 +102,15 @@ zoomingLight.config({
 })
 ```
 
-## Example
+## Examples
 
 The source code of [demo](http://desmonding.me/zooming/) page is a  simple demonstration on how to integrate Zooming and personalize it on your web page. Take a look at [index.html](https://github.com/kingdido999/zooming/blob/master/index.html) and [demo/js/custom.js](https://github.com/kingdido999/zooming/blob/master/demo/js/custom.js).
+
+Websites using Zooming:
+
+- [atogatari](https://atogatari.com)
+
+Want to add your demo/website to the list? Simply make a pull request!
 
 ## Development
 
