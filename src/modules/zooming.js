@@ -1,11 +1,4 @@
-import {
-  cursor,
-  isString,
-  isImage,
-  loadImage,
-  transEndEvent,
-  getOriginalSource
-} from '../utils'
+import { cursor, loadImage, transEndEvent, getOriginalSource } from '../utils'
 
 import EventHandler from './event-handler'
 import Overlay from './overlay'
@@ -28,9 +21,9 @@ export default class Zooming {
     this.body = document.body
 
     // state
-    this.shown = false // target is open
-    this.lock = false // target is in transform
-    this.released = true // mouse/finger is not pressing down
+    this.shown = false
+    this.lock = false
+    this.released = true
     this.lastScrollPosition = null
     this.pressTimer = null
 
@@ -38,7 +31,7 @@ export default class Zooming {
     this.options = Object.assign({}, DEFAULT_OPTIONS)
     this.config(options)
     this.listen(this.options.defaultZoomable)
-    this.overlay.init(this.options)
+    this.overlay.updateStyle(this.options)
   }
 
   /**
@@ -47,8 +40,9 @@ export default class Zooming {
    * @return {this}
    */
   listen(el) {
-    if (isString(el)) {
-      let els = document.querySelectorAll(el), i = els.length
+    if (typeof el === 'string') {
+      let els = document.querySelectorAll(el)
+      let i = els.length
 
       while (i--) {
         this.listen(els[i])
@@ -57,7 +51,7 @@ export default class Zooming {
       return this
     }
 
-    if (!isImage(el)) return
+    if (el.tagName !== 'IMG') return
 
     el.style.cursor = cursor.zoomIn
     el.addEventListener('click', this.eventHandler.click, { passive: false })
@@ -94,9 +88,9 @@ export default class Zooming {
   open(el, cb = this.options.onOpen) {
     if (this.shown || this.lock) return
 
-    const target = isString(el) ? document.querySelector(el) : el
+    const target = typeof el === 'string' ? document.querySelector(el) : el
 
-    if (!isImage(target)) return
+    if (target.tagName !== 'IMG') return
 
     // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)

@@ -1,8 +1,9 @@
 var expect = chai.expect
-var prefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : ''
+var prefix = 'WebkitAppearance' in document.documentElement.style
+  ? '-webkit-'
+  : ''
 
 describe('API', function() {
-
   var testZooming = new Zooming()
   var defaultOpts = Object.assign({}, testZooming.config())
   var els = document.querySelectorAll(defaultOpts.defaultZoomable)
@@ -28,14 +29,30 @@ describe('API', function() {
       scrollThreshold: 50,
       zIndex: 998,
       customSize: { width: 800, height: 400 },
-      onOpen: function() { return 'onOpen' },
-      onClose: function() { return 'onClose' },
-      onRelease: function() { return 'onRelease' },
-      onBeforeOpen: function() { return 'onBeforeOpen' },
-      onBeforeClose: function() { return 'onBeforeClose' },
-      onBeforeGrab: function() { return 'onBeforeGrab' },
-      onBeforeMove: function() { return 'onBeforeMove' },
-      onBeforeRelease: function() { return 'onBeforeRelease' }
+      onOpen: function() {
+        return 'onOpen'
+      },
+      onClose: function() {
+        return 'onClose'
+      },
+      onRelease: function() {
+        return 'onRelease'
+      },
+      onBeforeOpen: function() {
+        return 'onBeforeOpen'
+      },
+      onBeforeClose: function() {
+        return 'onBeforeClose'
+      },
+      onBeforeGrab: function() {
+        return 'onBeforeGrab'
+      },
+      onBeforeMove: function() {
+        return 'onBeforeMove'
+      },
+      onBeforeRelease: function() {
+        return 'onBeforeRelease'
+      }
     }
 
     before(function() {
@@ -80,7 +97,9 @@ describe('API', function() {
       testZooming.open(el, function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
-        expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
+        expect(target.style.cursor).to.equal(
+          prefix + (defaultOpts.enableGrab ? 'grab' : 'zoom-out')
+        )
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
         done()
@@ -122,7 +141,9 @@ describe('API', function() {
       testZooming.release(function(target) {
         expect(target.style.position).to.equal('relative')
         expect(target.style.zIndex).to.equal('999')
-        expect(target.style.cursor).to.equal(prefix + (defaultOpts.enableGrab ? 'grab': 'zoom-out'))
+        expect(target.style.cursor).to.equal(
+          prefix + (defaultOpts.enableGrab ? 'grab' : 'zoom-out')
+        )
         expect(target.style.transition).to.not.be.empty
         expect(target.style.transform).to.not.be.empty
         done()

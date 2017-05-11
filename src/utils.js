@@ -1,6 +1,3 @@
-export const isString = checkType('string')
-export const isLink = checkTag('A')
-export const isImage = checkTag('IMG')
 export const webkitPrefix = 'WebkitAppearance' in document.documentElement.style
   ? '-webkit-'
   : ''
@@ -11,14 +8,6 @@ export const cursor = {
   zoomOut: `${webkitPrefix}zoom-out`,
   grab: `${webkitPrefix}grab`,
   move: 'move'
-}
-
-export function checkType(typeName) {
-  return el => typeof el === typeName
-}
-
-export function checkTag(tagName) {
-  return el => el.tagName === tagName
 }
 
 export function loadImage(src, cb) {
@@ -35,7 +24,7 @@ export function loadImage(src, cb) {
 export function getOriginalSource(el) {
   if (el.hasAttribute('data-original')) {
     return el.getAttribute('data-original')
-  } else if (isLink(el.parentNode)) {
+  } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href')
   }
 

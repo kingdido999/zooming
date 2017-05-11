@@ -4,31 +4,33 @@ export default class Target {
   constructor(el, instance) {
     this.el = el
     this.instance = instance
-    this.translate = null
-    this.scale = null
     this.srcThumbnail = this.el.getAttribute('src')
     this.srcOriginal = getOriginalSource(this.el)
-    this.style = {
-      open: null,
-      close: null
-    }
+    this.rect = el.getBoundingClientRect()
+    this.translate = null
+    this.scale = null
+    this.styleOpen = null
+    this.styleClose = null
   }
 
   zoomIn() {
     const options = this.instance.options
-    const rect = this.el.getBoundingClientRect()
 
     // Remove overflow:hidden from target's parent nodes if any. It prevents
     // parent nodes from hiding the target after zooming in
     overflowHiddenParents.disable(this.el)
 
-    this.translate = calculateTranslate(rect)
-    this.scale = calculateScale(rect, options.scaleBase, options.customSize)
+    this.translate = calculateTranslate(this.rect)
+    this.scale = calculateScale(
+      this.rect,
+      options.scaleBase,
+      options.customSize
+    )
 
     // force layout update
     this.el.offsetWidth
 
-    this.style.open = {
+    this.styleOpen = {
       position: 'relative',
       zIndex: options.zIndex + 1,
       cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
@@ -37,12 +39,12 @@ export default class Target {
         ${options.transitionTimingFunction}`,
       transform: `translate(${this.translate.x}px, ${this.translate.y}px)
         scale(${this.scale.x},${this.scale.y})`,
-      width: `${rect.width}px`,
-      height: `${rect.height}px`
+      width: `${this.rect.width}px`,
+      height: `${this.rect.height}px`
     }
 
     // trigger transition
-    this.style.close = setStyle(this.el, this.style.open, true)
+    this.styleClose = setStyle(this.el, this.styleOpen, true)
   }
 
   zoomOut() {
@@ -80,11 +82,11 @@ export default class Target {
   }
 
   restoreCloseStyle() {
-    setStyle(this.el, this.style.close)
+    setStyle(this.el, this.styleClose)
   }
 
   restoreOpenStyle() {
-    setStyle(this.el, this.style.open)
+    setStyle(this.el, this.styleOpen)
   }
 
   upgradeSource() {

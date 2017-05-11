@@ -4,69 +4,6 @@
 	(global.Zooming = factory());
 }(this, (function () { 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-  return typeof obj;
-} : function (obj) {
-  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-};
-
-
-
-
-
-
-
-
-
-
-
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
-
-
-
-
-
-
-
-var _extends = Object.assign || function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-
-    for (var key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-
-  return target;
-};
-
-var isString = checkType('string');
-var isLink = checkTag('A');
-var isImage = checkTag('IMG');
 var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
 
 var cursor = {
@@ -76,18 +13,6 @@ var cursor = {
   grab: webkitPrefix + 'grab',
   move: 'move'
 };
-
-function checkType(typeName) {
-  return function (el) {
-    return (typeof el === 'undefined' ? 'undefined' : _typeof(el)) === typeName;
-  };
-}
-
-function checkTag(tagName) {
-  return function (el) {
-    return el.tagName === tagName;
-  };
-}
 
 function loadImage(src, cb) {
   if (!src) return;
@@ -103,7 +28,7 @@ function loadImage(src, cb) {
 function getOriginalSource(el) {
   if (el.hasAttribute('data-original')) {
     return el.getAttribute('data-original');
-  } else if (isLink(el.parentNode)) {
+  } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href');
   }
 
@@ -181,6 +106,50 @@ function sniffTransition(el) {
 
   return ret;
 }
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+
+
+
+
+
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
 
 var PRESS_DELAY = 200;
 var MULTITOUCH_SCALE_FACTOR = 2;
@@ -370,35 +339,28 @@ function processTouches(touches, currScaleExtra, cb) {
 
 var Overlay = function () {
   function Overlay(instance) {
+    var _this = this;
+
     classCallCheck(this, Overlay);
 
     this.el = document.createElement('div');
+    this.el.addEventListener('click', function () {
+      return _this.instance.close();
+    });
     this.instance = instance;
     this.parent = document.body;
+
+    setStyle(this.el, {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      opacity: 0
+    });
   }
 
   createClass(Overlay, [{
-    key: 'init',
-    value: function init(options) {
-      var _this = this;
-
-      setStyle(this.el, {
-        zIndex: options.zIndex,
-        backgroundColor: options.bgColor,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        opacity: 0,
-        transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
-      });
-
-      this.el.addEventListener('click', function () {
-        return _this.instance.close();
-      });
-    }
-  }, {
     key: 'updateStyle',
     value: function updateStyle(options) {
       setStyle(this.el, {
@@ -441,44 +403,42 @@ var Target = function () {
 
     this.el = el;
     this.instance = instance;
-    this.translate = null;
-    this.scale = null;
     this.srcThumbnail = this.el.getAttribute('src');
     this.srcOriginal = getOriginalSource(this.el);
-    this.style = {
-      open: null,
-      close: null
-    };
+    this.rect = el.getBoundingClientRect();
+    this.translate = null;
+    this.scale = null;
+    this.styleOpen = null;
+    this.styleClose = null;
   }
 
   createClass(Target, [{
     key: 'zoomIn',
     value: function zoomIn() {
       var options = this.instance.options;
-      var rect = this.el.getBoundingClientRect();
 
       // Remove overflow:hidden from target's parent nodes if any. It prevents
       // parent nodes from hiding the target after zooming in
       overflowHiddenParents.disable(this.el);
 
-      this.translate = calculateTranslate(rect);
-      this.scale = calculateScale(rect, options.scaleBase, options.customSize);
+      this.translate = calculateTranslate(this.rect);
+      this.scale = calculateScale(this.rect, options.scaleBase, options.customSize);
 
       // force layout update
       this.el.offsetWidth;
 
-      this.style.open = {
+      this.styleOpen = {
         position: 'relative',
         zIndex: options.zIndex + 1,
         cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
         transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
         transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
-        width: rect.width + 'px',
-        height: rect.height + 'px'
+        width: this.rect.width + 'px',
+        height: this.rect.height + 'px'
       };
 
       // trigger transition
-      this.style.close = setStyle(this.el, this.style.open, true);
+      this.styleClose = setStyle(this.el, this.styleOpen, true);
     }
   }, {
     key: 'zoomOut',
@@ -520,12 +480,12 @@ var Target = function () {
   }, {
     key: 'restoreCloseStyle',
     value: function restoreCloseStyle() {
-      setStyle(this.el, this.style.close);
+      setStyle(this.el, this.styleClose);
     }
   }, {
     key: 'restoreOpenStyle',
     value: function restoreOpenStyle() {
-      setStyle(this.el, this.style.open);
+      setStyle(this.el, this.styleOpen);
     }
   }, {
     key: 'upgradeSource',
@@ -846,9 +806,9 @@ var Zooming$1 = function () {
     this.body = document.body;
 
     // state
-    this.shown = false; // target is open
-    this.lock = false; // target is in transform
-    this.released = true; // mouse/finger is not pressing down
+    this.shown = false;
+    this.lock = false;
+    this.released = true;
     this.lastScrollPosition = null;
     this.pressTimer = null;
 
@@ -856,7 +816,7 @@ var Zooming$1 = function () {
     this.options = _extends({}, OPTIONS);
     this.config(options);
     this.listen(this.options.defaultZoomable);
-    this.overlay.init(this.options);
+    this.overlay.updateStyle(this.options);
   }
 
   /**
@@ -869,9 +829,9 @@ var Zooming$1 = function () {
   createClass(Zooming, [{
     key: 'listen',
     value: function listen(el) {
-      if (isString(el)) {
-        var els = document.querySelectorAll(el),
-            i = els.length;
+      if (typeof el === 'string') {
+        var els = document.querySelectorAll(el);
+        var i = els.length;
 
         while (i--) {
           this.listen(els[i]);
@@ -880,7 +840,7 @@ var Zooming$1 = function () {
         return this;
       }
 
-      if (!isImage(el)) return;
+      if (el.tagName !== 'IMG') return;
 
       el.style.cursor = cursor.zoomIn;
       el.addEventListener('click', this.eventHandler.click, { passive: false });
@@ -927,9 +887,9 @@ var Zooming$1 = function () {
 
       if (this.shown || this.lock) return;
 
-      var target = isString(el) ? document.querySelector(el) : el;
+      var target = typeof el === 'string' ? document.querySelector(el) : el;
 
-      if (!isImage(target)) return;
+      if (target.tagName !== 'IMG') return;
 
       // onBeforeOpen event
       if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
