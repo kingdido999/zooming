@@ -16,10 +16,6 @@ export default class Target {
   zoomIn() {
     const options = this.instance.options
 
-    // Remove overflow:hidden from target's parent nodes if any. It prevents
-    // parent nodes from hiding the target after zooming in
-    overflowHiddenParents.disable(this.el)
-
     this.translate = calculateTranslate(this.rect)
     this.scale = calculateScale(
       this.rect,
@@ -48,9 +44,6 @@ export default class Target {
   }
 
   zoomOut() {
-    // Restore overflow:hidden to target's parent nodes if any
-    overflowHiddenParents.enable(this.el)
-
     // force layout update
     this.el.offsetWidth
 
@@ -173,75 +166,5 @@ function getWindowCenter() {
   return {
     x: windowWidth / 2,
     y: windowHeight / 2
-  }
-}
-
-const overflowHiddenParents = {
-  // Map from Element to its overflow:hidden parents
-  map: new Map(),
-
-  // Map from parent to its original style
-  style: new Map(),
-
-  disable: disableOverflowHiddenParents,
-  enable: enableOverflowHiddenParents
-}
-
-function isOverflowHidden(el) {
-  return getComputedStyle(el).overflow === 'hidden'
-}
-
-function getParents(el, match) {
-  let parents = []
-
-  for (; el && el !== document; el = el.parentNode) {
-    if (match) {
-      if (match(el)) {
-        parents.push(el)
-      }
-    } else {
-      parents.push(el)
-    }
-  }
-
-  return parents
-}
-
-function getOverflowHiddenParents(el) {
-  if (overflowHiddenParents.map.has(el)) {
-    return overflowHiddenParents.map.get(el)
-  } else {
-    const parents = getParents(el.parentNode, isOverflowHidden)
-    overflowHiddenParents.map.set(el, parents)
-    return parents
-  }
-}
-
-function disableOverflowHiddenParents(el) {
-  getOverflowHiddenParents(el).forEach(parent => {
-    if (overflowHiddenParents.style.has(parent)) {
-      setStyle(parent, {
-        overflow: 'visible'
-      })
-    } else {
-      overflowHiddenParents.style.set(
-        parent,
-        setStyle(
-          parent,
-          {
-            overflow: 'visible'
-          },
-          true
-        )
-      )
-    }
-  })
-}
-
-function enableOverflowHiddenParents(el) {
-  if (overflowHiddenParents.map.has(el)) {
-    overflowHiddenParents.map.get(el).forEach(parent => {
-      setStyle(parent, overflowHiddenParents.style.get(parent))
-    })
   }
 }
