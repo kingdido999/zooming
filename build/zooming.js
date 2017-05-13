@@ -542,7 +542,7 @@ function calculateScale(rect, scaleBase, customSize) {
     };
   } else {
     var targetHalfWidth = rect.width / 2;
-    var targetHalfHeight = rect.width / 2;
+    var targetHalfHeight = rect.height / 2;
     var windowCenter = getWindowCenter();
 
     // The distance between target edge and window edge

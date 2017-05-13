@@ -137,7 +137,7 @@ function calculateScale(rect, scaleBase, customSize) {
     }
   } else {
     const targetHalfWidth = rect.width / 2
-    const targetHalfHeight = rect.width / 2
+    const targetHalfHeight = rect.height / 2
     const windowCenter = getWindowCenter()
 
     // The distance between target edge and window edge
