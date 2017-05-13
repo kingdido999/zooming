@@ -1,10 +1,9 @@
 import { cursor, loadImage, transEndEvent, getOriginalSource } from '../utils'
+import DEFAULT_OPTIONS from '../options'
 
 import EventHandler from './event-handler'
 import Overlay from './overlay'
 import Target from './target'
-
-import DEFAULT_OPTIONS from '../options'
 
 /**
  * Zooming instance.
@@ -15,9 +14,9 @@ export default class Zooming {
    */
   constructor(options) {
     // elements
-    this.target = null
-    this.overlay = new Overlay(this)
-    this.eventHandler = new EventHandler(this)
+    this.target = Object.create(Target)
+    this.overlay = Object.create(Overlay)
+    this.eventHandler = Object.create(EventHandler)
     this.body = document.body
 
     // state
@@ -28,10 +27,10 @@ export default class Zooming {
     this.pressTimer = null
 
     // init
-    this.options = Object.assign({}, DEFAULT_OPTIONS)
-    this.config(options)
+    this.options = Object.assign({}, DEFAULT_OPTIONS, options)
+    this.overlay.init(this)
+    this.eventHandler.init(this)
     this.listen(this.options.defaultZoomable)
-    this.overlay.updateStyle(this.options)
   }
 
   /**
@@ -95,7 +94,7 @@ export default class Zooming {
     // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
 
-    this.target = new Target(target, this)
+    this.target.init(target, this)
 
     if (!this.options.preloadImage) {
       loadImage(this.target.srcOriginal)

@@ -3,10 +3,10 @@ import { bindAll } from '../utils'
 const PRESS_DELAY = 200
 const MULTITOUCH_SCALE_FACTOR = 2
 
-export default class EventHandler {
-  constructor(instance) {
+export default {
+  init(instance) {
     bindAll(this, instance)
-  }
+  },
 
   click(e) {
     e.preventDefault()
@@ -24,7 +24,7 @@ export default class EventHandler {
     } else {
       this.open(e.currentTarget)
     }
-  }
+  },
 
   scroll() {
     const scrollTop =
@@ -42,14 +42,14 @@ export default class EventHandler {
       this.lastScrollPosition = null
       this.close()
     }
-  }
+  },
 
   keydown(e) {
     if (isEscape(e)) {
       if (this.released) this.close()
       else this.release(() => this.close())
     }
-  }
+  },
 
   mousedown(e) {
     if (!isLeftButton(e) || isPressingMetaKey(e)) return
@@ -58,12 +58,12 @@ export default class EventHandler {
     this.pressTimer = setTimeout(() => {
       this.grab(e.clientX, e.clientY)
     }, PRESS_DELAY)
-  }
+  },
 
   mousemove(e) {
     if (this.released) return
     this.move(e.clientX, e.clientY)
-  }
+  },
 
   mouseup(e) {
     if (!isLeftButton(e) || isPressingMetaKey(e)) return
@@ -71,7 +71,7 @@ export default class EventHandler {
 
     if (this.released) this.close()
     else this.release()
-  }
+  },
 
   touchstart(e) {
     e.preventDefault()
@@ -81,7 +81,7 @@ export default class EventHandler {
         this.grab(x, y, scaleExtra)
       })
     }, PRESS_DELAY)
-  }
+  },
 
   touchmove(e) {
     if (this.released) return
@@ -89,7 +89,7 @@ export default class EventHandler {
     processTouches(e.touches, this.options.scaleExtra, (x, y, scaleExtra) => {
       this.move(x, y, scaleExtra)
     })
-  }
+  },
 
   touchend(e) {
     if (isTouching(e)) return

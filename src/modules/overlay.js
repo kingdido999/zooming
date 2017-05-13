@@ -1,7 +1,7 @@
 import { setStyle } from '../utils'
 
-export default class Overlay {
-  constructor(instance) {
+export default {
+  init(instance) {
     this.el = document.createElement('div')
     this.el.addEventListener('click', () => this.instance.close())
     this.instance = instance
@@ -15,7 +15,9 @@ export default class Overlay {
       bottom: 0,
       opacity: 0
     })
-  }
+
+    this.updateStyle(instance.options)
+  },
 
   updateStyle(options) {
     setStyle(this.el, {
@@ -25,22 +27,22 @@ export default class Overlay {
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`
     })
-  }
+  },
 
   create() {
     this.parent.appendChild(this.el)
-  }
+  },
 
   destroy() {
     this.parent.removeChild(this.el)
-  }
+  },
 
   show() {
     setTimeout(
       () => this.el.style.opacity = this.instance.options.bgOpacity,
       30
     )
-  }
+  },
 
   hide() {
     this.el.style.opacity = 0

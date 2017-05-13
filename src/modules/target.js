@@ -1,7 +1,7 @@
 import { cursor, setStyle, getOriginalSource, transformCssProp } from '../utils'
 
-export default class Target {
-  constructor(el, instance) {
+export default {
+  init(el, instance) {
     this.el = el
     this.instance = instance
     this.srcThumbnail = this.el.getAttribute('src')
@@ -11,7 +11,7 @@ export default class Target {
     this.scale = null
     this.styleOpen = null
     this.styleClose = null
-  }
+  },
 
   zoomIn() {
     const options = this.instance.options
@@ -41,14 +41,14 @@ export default class Target {
 
     // trigger transition
     this.styleClose = setStyle(this.el, this.styleOpen, true)
-  }
+  },
 
   zoomOut() {
     // force layout update
     this.el.offsetWidth
 
     setStyle(this.el, { transform: 'none' })
-  }
+  },
 
   grab(x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
@@ -60,7 +60,7 @@ export default class Target {
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
-  }
+  },
 
   move(x, y, scaleExtra) {
     const windowCenter = getWindowCenter()
@@ -72,15 +72,15 @@ export default class Target {
         ${this.translate.x + dx}px, ${this.translate.y + dy}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
-  }
+  },
 
   restoreCloseStyle() {
     setStyle(this.el, this.styleClose)
-  }
+  },
 
   restoreOpenStyle() {
     setStyle(this.el, this.styleOpen)
-  }
+  },
 
   upgradeSource() {
     if (!this.srcOriginal) return
@@ -99,7 +99,7 @@ export default class Target {
       this.el.setAttribute('src', this.srcOriginal)
       parentNode.removeChild(temp)
     }, 100)
-  }
+  },
 
   downgradeSource() {
     if (!this.srcOriginal) return

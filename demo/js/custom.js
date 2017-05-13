@@ -3,35 +3,34 @@ var customZooming = new Zooming({
 })
 
 var config = customZooming.config(),
-    TRANSITION_DURATION_DEFAULT = config.transitionDuration,
-    TRANSITION_DURATION_SLOW    = 1.0,
-    TRANSITION_DURATION_FAST    = 0.2,
-    BG_COLOR_DEFAULT            = config.bgColor,
-    BG_COLOR_DARK               = '#000',
-    ENABLE_GRAB_DEFAULT         = config.enableGrab,
-    SCALE_BASE_DEFAULT          = config.scaleBase,
-    SCALE_BASE_SMALL            = 0.8,
-    ACTIVE_CLASS                = 'button-primary',
+  TRANSITION_DURATION_DEFAULT = config.transitionDuration,
+  TRANSITION_DURATION_SLOW = 1.0,
+  TRANSITION_DURATION_FAST = 0.2,
+  BG_COLOR_DEFAULT = config.bgColor,
+  BG_COLOR_DARK = '#000',
+  ENABLE_GRAB_DEFAULT = config.enableGrab,
+  SCALE_BASE_DEFAULT = config.scaleBase,
+  SCALE_BASE_SMALL = 0.8,
+  ACTIVE_CLASS = 'button-primary',
+  btnFast = document.getElementById('btn-fast'),
+  btnSlow = document.getElementById('btn-slow'),
+  btnDark = document.getElementById('btn-dark'),
+  btnNoGrab = document.getElementById('btn-no-grab'),
+  btnScaleSmall = document.getElementById('btn-scale-small')
 
-    btnFast = document.getElementById('btn-fast'),
-    btnSlow = document.getElementById('btn-slow'),
-    btnDark = document.getElementById('btn-dark'),
-    btnNoGrab = document.getElementById('btn-no-grab')
-    btnScaleSmall = document.getElementById('btn-scale-small')
-
-function isActive (el) {
+function isActive(el) {
   return el.classList.contains(ACTIVE_CLASS)
 }
 
-function activate (el) {
+function activate(el) {
   el.classList.add(ACTIVE_CLASS)
 }
 
-function deactivate (el) {
+function deactivate(el) {
   el.classList.remove(ACTIVE_CLASS)
 }
 
-function fast () {
+function fast() {
   var t
   if (isActive(btnFast)) {
     t = TRANSITION_DURATION_DEFAULT
@@ -45,7 +44,7 @@ function fast () {
   customZooming.config({ transitionDuration: t })
 }
 
-function slow () {
+function slow() {
   var t
   if (isActive(btnSlow)) {
     t = TRANSITION_DURATION_DEFAULT
@@ -103,9 +102,12 @@ function license() {
 }
 
 function copyright() {
-  return 'Copyright © ' + new Date().getFullYear() +
-  ' <a href="https://github.com/kingdido999">Desmond Ding</a>' +
-  ' and other <a href="https://github.com/kingdido999/zooming/graphs/contributors">contributors</a>'
+  return (
+    'Copyright © ' +
+    new Date().getFullYear() +
+    ' <a href="https://github.com/kingdido999">Desmond Ding</a>' +
+    ' and other <a href="https://github.com/kingdido999/zooming/graphs/contributors">contributors</a>'
+  )
 }
 
 document.getElementById('license').innerHTML = license()
