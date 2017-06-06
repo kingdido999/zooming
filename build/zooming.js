@@ -264,7 +264,7 @@ var OPTIONS = {
 var PRESS_DELAY = 200;
 var MULTITOUCH_SCALE_FACTOR = 2;
 
-var EventHandler = {
+var handler = {
   init: function init(instance) {
     bindAll(this, instance);
   },
@@ -273,12 +273,12 @@ var EventHandler = {
 
     if (isPressingMetaKey(e)) {
       return window.open(this.target.srcOriginal || e.currentTarget.src, '_blank');
-    }
-
-    if (this.shown) {
-      if (this.released) this.close();else this.release();
     } else {
-      this.open(e.currentTarget);
+      if (this.shown) {
+        if (this.released) this.close();else this.release();
+      } else {
+        this.open(e.currentTarget);
+      }
     }
   },
   scroll: function scroll() {
@@ -296,22 +296,22 @@ var EventHandler = {
     }
   },
   keydown: function keydown(e) {
-    var _this = this;
-
     if (isEscape(e)) {
-      if (this.released) this.close();else this.release(function () {
-        return _this.close();
-      });
+      if (this.released) {
+        this.close();
+      } else {
+        this.release(this.close);
+      }
     }
   },
   mousedown: function mousedown(e) {
-    var _this2 = this;
+    var _this = this;
 
     if (!isLeftButton(e) || isPressingMetaKey(e)) return;
     e.preventDefault();
 
     this.pressTimer = setTimeout(function () {
-      _this2.grab(e.clientX, e.clientY);
+      _this.grab(e.clientX, e.clientY);
     }, PRESS_DELAY);
   },
   mousemove: function mousemove(e) {
@@ -322,33 +322,41 @@ var EventHandler = {
     if (!isLeftButton(e) || isPressingMetaKey(e)) return;
     clearTimeout(this.pressTimer);
 
-    if (this.released) this.close();else this.release();
+    if (this.released) {
+      this.close();
+    } else {
+      this.release();
+    }
   },
   touchstart: function touchstart(e) {
-    var _this3 = this;
+    var _this2 = this;
 
     e.preventDefault();
 
     this.pressTimer = setTimeout(function () {
-      processTouches(e.touches, _this3.options.scaleExtra, function (x, y, scaleExtra) {
-        _this3.grab(x, y, scaleExtra);
+      processTouches(e.touches, _this2.options.scaleExtra, function (x, y, scaleExtra) {
+        _this2.grab(x, y, scaleExtra);
       });
     }, PRESS_DELAY);
   },
   touchmove: function touchmove(e) {
-    var _this4 = this;
+    var _this3 = this;
 
     if (this.released) return;
 
     processTouches(e.touches, this.options.scaleExtra, function (x, y, scaleExtra) {
-      _this4.move(x, y, scaleExtra);
+      _this3.move(x, y, scaleExtra);
     });
   },
   touchend: function touchend(e) {
     if (isTouching(e)) return;
     clearTimeout(this.pressTimer);
 
-    if (this.released) this.close();else this.release();
+    if (this.released) {
+      this.close();
+    } else {
+      this.release();
+    }
   }
 };
 
@@ -424,14 +432,10 @@ function processTouches(touches, currScaleExtra, cb) {
   cb(xs / total, ys / total, scaleExtra);
 }
 
-var Overlay = {
+var overlay = {
   init: function init(instance) {
-    var _this = this;
-
     this.el = document.createElement('div');
-    this.el.addEventListener('click', function () {
-      return _this.instance.close();
-    });
+    this.el.addEventListener('click', instance.close);
     this.instance = instance;
     this.parent = document.body;
 
@@ -460,10 +464,10 @@ var Overlay = {
     this.parent.removeChild(this.el);
   },
   show: function show() {
-    var _this2 = this;
+    var _this = this;
 
     setTimeout(function () {
-      return _this2.el.style.opacity = _this2.instance.options.bgOpacity;
+      return _this.el.style.opacity = _this.instance.options.bgOpacity;
     }, 30);
   },
   hide: function hide() {
@@ -471,7 +475,7 @@ var Overlay = {
   }
 };
 
-var Target = {
+var target = {
   init: function init(el, instance) {
     this.el = el;
     this.instance = instance;
@@ -677,9 +681,9 @@ var Zooming$1 = function () {
     classCallCheck(this, Zooming);
 
     // elements
-    this.target = Object.create(Target);
-    this.overlay = Object.create(Overlay);
-    this.eventHandler = Object.create(EventHandler);
+    this.target = Object.create(target);
+    this.overlay = Object.create(overlay);
+    this.eventHandler = Object.create(handler);
     this.body = document.body;
 
     // state
@@ -764,14 +768,13 @@ var Zooming$1 = function () {
 
       if (this.shown || this.lock) return;
 
-      var target = typeof el === 'string' ? document.querySelector(el) : el;
+      var target$$1 = typeof el === 'string' ? document.querySelector(el) : el;
 
-      if (target.tagName !== 'IMG') return;
+      if (target$$1.tagName !== 'IMG') return;
 
-      // onBeforeOpen event
-      if (this.options.onBeforeOpen) this.options.onBeforeOpen(target);
+      if (this.options.onBeforeOpen) this.options.onBeforeOpen(target$$1);
 
-      this.target.init(target, this);
+      this.target.init(target$$1, this);
 
       if (!this.options.preloadImage) {
         loadImage(this.target.srcOriginal);
@@ -788,7 +791,7 @@ var Zooming$1 = function () {
       document.addEventListener('keydown', this.eventHandler.keydown);
 
       var onEnd = function onEnd() {
-        target.removeEventListener(transEndEvent, onEnd);
+        target$$1.removeEventListener(transEndEvent, onEnd);
 
         _this.lock = false;
 
@@ -798,10 +801,10 @@ var Zooming$1 = function () {
           toggleGrabListeners(document, _this.eventHandler, true);
         }
 
-        if (cb) cb(target);
+        if (cb) cb(target$$1);
       };
 
-      target.addEventListener(transEndEvent, onEnd);
+      target$$1.addEventListener(transEndEvent, onEnd);
 
       return this;
     }
@@ -823,10 +826,9 @@ var Zooming$1 = function () {
 
       if (!this.shown || this.lock) return;
 
-      var target = this.target.el;
+      var target$$1 = this.target.el;
 
-      // onBeforeClose event
-      if (this.options.onBeforeClose) this.options.onBeforeClose(target);
+      if (this.options.onBeforeClose) this.options.onBeforeClose(target$$1);
 
       this.lock = true;
 
@@ -838,7 +840,7 @@ var Zooming$1 = function () {
       document.removeEventListener('keydown', this.eventHandler.keydown);
 
       var onEnd = function onEnd() {
-        target.removeEventListener(transEndEvent, onEnd);
+        target$$1.removeEventListener(transEndEvent, onEnd);
 
         _this2.shown = false;
         _this2.lock = false;
@@ -852,10 +854,10 @@ var Zooming$1 = function () {
         _this2.target.restoreCloseStyle();
         _this2.overlay.destroy();
 
-        if (cb) cb(target);
+        if (cb) cb(target$$1);
       };
 
-      target.addEventListener(transEndEvent, onEnd);
+      target$$1.addEventListener(transEndEvent, onEnd);
 
       return this;
     }
@@ -879,20 +881,19 @@ var Zooming$1 = function () {
 
       if (!this.shown || this.lock) return;
 
-      var target = this.target.el;
+      var target$$1 = this.target.el;
 
-      // onBeforeGrab event
-      if (this.options.onBeforeGrab) this.options.onBeforeGrab(target);
+      if (this.options.onBeforeGrab) this.options.onBeforeGrab(target$$1);
 
       this.released = false;
       this.target.grab(x, y, scaleExtra);
 
       var onEnd = function onEnd() {
-        target.removeEventListener(transEndEvent, onEnd);
-        if (cb) cb(target);
+        target$$1.removeEventListener(transEndEvent, onEnd);
+        if (cb) cb(target$$1);
       };
 
-      target.addEventListener(transEndEvent, onEnd);
+      target$$1.addEventListener(transEndEvent, onEnd);
     }
 
     /**
@@ -914,10 +915,9 @@ var Zooming$1 = function () {
 
       if (!this.shown || this.lock) return;
 
-      var target = this.target.el;
+      var target$$1 = this.target.el;
 
-      // onBeforeMove event
-      if (this.options.onBeforeMove) this.options.onBeforeMove(target);
+      if (this.options.onBeforeMove) this.options.onBeforeMove(target$$1);
 
       this.released = false;
 
@@ -925,11 +925,11 @@ var Zooming$1 = function () {
       this.body.style.cursor = cursor.move;
 
       var onEnd = function onEnd() {
-        target.removeEventListener(transEndEvent, onEnd);
-        if (cb) cb(target);
+        target$$1.removeEventListener(transEndEvent, onEnd);
+        if (cb) cb(target$$1);
       };
 
-      target.addEventListener(transEndEvent, onEnd);
+      target$$1.addEventListener(transEndEvent, onEnd);
     }
 
     /**
@@ -949,10 +949,9 @@ var Zooming$1 = function () {
 
       if (!this.shown || this.lock) return;
 
-      var target = this.target.el;
+      var target$$1 = this.target.el;
 
-      // onBeforeRelease event
-      if (this.options.onBeforeRelease) this.options.onBeforeRelease(target);
+      if (this.options.onBeforeRelease) this.options.onBeforeRelease(target$$1);
 
       this.lock = true;
 
@@ -960,15 +959,15 @@ var Zooming$1 = function () {
       this.body.style.cursor = cursor.default;
 
       var onEnd = function onEnd() {
-        target.removeEventListener(transEndEvent, onEnd);
+        target$$1.removeEventListener(transEndEvent, onEnd);
 
         _this3.lock = false;
         _this3.released = true;
 
-        if (cb) cb(target);
+        if (cb) cb(target$$1);
       };
 
-      target.addEventListener(transEndEvent, onEnd);
+      target$$1.addEventListener(transEndEvent, onEnd);
 
       return this;
     }
@@ -976,14 +975,14 @@ var Zooming$1 = function () {
   return Zooming;
 }();
 
-function toggleGrabListeners(el, handler, add) {
+function toggleGrabListeners(el, handler$$1, add) {
   var types = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
   types.forEach(function (type) {
     if (add) {
-      el.addEventListener(type, handler[type], { passive: false });
+      el.addEventListener(type, handler$$1[type], { passive: false });
     } else {
-      el.removeEventListener(type, handler[type], { passive: false });
+      el.removeEventListener(type, handler$$1[type], { passive: false });
     }
   });
 }

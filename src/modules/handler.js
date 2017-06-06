@@ -16,13 +16,13 @@ export default {
         this.target.srcOriginal || e.currentTarget.src,
         '_blank'
       )
-    }
-
-    if (this.shown) {
-      if (this.released) this.close()
-      else this.release()
     } else {
-      this.open(e.currentTarget)
+      if (this.shown) {
+        if (this.released) this.close()
+        else this.release()
+      } else {
+        this.open(e.currentTarget)
+      }
     }
   },
 
@@ -46,8 +46,11 @@ export default {
 
   keydown(e) {
     if (isEscape(e)) {
-      if (this.released) this.close()
-      else this.release(() => this.close())
+      if (this.released) {
+        this.close()
+      } else {
+        this.release(this.close)
+      }
     }
   },
 
@@ -69,8 +72,11 @@ export default {
     if (!isLeftButton(e) || isPressingMetaKey(e)) return
     clearTimeout(this.pressTimer)
 
-    if (this.released) this.close()
-    else this.release()
+    if (this.released) {
+      this.close()
+    } else {
+      this.release()
+    }
   },
 
   touchstart(e) {
@@ -95,8 +101,11 @@ export default {
     if (isTouching(e)) return
     clearTimeout(this.pressTimer)
 
-    if (this.released) this.close()
-    else this.release()
+    if (this.released) {
+      this.close()
+    } else {
+      this.release()
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import { setStyle } from '../utils'
 export default {
   init(instance) {
     this.el = document.createElement('div')
-    this.el.addEventListener('click', () => this.instance.close())
+    this.el.addEventListener('click', instance.close)
     this.instance = instance
     this.parent = document.body
 

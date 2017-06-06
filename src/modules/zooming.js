@@ -1,9 +1,9 @@
 import { cursor, loadImage, transEndEvent, getOriginalSource } from '../utils'
 import DEFAULT_OPTIONS from '../options'
 
-import EventHandler from './event-handler'
-import Overlay from './overlay'
-import Target from './target'
+import handler from './handler'
+import overlay from './overlay'
+import target from './target'
 
 /**
  * Zooming instance.
@@ -14,9 +14,9 @@ export default class Zooming {
    */
   constructor(options) {
     // elements
-    this.target = Object.create(Target)
-    this.overlay = Object.create(Overlay)
-    this.eventHandler = Object.create(EventHandler)
+    this.target = Object.create(target)
+    this.overlay = Object.create(overlay)
+    this.eventHandler = Object.create(handler)
     this.body = document.body
 
     // state
@@ -91,7 +91,6 @@ export default class Zooming {
 
     if (target.tagName !== 'IMG') return
 
-    // onBeforeOpen event
     if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
 
     this.target.init(target, this)
@@ -141,7 +140,6 @@ export default class Zooming {
 
     const target = this.target.el
 
-    // onBeforeClose event
     if (this.options.onBeforeClose) this.options.onBeforeClose(target)
 
     this.lock = true
@@ -191,7 +189,6 @@ export default class Zooming {
 
     const target = this.target.el
 
-    // onBeforeGrab event
     if (this.options.onBeforeGrab) this.options.onBeforeGrab(target)
 
     this.released = false
@@ -220,7 +217,6 @@ export default class Zooming {
 
     const target = this.target.el
 
-    // onBeforeMove event
     if (this.options.onBeforeMove) this.options.onBeforeMove(target)
 
     this.released = false
@@ -248,7 +244,6 @@ export default class Zooming {
 
     const target = this.target.el
 
-    // onBeforeRelease event
     if (this.options.onBeforeRelease) this.options.onBeforeRelease(target)
 
     this.lock = true
