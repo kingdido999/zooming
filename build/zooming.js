@@ -401,18 +401,18 @@ function processTouches(touches, currScaleExtra, cb) {
     xs += x;
     ys += y;
 
-    if (!multitouch) continue;
+    if (multitouch) {
+      if (x < min.x) {
+        min.x = x;
+      } else if (x > max.x) {
+        max.x = x;
+      }
 
-    if (x < min.x) {
-      min.x = x;
-    } else if (x > max.x) {
-      max.x = x;
-    }
-
-    if (y < min.y) {
-      min.y = y;
-    } else if (y > max.y) {
-      max.y = y;
+      if (y < min.y) {
+        min.y = y;
+      } else if (y > max.y) {
+        max.y = y;
+      }
     }
   }
 
@@ -668,10 +668,6 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
   /**
