@@ -83,18 +83,14 @@ export default {
     e.preventDefault()
 
     this.pressTimer = setTimeout(() => {
-      processTouches(e.touches, this.options.scaleExtra, (x, y, scaleExtra) => {
-        this.grab(x, y, scaleExtra)
-      })
+      processTouches(e.touches, this.options.scaleExtra, this.grab.bind(this))
     }, PRESS_DELAY)
   },
 
   touchmove(e) {
     if (this.released) return
 
-    processTouches(e.touches, this.options.scaleExtra, (x, y, scaleExtra) => {
-      this.move(x, y, scaleExtra)
-    })
+    processTouches(e.touches, this.options.scaleExtra, this.move.bind(this))
   },
 
   touchend(e) {

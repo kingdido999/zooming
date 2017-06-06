@@ -334,19 +334,13 @@ var handler = {
     e.preventDefault();
 
     this.pressTimer = setTimeout(function () {
-      processTouches(e.touches, _this2.options.scaleExtra, function (x, y, scaleExtra) {
-        _this2.grab(x, y, scaleExtra);
-      });
+      processTouches(e.touches, _this2.options.scaleExtra, _this2.grab.bind(_this2));
     }, PRESS_DELAY);
   },
   touchmove: function touchmove(e) {
-    var _this3 = this;
-
     if (this.released) return;
 
-    processTouches(e.touches, this.options.scaleExtra, function (x, y, scaleExtra) {
-      _this3.move(x, y, scaleExtra);
-    });
+    processTouches(e.touches, this.options.scaleExtra, this.move.bind(this));
   },
   touchend: function touchend(e) {
     if (isTouching(e)) return;
