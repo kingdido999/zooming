@@ -11,11 +11,11 @@ Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 
 This library is available through:
 
-- [cdnjs](https://cdnjs.com/libraries/zooming)
 - Package manager:
   - `yarn add zooming`
   - `npm install zooming --save`
   - `bower install zooming --save`
+- [cdnjs](https://cdnjs.com/libraries/zooming)
 - [Download source](https://github.com/kingdido999/zooming/releases)
 
 To integrate with your web app:
@@ -114,9 +114,12 @@ Want to add your demo/website to the list? Simply make a pull request!
 
 ## Development
 
-Install [yarn](https://yarnpkg.com/en/docs/install) if haven't already. Fork and clone it. Under project folder:
+Fork and clone it. Under project folder:
 
-`yarn && yarn watch`
+```bash
+yarn        # or npm install
+yarn watch  # or npm run watch
+```
 
 ## Test
 
