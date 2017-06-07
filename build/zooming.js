@@ -132,7 +132,6 @@ function sniffTransition(el) {
  *   onBeforeOpen: null,
  *   onBeforeClose: null,
  *   onBeforeGrab: null,
- *   onBeforeMove: null,
  *   onBeforeRelease: null
  * }
  */
@@ -656,10 +655,6 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
   /**

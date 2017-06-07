@@ -214,12 +214,6 @@
                       </a></li>
                     
                       <li><a
-                        href='#OPTIONS.onBeforeMove'
-                        class='regular pre-open'>
-                        .onBeforeMove
-                      </a></li>
-                    
-                      <li><a
                         href='#OPTIONS.onBeforeRelease'
                         class='regular pre-open'>
                         .onBeforeRelease
@@ -641,7 +635,7 @@ the target element as the argument.
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= = () => {target., cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=   target.removeEventLis, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -675,7 +669,7 @@ the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= = () => {target.)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?=   target.removeEventLis)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -738,7 +732,7 @@ will get the target element as the argument.
   <p>Move the Element currently grabbed given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= yle.cursor = cursor.mov, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>move(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= transEndEvent, onEnd), cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -772,7 +766,7 @@ will get the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= yle.cursor = cursor.mov)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= transEndEvent, onEnd))</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -958,7 +952,6 @@ will get the target element as the argument.
   <span class="hljs-attr">onBeforeOpen</span>: <span class="hljs-literal">null</span>,
   <span class="hljs-attr">onBeforeClose</span>: <span class="hljs-literal">null</span>,
   <span class="hljs-attr">onBeforeGrab</span>: <span class="hljs-literal">null</span>,
-  <span class="hljs-attr">onBeforeMove</span>: <span class="hljs-literal">null</span>,
   <span class="hljs-attr">onBeforeRelease</span>: <span class="hljs-literal">null</span>
 }</pre>
     
@@ -1070,7 +1063,7 @@ will get the target element as the argument.
 
   
 
-  <p>Preload images with attribute "data-original".</p>
+  <p>Preload zoomable images.</p>
 
 
   <div class='pre p1 fill-light mt0'>preloadImage</div>
@@ -1756,51 +1749,6 @@ transition has ended. It will get the target element as the argument.</p>
 
 
   <div class='pre p1 fill-light mt0'>onBeforeGrab</div>
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-</section>
-
-      </div>
-    </div>
-  
-    <div class='border-bottom' id='OPTIONS.onBeforeMove'>
-      <div class="clearfix small pointer toggle-sibling">
-        <div class="py1 contain">
-            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>onBeforeMove</span>
-        </div>
-      </div>
-      <div class="clearfix display-none toggle-target">
-        <section class='p2 mb2 clearfix bg-white minishadow'>
-
-  
-
-  <p>A callback function that will be called before move.</p>
-
-
-  <div class='pre p1 fill-light mt0'>onBeforeMove</div>
   
   
 

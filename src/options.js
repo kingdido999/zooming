@@ -23,7 +23,6 @@
  *   onBeforeOpen: null,
  *   onBeforeClose: null,
  *   onBeforeGrab: null,
- *   onBeforeMove: null,
  *   onBeforeRelease: null
  * }
  */
