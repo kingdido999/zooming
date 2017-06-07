@@ -143,7 +143,6 @@ export default class Zooming {
     if (this.options.onBeforeClose) this.options.onBeforeClose(target)
 
     this.lock = true
-
     this.body.style.cursor = cursor.default
     this.overlay.hide()
     this.target.zoomOut()
@@ -215,14 +214,11 @@ export default class Zooming {
   move(x, y, scaleExtra = this.options.scaleExtra, cb) {
     if (!this.shown || this.lock) return
 
-    const target = this.target.el
-
-    if (this.options.onBeforeMove) this.options.onBeforeMove(target)
-
     this.released = false
-
-    this.target.move(x, y, scaleExtra)
     this.body.style.cursor = cursor.move
+    this.target.move(x, y, scaleExtra)
+
+    const target = this.target.el
 
     const onEnd = () => {
       target.removeEventListener(transEndEvent, onEnd)
@@ -247,9 +243,8 @@ export default class Zooming {
     if (this.options.onBeforeRelease) this.options.onBeforeRelease(target)
 
     this.lock = true
-
-    this.target.restoreOpenStyle()
     this.body.style.cursor = cursor.default
+    this.target.restoreOpenStyle()
 
     const onEnd = () => {
       target.removeEventListener(transEndEvent, onEnd)

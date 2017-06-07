@@ -41,7 +41,7 @@ const OPTIONS = {
   enableGrab: true,
 
   /**
-   * Preload images with attribute "data-original".
+   * Preload zoomable images.
    * @type {boolean}
    */
   preloadImage: false,
@@ -138,12 +138,6 @@ const OPTIONS = {
    * @type {Function}
    */
   onBeforeGrab: null,
-
-  /**
-   * A callback function that will be called before move.
-   * @type {Function}
-   */
-  onBeforeMove: null,
 
   /**
    * A callback function that will be called before release.

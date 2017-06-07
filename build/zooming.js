@@ -150,7 +150,7 @@ var OPTIONS = {
   enableGrab: true,
 
   /**
-   * Preload images with attribute "data-original".
+   * Preload zoomable images.
    * @type {boolean}
    */
   preloadImage: false,
@@ -247,12 +247,6 @@ var OPTIONS = {
    * @type {Function}
    */
   onBeforeGrab: null,
-
-  /**
-   * A callback function that will be called before move.
-   * @type {Function}
-   */
-  onBeforeMove: null,
 
   /**
    * A callback function that will be called before release.
@@ -663,6 +657,10 @@ var _extends = Object.assign || function (target) {
   return target;
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
   /**
    * @param {Object} [options] Update default options if provided.
@@ -821,7 +819,6 @@ var Zooming$1 = function () {
       if (this.options.onBeforeClose) this.options.onBeforeClose(target$$1);
 
       this.lock = true;
-
       this.body.style.cursor = cursor.default;
       this.overlay.hide();
       this.target.zoomOut();
@@ -905,14 +902,11 @@ var Zooming$1 = function () {
 
       if (!this.shown || this.lock) return;
 
-      var target$$1 = this.target.el;
-
-      if (this.options.onBeforeMove) this.options.onBeforeMove(target$$1);
-
       this.released = false;
-
-      this.target.move(x, y, scaleExtra);
       this.body.style.cursor = cursor.move;
+      this.target.move(x, y, scaleExtra);
+
+      var target$$1 = this.target.el;
 
       var onEnd = function onEnd() {
         target$$1.removeEventListener(transEndEvent, onEnd);
@@ -944,9 +938,8 @@ var Zooming$1 = function () {
       if (this.options.onBeforeRelease) this.options.onBeforeRelease(target$$1);
 
       this.lock = true;
-
-      this.target.restoreOpenStyle();
       this.body.style.cursor = cursor.default;
+      this.target.restoreOpenStyle();
 
       var onEnd = function onEnd() {
         target$$1.removeEventListener(transEndEvent, onEnd);
