@@ -1,4 +1,10 @@
-import { cursor, loadImage, transEndEvent, getOriginalSource } from '../utils'
+import {
+  cursor,
+  listen,
+  loadImage,
+  transEndEvent,
+  getOriginalSource
+} from '../utils'
 import DEFAULT_OPTIONS from '../options'
 
 import handler from './handler'
@@ -53,7 +59,7 @@ export default class Zooming {
     if (el.tagName !== 'IMG') return
 
     el.style.cursor = cursor.zoomIn
-    el.addEventListener('click', this.eventHandler.click, { passive: false })
+    listen(el, 'click', this.eventHandler.click)
 
     if (this.options.preloadImage) {
       loadImage(getOriginalSource(el))
@@ -106,14 +112,12 @@ export default class Zooming {
     this.overlay.create()
     this.overlay.show()
 
-    document.addEventListener('scroll', this.eventHandler.scroll)
-    document.addEventListener('keydown', this.eventHandler.keydown)
+    listen(document, 'scroll', this.eventHandler.scroll)
+    listen(document, 'keydown', this.eventHandler.keydown)
 
     const onEnd = () => {
-      target.removeEventListener(transEndEvent, onEnd)
-
+      listen(target, transEndEvent, onEnd, false)
       this.lock = false
-
       this.target.upgradeSource()
 
       if (this.options.enableGrab) {
@@ -123,7 +127,7 @@ export default class Zooming {
       if (cb) cb(target)
     }
 
-    target.addEventListener(transEndEvent, onEnd)
+    listen(target, transEndEvent, onEnd)
 
     return this
   }
@@ -147,11 +151,11 @@ export default class Zooming {
     this.overlay.hide()
     this.target.zoomOut()
 
-    document.removeEventListener('scroll', this.eventHandler.scroll)
-    document.removeEventListener('keydown', this.eventHandler.keydown)
+    listen(document, 'scroll', this.eventHandler.scroll, false)
+    listen(document, 'keydown', this.eventHandler.keydown, false)
 
     const onEnd = () => {
-      target.removeEventListener(transEndEvent, onEnd)
+      listen(target, transEndEvent, onEnd, false)
 
       this.shown = false
       this.lock = false
@@ -168,7 +172,7 @@ export default class Zooming {
       if (cb) cb(target)
     }
 
-    target.addEventListener(transEndEvent, onEnd)
+    listen(target, transEndEvent, onEnd)
 
     return this
   }
@@ -194,11 +198,11 @@ export default class Zooming {
     this.target.grab(x, y, scaleExtra)
 
     const onEnd = () => {
-      target.removeEventListener(transEndEvent, onEnd)
+      listen(target, transEndEvent, onEnd, false)
       if (cb) cb(target)
     }
 
-    target.addEventListener(transEndEvent, onEnd)
+    listen(target, transEndEvent, onEnd)
   }
 
   /**
@@ -221,11 +225,11 @@ export default class Zooming {
     const target = this.target.el
 
     const onEnd = () => {
-      target.removeEventListener(transEndEvent, onEnd)
+      listen(target, transEndEvent, onEnd, false)
       if (cb) cb(target)
     }
 
-    target.addEventListener(transEndEvent, onEnd)
+    listen(target, transEndEvent, onEnd)
   }
 
   /**
@@ -247,15 +251,14 @@ export default class Zooming {
     this.target.restoreOpenStyle()
 
     const onEnd = () => {
-      target.removeEventListener(transEndEvent, onEnd)
-
+      listen(target, transEndEvent, onEnd, false)
       this.lock = false
       this.released = true
 
       if (cb) cb(target)
     }
 
-    target.addEventListener(transEndEvent, onEnd)
+    listen(target, transEndEvent, onEnd)
 
     return this
   }
@@ -271,11 +274,5 @@ function toggleGrabListeners(el, handler, add) {
     'touchend'
   ]
 
-  types.forEach(type => {
-    if (add) {
-      el.addEventListener(type, handler[type], { passive: false })
-    } else {
-      el.removeEventListener(type, handler[type], { passive: false })
-    }
-  })
+  types.forEach(type => listen(el, type, handler[type], add))
 }

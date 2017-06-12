@@ -154,14 +154,9 @@ function calculateScale(rect, scaleBase, customSize) {
 }
 
 function getWindowCenter() {
-  const windowWidth = Math.min(
-    document.documentElement.clientWidth,
-    window.innerWidth
-  )
-  const windowHeight = Math.min(
-    document.documentElement.clientHeight,
-    window.innerHeight
-  )
+  const docEl = document.documentElement
+  const windowWidth = Math.min(docEl.clientWidth, window.innerWidth)
+  const windowHeight = Math.min(docEl.clientHeight, window.innerHeight)
 
   return {
     x: windowWidth / 2,

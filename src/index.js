@@ -1,7 +1,6 @@
+import { listen } from './utils'
 import Zooming from './modules/zooming'
 
-document.addEventListener('DOMContentLoaded', () => {
-  new Zooming()
-})
+listen(document, 'DOMContentLoaded', () => new Zooming())
 
 export default Zooming

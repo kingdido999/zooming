@@ -1,7 +1,17 @@
 import { bindAll } from '../utils'
 
 const PRESS_DELAY = 200
-const MULTITOUCH_SCALE_FACTOR = 2
+
+const isLeftButton = e => e.button === 0
+
+const isPressingMetaKey = e => e.metaKey || e.ctrlKey
+
+const isTouching = e => e.targetTouches.length > 0
+
+const isEscape = e => {
+  const code = e.key || e.code
+  return code === 'Escape' || e.keyCode === 27
+}
 
 export default {
   init(instance) {
@@ -81,16 +91,18 @@ export default {
 
   touchstart(e) {
     e.preventDefault()
+    const { clientX, clientY } = e.touches[0]
 
     this.pressTimer = setTimeout(() => {
-      processTouches(e.touches, this.options.scaleExtra, this.grab.bind(this))
+      this.grab(clientX, clientY)
     }, PRESS_DELAY)
   },
 
   touchmove(e) {
     if (this.released) return
 
-    processTouches(e.touches, this.options.scaleExtra, this.move.bind(this))
+    const { clientX, clientY } = e.touches[0]
+    this.move(clientX, clientY)
   },
 
   touchend(e) {
@@ -103,69 +115,4 @@ export default {
       this.release()
     }
   }
-}
-
-function isLeftButton(event) {
-  return event.button === 0
-}
-
-function isPressingMetaKey(event) {
-  return event.metaKey || event.ctrlKey
-}
-
-function isEscape(event) {
-  const code = event.key || event.code
-  return code === 'Escape' || event.keyCode === 27
-}
-
-function isTouching(event) {
-  return event.targetTouches.length > 0
-}
-
-function processTouches(touches, currScaleExtra, cb) {
-  const total = touches.length
-  const firstTouch = touches[0]
-  const multitouch = total > 1
-
-  let scaleExtra = currScaleExtra
-  let i = touches.length
-  let [xs, ys] = [0, 0]
-
-  // keep track of the min and max of touch positions
-  let min = { x: firstTouch.clientX, y: firstTouch.clientY }
-  let max = { x: firstTouch.clientX, y: firstTouch.clientY }
-
-  while (i--) {
-    const t = touches[i]
-    const [x, y] = [t.clientX, t.clientY]
-    xs += x
-    ys += y
-
-    if (multitouch) {
-      if (x < min.x) {
-        min.x = x
-      } else if (x > max.x) {
-        max.x = x
-      }
-
-      if (y < min.y) {
-        min.y = y
-      } else if (y > max.y) {
-        max.y = y
-      }
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    const [distX, distY] = [max.x - min.x, max.y - min.y]
-
-    if (distX > distY) {
-      scaleExtra = distX / window.innerWidth * MULTITOUCH_SCALE_FACTOR
-    } else {
-      scaleExtra = distY / window.innerHeight * MULTITOUCH_SCALE_FACTOR
-    }
-  }
-
-  cb(xs / total, ys / total, scaleExtra)
 }

@@ -26,7 +26,7 @@
  *   onBeforeRelease: null
  * }
  */
-const OPTIONS = {
+export default {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
    * @type {string|Element}
@@ -144,5 +144,3 @@ const OPTIONS = {
    */
   onBeforeRelease: null
 }
-
-export default OPTIONS

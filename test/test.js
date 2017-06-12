@@ -47,9 +47,6 @@ describe('API', function() {
       onBeforeGrab: function() {
         return 'onBeforeGrab'
       },
-      onBeforeMove: function() {
-        return 'onBeforeMove'
-      },
       onBeforeRelease: function() {
         return 'onBeforeRelease'
       }

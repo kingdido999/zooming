@@ -10,15 +10,22 @@ export const cursor = {
   move: 'move'
 }
 
-export function loadImage(src, cb) {
-  if (!src) return
-
-  const img = new Image()
-  img.onload = function() {
-    if (cb) cb(img)
+export function listen(el, event, handler, add = true) {
+  if (add) {
+    el.addEventListener(event, handler, { passive: false })
+  } else {
+    el.removeEventListener(event, handler, { passive: false })
   }
+}
 
-  img.src = src
+export function loadImage(src, cb) {
+  if (src) {
+    const img = new Image()
+    img.onload = function() {
+      if (cb) cb(img)
+    }
+    img.src = src
+  }
 }
 
 export function getOriginalSource(el) {

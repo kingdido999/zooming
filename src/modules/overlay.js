@@ -1,9 +1,8 @@
-import { setStyle } from '../utils'
+import { listen, setStyle } from '../utils'
 
 export default {
   init(instance) {
     this.el = document.createElement('div')
-    this.el.addEventListener('click', instance.close)
     this.instance = instance
     this.parent = document.body
 
@@ -17,6 +16,7 @@ export default {
     })
 
     this.updateStyle(instance.options)
+    listen(this.el, 'click', instance.close)
   },
 
   updateStyle(options) {
@@ -39,7 +39,7 @@ export default {
 
   show() {
     setTimeout(
-      () => this.el.style.opacity = this.instance.options.bgOpacity,
+      () => (this.el.style.opacity = this.instance.options.bgOpacity),
       30
     )
   },

@@ -14,15 +14,24 @@ var cursor = {
   move: 'move'
 };
 
+function listen(el, event, handler) {
+  var add = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+
+  if (add) {
+    el.addEventListener(event, handler, { passive: false });
+  } else {
+    el.removeEventListener(event, handler, { passive: false });
+  }
+}
+
 function loadImage(src, cb) {
-  if (!src) return;
-
-  var img = new Image();
-  img.onload = function () {
-    if (cb) cb(img);
-  };
-
-  img.src = src;
+  if (src) {
+    var img = new Image();
+    img.onload = function () {
+      if (cb) cb(img);
+    };
+    img.src = src;
+  }
 }
 
 function getOriginalSource(el) {
@@ -135,7 +144,7 @@ function sniffTransition(el) {
  *   onBeforeRelease: null
  * }
  */
-var OPTIONS = {
+var DEFAULT_OPTIONS = {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
    * @type {string|Element}
@@ -255,7 +264,23 @@ var OPTIONS = {
 };
 
 var PRESS_DELAY = 200;
-var MULTITOUCH_SCALE_FACTOR = 2;
+
+var isLeftButton = function isLeftButton(e) {
+  return e.button === 0;
+};
+
+var isPressingMetaKey = function isPressingMetaKey(e) {
+  return e.metaKey || e.ctrlKey;
+};
+
+var isTouching = function isTouching(e) {
+  return e.targetTouches.length > 0;
+};
+
+var isEscape = function isEscape(e) {
+  var code = e.key || e.code;
+  return code === 'Escape' || e.keyCode === 27;
+};
 
 var handler = {
   init: function init(instance) {
@@ -325,15 +350,23 @@ var handler = {
     var _this2 = this;
 
     e.preventDefault();
+    var _e$touches$ = e.touches[0],
+        clientX = _e$touches$.clientX,
+        clientY = _e$touches$.clientY;
+
 
     this.pressTimer = setTimeout(function () {
-      processTouches(e.touches, _this2.options.scaleExtra, _this2.grab.bind(_this2));
+      _this2.grab(clientX, clientY);
     }, PRESS_DELAY);
   },
   touchmove: function touchmove(e) {
     if (this.released) return;
 
-    processTouches(e.touches, this.options.scaleExtra, this.move.bind(this));
+    var _e$touches$2 = e.touches[0],
+        clientX = _e$touches$2.clientX,
+        clientY = _e$touches$2.clientY;
+
+    this.move(clientX, clientY);
   },
   touchend: function touchend(e) {
     if (isTouching(e)) return;
@@ -347,82 +380,9 @@ var handler = {
   }
 };
 
-function isLeftButton(event) {
-  return event.button === 0;
-}
-
-function isPressingMetaKey(event) {
-  return event.metaKey || event.ctrlKey;
-}
-
-function isEscape(event) {
-  var code = event.key || event.code;
-  return code === 'Escape' || event.keyCode === 27;
-}
-
-function isTouching(event) {
-  return event.targetTouches.length > 0;
-}
-
-function processTouches(touches, currScaleExtra, cb) {
-  var total = touches.length;
-  var firstTouch = touches[0];
-  var multitouch = total > 1;
-
-  var scaleExtra = currScaleExtra;
-  var i = touches.length;
-  var xs = 0,
-      ys = 0;
-
-  // keep track of the min and max of touch positions
-
-  var min = { x: firstTouch.clientX, y: firstTouch.clientY };
-  var max = { x: firstTouch.clientX, y: firstTouch.clientY };
-
-  while (i--) {
-    var t = touches[i];
-    var _ref = [t.clientX, t.clientY],
-        x = _ref[0],
-        y = _ref[1];
-
-    xs += x;
-    ys += y;
-
-    if (multitouch) {
-      if (x < min.x) {
-        min.x = x;
-      } else if (x > max.x) {
-        max.x = x;
-      }
-
-      if (y < min.y) {
-        min.y = y;
-      } else if (y > max.y) {
-        max.y = y;
-      }
-    }
-  }
-
-  if (multitouch) {
-    // change scaleExtra dynamically
-    var distX = max.x - min.x,
-        distY = max.y - min.y;
-
-
-    if (distX > distY) {
-      scaleExtra = distX / window.innerWidth * MULTITOUCH_SCALE_FACTOR;
-    } else {
-      scaleExtra = distY / window.innerHeight * MULTITOUCH_SCALE_FACTOR;
-    }
-  }
-
-  cb(xs / total, ys / total, scaleExtra);
-}
-
 var overlay = {
   init: function init(instance) {
     this.el = document.createElement('div');
-    this.el.addEventListener('click', instance.close);
     this.instance = instance;
     this.parent = document.body;
 
@@ -436,6 +396,7 @@ var overlay = {
     });
 
     this.updateStyle(instance.options);
+    listen(this.el, 'click', instance.close);
   },
   updateStyle: function updateStyle(options) {
     setStyle(this.el, {
@@ -603,8 +564,9 @@ function calculateScale(rect, scaleBase, customSize) {
 }
 
 function getWindowCenter() {
-  var windowWidth = Math.min(document.documentElement.clientWidth, window.innerWidth);
-  var windowHeight = Math.min(document.documentElement.clientHeight, window.innerHeight);
+  var docEl = document.documentElement;
+  var windowWidth = Math.min(docEl.clientWidth, window.innerWidth);
+  var windowHeight = Math.min(docEl.clientHeight, window.innerHeight);
 
   return {
     x: windowWidth / 2,
@@ -656,10 +618,6 @@ var _extends = Object.assign || function (target) {
   return target;
 };
 
-/**
- * Zooming instance.
- */
-
 var Zooming$1 = function () {
   /**
    * @param {Object} [options] Update default options if provided.
@@ -681,7 +639,7 @@ var Zooming$1 = function () {
     this.pressTimer = null;
 
     // init
-    this.options = _extends({}, OPTIONS, options);
+    this.options = _extends({}, DEFAULT_OPTIONS, options);
     this.overlay.init(this);
     this.eventHandler.init(this);
     this.listen(this.options.defaultZoomable);
@@ -696,7 +654,7 @@ var Zooming$1 = function () {
 
   createClass(Zooming, [{
     key: 'listen',
-    value: function listen(el) {
+    value: function listen$$1(el) {
       if (typeof el === 'string') {
         var els = document.querySelectorAll(el);
         var i = els.length;
@@ -711,7 +669,7 @@ var Zooming$1 = function () {
       if (el.tagName !== 'IMG') return;
 
       el.style.cursor = cursor.zoomIn;
-      el.addEventListener('click', this.eventHandler.click, { passive: false });
+      listen(el, 'click', this.eventHandler.click);
 
       if (this.options.preloadImage) {
         loadImage(getOriginalSource(el));
@@ -774,14 +732,12 @@ var Zooming$1 = function () {
       this.overlay.create();
       this.overlay.show();
 
-      document.addEventListener('scroll', this.eventHandler.scroll);
-      document.addEventListener('keydown', this.eventHandler.keydown);
+      listen(document, 'scroll', this.eventHandler.scroll);
+      listen(document, 'keydown', this.eventHandler.keydown);
 
       var onEnd = function onEnd() {
-        target$$1.removeEventListener(transEndEvent, onEnd);
-
+        listen(target$$1, transEndEvent, onEnd, false);
         _this.lock = false;
-
         _this.target.upgradeSource();
 
         if (_this.options.enableGrab) {
@@ -791,7 +747,7 @@ var Zooming$1 = function () {
         if (cb) cb(target$$1);
       };
 
-      target$$1.addEventListener(transEndEvent, onEnd);
+      listen(target$$1, transEndEvent, onEnd);
 
       return this;
     }
@@ -822,11 +778,11 @@ var Zooming$1 = function () {
       this.overlay.hide();
       this.target.zoomOut();
 
-      document.removeEventListener('scroll', this.eventHandler.scroll);
-      document.removeEventListener('keydown', this.eventHandler.keydown);
+      listen(document, 'scroll', this.eventHandler.scroll, false);
+      listen(document, 'keydown', this.eventHandler.keydown, false);
 
       var onEnd = function onEnd() {
-        target$$1.removeEventListener(transEndEvent, onEnd);
+        listen(target$$1, transEndEvent, onEnd, false);
 
         _this2.shown = false;
         _this2.lock = false;
@@ -843,7 +799,7 @@ var Zooming$1 = function () {
         if (cb) cb(target$$1);
       };
 
-      target$$1.addEventListener(transEndEvent, onEnd);
+      listen(target$$1, transEndEvent, onEnd);
 
       return this;
     }
@@ -875,11 +831,11 @@ var Zooming$1 = function () {
       this.target.grab(x, y, scaleExtra);
 
       var onEnd = function onEnd() {
-        target$$1.removeEventListener(transEndEvent, onEnd);
+        listen(target$$1, transEndEvent, onEnd, false);
         if (cb) cb(target$$1);
       };
 
-      target$$1.addEventListener(transEndEvent, onEnd);
+      listen(target$$1, transEndEvent, onEnd);
     }
 
     /**
@@ -908,11 +864,11 @@ var Zooming$1 = function () {
       var target$$1 = this.target.el;
 
       var onEnd = function onEnd() {
-        target$$1.removeEventListener(transEndEvent, onEnd);
+        listen(target$$1, transEndEvent, onEnd, false);
         if (cb) cb(target$$1);
       };
 
-      target$$1.addEventListener(transEndEvent, onEnd);
+      listen(target$$1, transEndEvent, onEnd);
     }
 
     /**
@@ -941,15 +897,14 @@ var Zooming$1 = function () {
       this.target.restoreOpenStyle();
 
       var onEnd = function onEnd() {
-        target$$1.removeEventListener(transEndEvent, onEnd);
-
+        listen(target$$1, transEndEvent, onEnd, false);
         _this3.lock = false;
         _this3.released = true;
 
         if (cb) cb(target$$1);
       };
 
-      target$$1.addEventListener(transEndEvent, onEnd);
+      listen(target$$1, transEndEvent, onEnd);
 
       return this;
     }
@@ -961,16 +916,12 @@ function toggleGrabListeners(el, handler$$1, add) {
   var types = ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'];
 
   types.forEach(function (type) {
-    if (add) {
-      el.addEventListener(type, handler$$1[type], { passive: false });
-    } else {
-      el.removeEventListener(type, handler$$1[type], { passive: false });
-    }
+    return listen(el, type, handler$$1[type], add);
   });
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  new Zooming$1();
+listen(document, 'DOMContentLoaded', function () {
+  return new Zooming$1();
 });
 
 return Zooming$1;
