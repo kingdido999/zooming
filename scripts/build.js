@@ -3,6 +3,7 @@ const watch = require('rollup-watch')
 const babel = require('rollup-plugin-babel')
 const eslint = require('rollup-plugin-eslint')
 const uglify = require('rollup-plugin-uglify')
+const filesize = require('rollup-plugin-filesize')
 const open = require('open')
 
 const defaultPlugins = [
@@ -37,9 +38,13 @@ const config = (dest, plugins) => {
     moduleName: 'Zooming',
     sourceMap: true,
     plugins: plugins,
-    onwarn: (message) => {
+    onwarn: message => {
       // https://github.com/rollup/rollup/wiki/Troubleshooting#this-is-undefined
-      if (/The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten./.test(message)) {
+      if (
+        /The 'this' keyword is equivalent to 'undefined' at the top level of an ES module, and has been rewritten./.test(
+          message
+        )
+      ) {
         return
       }
     }
@@ -57,7 +62,9 @@ const eventHandler = (event, filename) => {
       stderr(`bundling ${filename}...`)
       break
     case 'BUILD_END':
-      stderr(`${filename} bundled in ${event.duration}ms. Watching for changes...`)
+      stderr(
+        `${filename} bundled in ${event.duration}ms. Watching for changes...`
+      )
       if (!opened) {
         open(__dirname + '/../index.html')
         opened = true
@@ -71,15 +78,12 @@ const eventHandler = (event, filename) => {
   }
 }
 
-const watcherDefault = watch(rollup, config(
-  destDefault,
-  defaultPlugins
-))
+const watcherDefault = watch(rollup, config(destDefault, defaultPlugins))
 
-const watcherUglify = watch(rollup, config(
-  destMinify,
-  defaultPlugins.concat([uglify({})])
-))
+const watcherUglify = watch(
+  rollup,
+  config(destMinify, [...defaultPlugins, uglify({}), filesize()])
+)
 
-watcherDefault.on('event', (event) => eventHandler(event, destDefault))
-watcherUglify.on('event', (event) => eventHandler(event, destMinify))
+watcherDefault.on('event', event => eventHandler(event, destDefault))
+watcherUglify.on('event', event => eventHandler(event, destMinify))
