@@ -22,7 +22,7 @@ export default class Zooming {
     // elements
     this.target = Object.create(target)
     this.overlay = Object.create(overlay)
-    this.eventHandler = Object.create(handler)
+    this.handler = Object.create(handler)
     this.body = document.body
 
     // state
@@ -35,7 +35,7 @@ export default class Zooming {
     // init
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this.overlay.init(this)
-    this.eventHandler.init(this)
+    this.handler.init(this)
     this.listen(this.options.defaultZoomable)
   }
 
@@ -59,7 +59,7 @@ export default class Zooming {
     if (el.tagName !== 'IMG') return
 
     el.style.cursor = cursor.zoomIn
-    listen(el, 'click', this.eventHandler.click)
+    listen(el, 'click', this.handler.click)
 
     if (this.options.preloadImage) {
       loadImage(getOriginalSource(el))
@@ -112,8 +112,8 @@ export default class Zooming {
     this.overlay.create()
     this.overlay.show()
 
-    listen(document, 'scroll', this.eventHandler.scroll)
-    listen(document, 'keydown', this.eventHandler.keydown)
+    listen(document, 'scroll', this.handler.scroll)
+    listen(document, 'keydown', this.handler.keydown)
 
     const onEnd = () => {
       listen(target, transEndEvent, onEnd, false)
@@ -121,7 +121,7 @@ export default class Zooming {
       this.target.upgradeSource()
 
       if (this.options.enableGrab) {
-        toggleGrabListeners(document, this.eventHandler, true)
+        toggleGrabListeners(document, this.handler, true)
       }
 
       if (cb) cb(target)
@@ -151,8 +151,8 @@ export default class Zooming {
     this.overlay.hide()
     this.target.zoomOut()
 
-    listen(document, 'scroll', this.eventHandler.scroll, false)
-    listen(document, 'keydown', this.eventHandler.keydown, false)
+    listen(document, 'scroll', this.handler.scroll, false)
+    listen(document, 'keydown', this.handler.keydown, false)
 
     const onEnd = () => {
       listen(target, transEndEvent, onEnd, false)
@@ -163,7 +163,7 @@ export default class Zooming {
       this.target.downgradeSource()
 
       if (this.options.enableGrab) {
-        toggleGrabListeners(document, this.eventHandler, false)
+        toggleGrabListeners(document, this.handler, false)
       }
 
       this.target.restoreCloseStyle()

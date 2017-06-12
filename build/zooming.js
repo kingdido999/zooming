@@ -618,6 +618,10 @@ var _extends = Object.assign || function (target) {
   return target;
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
   /**
    * @param {Object} [options] Update default options if provided.
@@ -628,7 +632,7 @@ var Zooming$1 = function () {
     // elements
     this.target = Object.create(target);
     this.overlay = Object.create(overlay);
-    this.eventHandler = Object.create(handler);
+    this.handler = Object.create(handler);
     this.body = document.body;
 
     // state
@@ -641,7 +645,7 @@ var Zooming$1 = function () {
     // init
     this.options = _extends({}, DEFAULT_OPTIONS, options);
     this.overlay.init(this);
-    this.eventHandler.init(this);
+    this.handler.init(this);
     this.listen(this.options.defaultZoomable);
   }
 
@@ -669,7 +673,7 @@ var Zooming$1 = function () {
       if (el.tagName !== 'IMG') return;
 
       el.style.cursor = cursor.zoomIn;
-      listen(el, 'click', this.eventHandler.click);
+      listen(el, 'click', this.handler.click);
 
       if (this.options.preloadImage) {
         loadImage(getOriginalSource(el));
@@ -732,8 +736,8 @@ var Zooming$1 = function () {
       this.overlay.create();
       this.overlay.show();
 
-      listen(document, 'scroll', this.eventHandler.scroll);
-      listen(document, 'keydown', this.eventHandler.keydown);
+      listen(document, 'scroll', this.handler.scroll);
+      listen(document, 'keydown', this.handler.keydown);
 
       var onEnd = function onEnd() {
         listen(target$$1, transEndEvent, onEnd, false);
@@ -741,7 +745,7 @@ var Zooming$1 = function () {
         _this.target.upgradeSource();
 
         if (_this.options.enableGrab) {
-          toggleGrabListeners(document, _this.eventHandler, true);
+          toggleGrabListeners(document, _this.handler, true);
         }
 
         if (cb) cb(target$$1);
@@ -778,8 +782,8 @@ var Zooming$1 = function () {
       this.overlay.hide();
       this.target.zoomOut();
 
-      listen(document, 'scroll', this.eventHandler.scroll, false);
-      listen(document, 'keydown', this.eventHandler.keydown, false);
+      listen(document, 'scroll', this.handler.scroll, false);
+      listen(document, 'keydown', this.handler.keydown, false);
 
       var onEnd = function onEnd() {
         listen(target$$1, transEndEvent, onEnd, false);
@@ -790,7 +794,7 @@ var Zooming$1 = function () {
         _this2.target.downgradeSource();
 
         if (_this2.options.enableGrab) {
-          toggleGrabListeners(document, _this2.eventHandler, false);
+          toggleGrabListeners(document, _this2.handler, false);
         }
 
         _this2.target.restoreCloseStyle();
