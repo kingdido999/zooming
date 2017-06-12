@@ -37,18 +37,23 @@ export default {
   },
 
   scroll() {
-    const scrollTop =
-      window.pageYOffset ||
-      (document.documentElement || document.body.parentNode || document.body)
-        .scrollTop
+    const el =
+      document.documentElement || document.body.parentNode || document.body
+    const scrollLeft = window.pageXOffset || el.scrollLeft
+    const scrollTop = window.pageYOffset || el.scrollTop
 
     if (this.lastScrollPosition === null) {
-      this.lastScrollPosition = scrollTop
+      this.lastScrollPosition = {
+        x: scrollLeft,
+        y: scrollTop
+      }
     }
 
-    const deltaY = this.lastScrollPosition - scrollTop
+    const deltaX = this.lastScrollPosition.x - scrollLeft
+    const deltaY = this.lastScrollPosition.y - scrollTop
+    const threshold = this.options.scrollThreshold
 
-    if (Math.abs(deltaY) >= this.options.scrollThreshold) {
+    if (Math.abs(deltaY) >= threshold || Math.abs(deltaX) >= threshold) {
       this.lastScrollPosition = null
       this.close()
     }

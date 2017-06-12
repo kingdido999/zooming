@@ -300,15 +300,22 @@ var handler = {
     }
   },
   scroll: function scroll() {
-    var scrollTop = window.pageYOffset || (document.documentElement || document.body.parentNode || document.body).scrollTop;
+    var el = document.documentElement || document.body.parentNode || document.body;
+    var scrollLeft = window.pageXOffset || el.scrollLeft;
+    var scrollTop = window.pageYOffset || el.scrollTop;
 
     if (this.lastScrollPosition === null) {
-      this.lastScrollPosition = scrollTop;
+      this.lastScrollPosition = {
+        x: scrollLeft,
+        y: scrollTop
+      };
     }
 
-    var deltaY = this.lastScrollPosition - scrollTop;
+    var deltaX = this.lastScrollPosition.x - scrollLeft;
+    var deltaY = this.lastScrollPosition.y - scrollTop;
+    var threshold = this.options.scrollThreshold;
 
-    if (Math.abs(deltaY) >= this.options.scrollThreshold) {
+    if (Math.abs(deltaY) >= threshold || Math.abs(deltaX) >= threshold) {
       this.lastScrollPosition = null;
       this.close();
     }
@@ -617,10 +624,6 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
   /**
