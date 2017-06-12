@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Image zoom that makes sense.",
   "main": "build/zooming.js",
   "repository": {
@@ -13,7 +13,6 @@
     "grab",
     "javascript"
   ],
-  "dependencies": {},
   "scripts": {
     "test": "node scripts/test.js",
     "watch": "node scripts/build.js",
@@ -32,7 +31,7 @@
     "documentation": "^4.0.0-beta.18",
     "mocha": "^3.2.0",
     "open": "^0.0.5",
-    "rollup": "^0.41.6",
+    "rollup": "^0.42.0",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-plugin-eslint": "^3.0.0",
     "rollup-plugin-uglify": "^1.0.2",

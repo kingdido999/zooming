@@ -656,6 +656,10 @@ var _extends = Object.assign || function (target) {
   return target;
 };
 
+/**
+ * Zooming instance.
+ */
+
 var Zooming$1 = function () {
   /**
    * @param {Object} [options] Update default options if provided.
