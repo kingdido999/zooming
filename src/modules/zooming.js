@@ -19,20 +19,17 @@ export default class Zooming {
    * @param {Object} [options] Update default options if provided.
    */
   constructor(options) {
-    // elements
     this.target = Object.create(target)
     this.overlay = Object.create(overlay)
     this.handler = Object.create(handler)
     this.body = document.body
 
-    // state
     this.shown = false
     this.lock = false
     this.released = true
     this.lastScrollPosition = null
     this.pressTimer = null
 
-    // init
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this.overlay.init(this)
     this.handler.init(this)
@@ -69,17 +66,18 @@ export default class Zooming {
   }
 
   /**
-   * Update options.
+   * Update options or return current options if no argument is provided.
    * @param  {Object} options An Object that contains this.options.
-   * @return {this}
+   * @return {this|this.options}
    */
   config(options) {
-    if (!options) return this.options
-
-    Object.assign(this.options, options)
-    this.overlay.updateStyle(this.options)
-
-    return this
+    if (options) {
+      Object.assign(this.options, options)
+      this.overlay.updateStyle(this.options)
+      return this
+    } else {
+      return this.options
+    }
   }
 
   /**
@@ -203,6 +201,8 @@ export default class Zooming {
     }
 
     listen(target, transEndEvent, onEnd)
+
+    return this
   }
 
   /**
@@ -230,6 +230,8 @@ export default class Zooming {
     }
 
     listen(target, transEndEvent, onEnd)
+
+    return this
   }
 
   /**

@@ -419,11 +419,12 @@ var overlay = {
     this.parent.removeChild(this.el);
   },
   show: function show() {
-    var _this = this;
-
-    setTimeout(function () {
-      return _this.el.style.opacity = _this.instance.options.bgOpacity;
-    }, 30);
+    this.el.offsetWidth;
+    this.el.style.opacity = this.instance.options.bgOpacity;
+    // setTimeout(
+    //   () => (this.el.style.opacity = this.instance.options.bgOpacity),
+    //   0
+    // )
   },
   hide: function hide() {
     this.el.style.opacity = 0;
@@ -448,9 +449,6 @@ var target = {
     this.translate = calculateTranslate(this.rect);
     this.scale = calculateScale(this.rect, options.scaleBase, options.customSize);
 
-    // force layout update
-    this.el.offsetWidth;
-
     this.styleOpen = {
       position: 'relative',
       zIndex: options.zIndex + 1,
@@ -461,11 +459,14 @@ var target = {
       height: this.rect.height + 'px'
     };
 
-    // trigger transition
+    // Force layout update
+    this.el.offsetWidth;
+
+    // Trigger transition
     this.styleClose = setStyle(this.el, this.styleOpen, true);
   },
   zoomOut: function zoomOut() {
-    // force layout update
+    // Force layout update
     this.el.offsetWidth;
 
     setStyle(this.el, { transform: 'none' });
@@ -501,27 +502,28 @@ var target = {
   upgradeSource: function upgradeSource() {
     var _this = this;
 
-    if (!this.srcOriginal) return;
+    if (this.srcOriginal) {
+      var parentNode = this.el.parentNode;
+      var temp = this.el.cloneNode(false);
 
-    var parentNode = this.el.parentNode;
-    var temp = this.el.cloneNode(false);
+      // Force compute the hi-res image in DOM to prevent
+      // image flickering while updating src
+      temp.setAttribute('src', this.srcOriginal);
+      temp.style.position = 'fixed';
+      temp.style.visibility = 'hidden';
+      parentNode.appendChild(temp);
 
-    // force compute the hi-res image in DOM to prevent
-    // image flickering while updating src
-    temp.setAttribute('src', this.srcOriginal);
-    temp.style.position = 'fixed';
-    temp.style.visibility = 'hidden';
-    parentNode.appendChild(temp);
-
-    setTimeout(function () {
-      _this.el.setAttribute('src', _this.srcOriginal);
-      parentNode.removeChild(temp);
-    }, 100);
+      // Prevent Firefox from flickering
+      setTimeout(function () {
+        _this.el.setAttribute('src', _this.srcOriginal);
+        parentNode.removeChild(temp);
+      }, 50);
+    }
   },
   downgradeSource: function downgradeSource() {
-    if (!this.srcOriginal) return;
-
-    this.el.setAttribute('src', this.srcThumbnail);
+    if (this.srcOriginal) {
+      this.el.setAttribute('src', this.srcThumbnail);
+    }
   }
 };
 
@@ -632,20 +634,17 @@ var Zooming$1 = function () {
   function Zooming(options) {
     classCallCheck(this, Zooming);
 
-    // elements
     this.target = Object.create(target);
     this.overlay = Object.create(overlay);
     this.handler = Object.create(handler);
     this.body = document.body;
 
-    // state
     this.shown = false;
     this.lock = false;
     this.released = true;
     this.lastScrollPosition = null;
     this.pressTimer = null;
 
-    // init
     this.options = _extends({}, DEFAULT_OPTIONS, options);
     this.overlay.init(this);
     this.handler.init(this);
@@ -686,20 +685,21 @@ var Zooming$1 = function () {
     }
 
     /**
-     * Update options.
+     * Update options or return current options if no argument is provided.
      * @param  {Object} options An Object that contains this.options.
-     * @return {this}
+     * @return {this|this.options}
      */
 
   }, {
     key: 'config',
     value: function config(options) {
-      if (!options) return this.options;
-
-      _extends(this.options, options);
-      this.overlay.updateStyle(this.options);
-
-      return this;
+      if (options) {
+        _extends(this.options, options);
+        this.overlay.updateStyle(this.options);
+        return this;
+      } else {
+        return this.options;
+      }
     }
 
     /**
@@ -843,6 +843,8 @@ var Zooming$1 = function () {
       };
 
       listen(target$$1, transEndEvent, onEnd);
+
+      return this;
     }
 
     /**
@@ -876,6 +878,8 @@ var Zooming$1 = function () {
       };
 
       listen(target$$1, transEndEvent, onEnd);
+
+      return this;
     }
 
     /**

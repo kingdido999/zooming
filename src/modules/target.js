@@ -23,9 +23,6 @@ export default {
       options.customSize
     )
 
-    // force layout update
-    this.el.offsetWidth
-
     this.styleOpen = {
       position: 'relative',
       zIndex: options.zIndex + 1,
@@ -39,12 +36,15 @@ export default {
       height: `${this.rect.height}px`
     }
 
-    // trigger transition
+    // Force layout update
+    this.el.offsetWidth
+
+    // Trigger transition
     this.styleClose = setStyle(this.el, this.styleOpen, true)
   },
 
   zoomOut() {
-    // force layout update
+    // Force layout update
     this.el.offsetWidth
 
     setStyle(this.el, { transform: 'none' })
@@ -83,28 +83,29 @@ export default {
   },
 
   upgradeSource() {
-    if (!this.srcOriginal) return
+    if (this.srcOriginal) {
+      const parentNode = this.el.parentNode
+      const temp = this.el.cloneNode(false)
 
-    const parentNode = this.el.parentNode
-    const temp = this.el.cloneNode(false)
+      // Force compute the hi-res image in DOM to prevent
+      // image flickering while updating src
+      temp.setAttribute('src', this.srcOriginal)
+      temp.style.position = 'fixed'
+      temp.style.visibility = 'hidden'
+      parentNode.appendChild(temp)
 
-    // force compute the hi-res image in DOM to prevent
-    // image flickering while updating src
-    temp.setAttribute('src', this.srcOriginal)
-    temp.style.position = 'fixed'
-    temp.style.visibility = 'hidden'
-    parentNode.appendChild(temp)
-
-    setTimeout(() => {
-      this.el.setAttribute('src', this.srcOriginal)
-      parentNode.removeChild(temp)
-    }, 100)
+      // Prevent Firefox from flickering
+      setTimeout(() => {
+        this.el.setAttribute('src', this.srcOriginal)
+        parentNode.removeChild(temp)
+      }, 50)
+    }
   },
 
   downgradeSource() {
-    if (!this.srcOriginal) return
-
-    this.el.setAttribute('src', this.srcThumbnail)
+    if (this.srcOriginal) {
+      this.el.setAttribute('src', this.srcThumbnail)
+    }
   }
 }
 
