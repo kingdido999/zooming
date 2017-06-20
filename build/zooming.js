@@ -421,10 +421,6 @@ var overlay = {
   show: function show() {
     this.el.offsetWidth;
     this.el.style.opacity = this.instance.options.bgOpacity;
-    // setTimeout(
-    //   () => (this.el.style.opacity = this.instance.options.bgOpacity),
-    //   0
-    // )
   },
   hide: function hide() {
     this.el.style.opacity = 0;
