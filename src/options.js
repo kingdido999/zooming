@@ -4,7 +4,7 @@
  * @type {Object}
  * @example
  * // Default options
- * var options = {
+ * const options = {
  *   defaultZoomable: 'img[data-action="zoom"]',
  *   enableGrab: true,
  *   preloadImage: false,

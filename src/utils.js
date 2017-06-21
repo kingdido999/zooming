@@ -21,9 +21,11 @@ export function listen(el, event, handler, add = true) {
 export function loadImage(src, cb) {
   if (src) {
     const img = new Image()
+
     img.onload = function() {
       if (cb) cb(img)
     }
+
     img.src = src
   }
 }
@@ -33,9 +35,9 @@ export function getOriginalSource(el) {
     return el.getAttribute('data-original')
   } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href')
+  } else {
+    return null
   }
-
-  return null
 }
 
 export function setStyle(el, styles, remember) {
@@ -45,7 +47,10 @@ export function setStyle(el, styles, remember) {
   let original = {}
 
   for (let key in styles) {
-    if (remember) original[key] = s[key] || ''
+    if (remember) {
+      original[key] = s[key] || ''
+    }
+
     s[key] = styles[key]
   }
 
@@ -54,10 +59,7 @@ export function setStyle(el, styles, remember) {
 
 export function bindAll(_this, that) {
   const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this))
-
-  methods.forEach(method => {
-    _this[method] = _this[method].bind(that)
-  })
+  methods.forEach(method => _this[method] = _this[method].bind(that))
 }
 
 const trans = sniffTransition(document.createElement('div'))
@@ -69,11 +71,13 @@ function checkTrans(styles) {
   const transformProp = trans.transformProp
 
   let value
+
   if (styles.transition) {
     value = styles.transition
     delete styles.transition
     styles[transitionProp] = value
   }
+
   if (styles.transform) {
     value = styles.transform
     delete styles.transform

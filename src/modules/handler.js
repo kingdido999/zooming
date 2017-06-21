@@ -28,8 +28,11 @@ export default {
       )
     } else {
       if (this.shown) {
-        if (this.released) this.close()
-        else this.release()
+        if (this.released) {
+          this.close()
+        } else {
+          this.release()
+        }
       } else {
         this.open(e.currentTarget)
       }

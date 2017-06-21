@@ -43,23 +43,19 @@ export default class Zooming {
    */
   listen(el) {
     if (typeof el === 'string') {
-      let els = document.querySelectorAll(el)
+      const els = document.querySelectorAll(el)
       let i = els.length
 
       while (i--) {
         this.listen(els[i])
       }
+    } else if (el.tagName === 'IMG') {
+      el.style.cursor = cursor.zoomIn
+      listen(el, 'click', this.handler.click)
 
-      return this
-    }
-
-    if (el.tagName !== 'IMG') return
-
-    el.style.cursor = cursor.zoomIn
-    listen(el, 'click', this.handler.click)
-
-    if (this.options.preloadImage) {
-      loadImage(getOriginalSource(el))
+      if (this.options.preloadImage) {
+        loadImage(getOriginalSource(el))
+      }
     }
 
     return this
@@ -95,7 +91,9 @@ export default class Zooming {
 
     if (target.tagName !== 'IMG') return
 
-    if (this.options.onBeforeOpen) this.options.onBeforeOpen(target)
+    if (this.options.onBeforeOpen) {
+      this.options.onBeforeOpen(target)
+    }
 
     this.target.init(target, this)
 
@@ -107,8 +105,8 @@ export default class Zooming {
     this.lock = true
 
     this.target.zoomIn()
-    this.overlay.create()
-    this.overlay.show()
+    this.overlay.insert()
+    this.overlay.fadeIn()
 
     listen(document, 'scroll', this.handler.scroll)
     listen(document, 'keydown', this.handler.keydown)
@@ -142,11 +140,13 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeClose) this.options.onBeforeClose(target)
+    if (this.options.onBeforeClose) {
+      this.options.onBeforeClose(target)
+    }
 
     this.lock = true
     this.body.style.cursor = cursor.default
-    this.overlay.hide()
+    this.overlay.fadeOut()
     this.target.zoomOut()
 
     listen(document, 'scroll', this.handler.scroll, false)
@@ -165,7 +165,7 @@ export default class Zooming {
       }
 
       this.target.restoreCloseStyle()
-      this.overlay.destroy()
+      this.overlay.remove()
 
       if (cb) cb(target)
     }
@@ -190,7 +190,9 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeGrab) this.options.onBeforeGrab(target)
+    if (this.options.onBeforeGrab) {
+      this.options.onBeforeGrab(target)
+    }
 
     this.released = false
     this.target.grab(x, y, scaleExtra)
@@ -246,7 +248,9 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeRelease) this.options.onBeforeRelease(target)
+    if (this.options.onBeforeRelease) {
+      this.options.onBeforeRelease(target)
+    }
 
     this.lock = true
     this.body.style.cursor = cursor.default

@@ -27,9 +27,11 @@ function listen(el, event, handler) {
 function loadImage(src, cb) {
   if (src) {
     var img = new Image();
+
     img.onload = function () {
       if (cb) cb(img);
     };
+
     img.src = src;
   }
 }
@@ -39,9 +41,9 @@ function getOriginalSource(el) {
     return el.getAttribute('data-original');
   } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href');
+  } else {
+    return null;
   }
-
-  return null;
 }
 
 function setStyle(el, styles, remember) {
@@ -51,7 +53,10 @@ function setStyle(el, styles, remember) {
   var original = {};
 
   for (var key in styles) {
-    if (remember) original[key] = s[key] || '';
+    if (remember) {
+      original[key] = s[key] || '';
+    }
+
     s[key] = styles[key];
   }
 
@@ -60,9 +65,8 @@ function setStyle(el, styles, remember) {
 
 function bindAll(_this, that) {
   var methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this));
-
   methods.forEach(function (method) {
-    _this[method] = _this[method].bind(that);
+    return _this[method] = _this[method].bind(that);
   });
 }
 
@@ -75,11 +79,13 @@ function checkTrans(styles) {
   var transformProp = trans.transformProp;
 
   var value = void 0;
+
   if (styles.transition) {
     value = styles.transition;
     delete styles.transition;
     styles[transitionProp] = value;
   }
+
   if (styles.transform) {
     value = styles.transform;
     delete styles.transform;
@@ -122,7 +128,7 @@ function sniffTransition(el) {
  * @type {Object}
  * @example
  * // Default options
- * var options = {
+ * const options = {
  *   defaultZoomable: 'img[data-action="zoom"]',
  *   enableGrab: true,
  *   preloadImage: false,
@@ -293,7 +299,11 @@ var handler = {
       return window.open(this.target.srcOriginal || e.currentTarget.src, '_blank');
     } else {
       if (this.shown) {
-        if (this.released) this.close();else this.release();
+        if (this.released) {
+          this.close();
+        } else {
+          this.release();
+        }
       } else {
         this.open(e.currentTarget);
       }
@@ -414,17 +424,17 @@ var overlay = {
       transition: 'opacity\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction
     });
   },
-  create: function create() {
+  insert: function insert() {
     this.parent.appendChild(this.el);
   },
-  destroy: function destroy() {
+  remove: function remove() {
     this.parent.removeChild(this.el);
   },
-  show: function show() {
+  fadeIn: function fadeIn() {
     this.el.offsetWidth;
     this.el.style.opacity = this.instance.options.bgOpacity;
   },
-  hide: function hide() {
+  fadeOut: function fadeOut() {
     this.el.style.opacity = 0;
   }
 };
@@ -666,17 +676,13 @@ var Zooming$1 = function () {
         while (i--) {
           this.listen(els[i]);
         }
+      } else if (el.tagName === 'IMG') {
+        el.style.cursor = cursor.zoomIn;
+        listen(el, 'click', this.handler.click);
 
-        return this;
-      }
-
-      if (el.tagName !== 'IMG') return;
-
-      el.style.cursor = cursor.zoomIn;
-      listen(el, 'click', this.handler.click);
-
-      if (this.options.preloadImage) {
-        loadImage(getOriginalSource(el));
+        if (this.options.preloadImage) {
+          loadImage(getOriginalSource(el));
+        }
       }
 
       return this;
@@ -722,7 +728,9 @@ var Zooming$1 = function () {
 
       if (target$$1.tagName !== 'IMG') return;
 
-      if (this.options.onBeforeOpen) this.options.onBeforeOpen(target$$1);
+      if (this.options.onBeforeOpen) {
+        this.options.onBeforeOpen(target$$1);
+      }
 
       this.target.init(target$$1, this);
 
@@ -734,8 +742,8 @@ var Zooming$1 = function () {
       this.lock = true;
 
       this.target.zoomIn();
-      this.overlay.create();
-      this.overlay.show();
+      this.overlay.insert();
+      this.overlay.fadeIn();
 
       listen(document, 'scroll', this.handler.scroll);
       listen(document, 'keydown', this.handler.keydown);
@@ -776,11 +784,13 @@ var Zooming$1 = function () {
 
       var target$$1 = this.target.el;
 
-      if (this.options.onBeforeClose) this.options.onBeforeClose(target$$1);
+      if (this.options.onBeforeClose) {
+        this.options.onBeforeClose(target$$1);
+      }
 
       this.lock = true;
       this.body.style.cursor = cursor.default;
-      this.overlay.hide();
+      this.overlay.fadeOut();
       this.target.zoomOut();
 
       listen(document, 'scroll', this.handler.scroll, false);
@@ -799,7 +809,7 @@ var Zooming$1 = function () {
         }
 
         _this2.target.restoreCloseStyle();
-        _this2.overlay.destroy();
+        _this2.overlay.remove();
 
         if (cb) cb(target$$1);
       };
@@ -830,7 +840,9 @@ var Zooming$1 = function () {
 
       var target$$1 = this.target.el;
 
-      if (this.options.onBeforeGrab) this.options.onBeforeGrab(target$$1);
+      if (this.options.onBeforeGrab) {
+        this.options.onBeforeGrab(target$$1);
+      }
 
       this.released = false;
       this.target.grab(x, y, scaleExtra);
@@ -899,7 +911,9 @@ var Zooming$1 = function () {
 
       var target$$1 = this.target.el;
 
-      if (this.options.onBeforeRelease) this.options.onBeforeRelease(target$$1);
+      if (this.options.onBeforeRelease) {
+        this.options.onBeforeRelease(target$$1);
+      }
 
       this.lock = true;
       this.body.style.cursor = cursor.default;

@@ -29,20 +29,20 @@ export default {
     })
   },
 
-  create() {
+  insert() {
     this.parent.appendChild(this.el)
   },
 
-  destroy() {
+  remove() {
     this.parent.removeChild(this.el)
   },
 
-  show() {
+  fadeIn() {
     this.el.offsetWidth
     this.el.style.opacity = this.instance.options.bgOpacity
   },
 
-  hide() {
+  fadeOut() {
     this.el.style.opacity = 0
   }
 }
