@@ -403,7 +403,9 @@ var overlay = {
     });
 
     this.updateStyle(instance.options);
-    listen(this.el, 'click', instance.close);
+    listen(this.el, 'click', function () {
+      return instance.close();
+    });
   },
   updateStyle: function updateStyle(options) {
     setStyle(this.el, {
