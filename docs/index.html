@@ -700,7 +700,7 @@ the target element as the argument.
   <p>Grab the Element currently opened given a position and apply extra zoom-in.</p>
 
 
-  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ransEndEvent, onEnd, fa, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
+  <div class='pre p1 fill-light mt0'>grab(x: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, scaleExtra: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= sten(target, transEndEv, cb: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function">Function</a>?): this</div>
   
   
 
@@ -734,7 +734,7 @@ the target element as the argument.
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= ransEndEvent, onEnd, fa)</code>
+            <span class='code bold'>scaleExtra</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?= sten(target, transEndEv)</code>
 	    Extra zoom-in to apply.
 
           </div>
@@ -998,7 +998,7 @@ will get the target element as the argument.
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-comment">// Default options</span>
-<span class="hljs-keyword">var</span> options = {
+<span class="hljs-keyword">const</span> options = {
   <span class="hljs-attr">defaultZoomable</span>: <span class="hljs-string">'img[data-action="zoom"]'</span>,
   <span class="hljs-attr">enableGrab</span>: <span class="hljs-literal">true</span>,
   <span class="hljs-attr">preloadImage</span>: <span class="hljs-literal">false</span>,
