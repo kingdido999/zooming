@@ -4,7 +4,9 @@ var prefix = 'WebkitAppearance' in document.documentElement.style
   : ''
 
 describe('API', function() {
-  var z = new Zooming()
+  var z = new Zooming({
+    defaultZoomable: '#img-default'
+  })
   var defaultOpts = Object.assign({}, z.config())
   var el = document.querySelector(defaultOpts.defaultZoomable)
   var opts = {
