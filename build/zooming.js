@@ -463,8 +463,8 @@ var target = {
       cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
       transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
-      width: this.rect.width + 'px',
-      height: this.rect.height + 'px'
+      maxWidth: '100%',
+      maxHeight: '100%'
     };
 
     // Force layout update
@@ -634,10 +634,6 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
   /**

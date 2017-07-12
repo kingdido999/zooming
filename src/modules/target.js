@@ -32,8 +32,8 @@ export default {
         ${options.transitionTimingFunction}`,
       transform: `translate(${this.translate.x}px, ${this.translate.y}px)
         scale(${this.scale.x},${this.scale.y})`,
-      width: `${this.rect.width}px`,
-      height: `${this.rect.height}px`
+      maxWidth: '100%',
+      maxHeight: '100%'
     }
 
     // Force layout update
