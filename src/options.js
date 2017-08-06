@@ -8,6 +8,7 @@
  *   defaultZoomable: 'img[data-action="zoom"]',
  *   enableGrab: true,
  *   preloadImage: false,
+ *   closeOnWindowResize: true,
  *   transitionDuration: 0.4,
  *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
  *   bgColor: 'rgb(255, 255, 255)',
@@ -46,6 +47,12 @@ export default {
   preloadImage: false,
 
   /**
+   * Close the zoomed image when browser window is resized.
+   * @type {boolean}
+   */
+  closeOnWindowResize: true,
+
+  /**
    * Transition duration in seconds.
    * @type {number}
    */
@@ -76,7 +83,7 @@ export default {
   scaleBase: 1.0,
 
   /**
-   * The extra scale factor when grabbing the image.
+   * The additional scale factor when grabbing the image.
    * @type {number}
    */
   scaleExtra: 0.5,

@@ -111,6 +111,10 @@ export default class Zooming {
     listen(document, 'scroll', this.handler.scroll)
     listen(document, 'keydown', this.handler.keydown)
 
+    if (this.options.closeOnWindowResize) {
+      listen(window, 'resize', this.handler.resizeWindow)
+    }
+
     const onEnd = () => {
       listen(target, transEndEvent, onEnd, false)
       this.lock = false
@@ -151,6 +155,10 @@ export default class Zooming {
 
     listen(document, 'scroll', this.handler.scroll, false)
     listen(document, 'keydown', this.handler.keydown, false)
+
+    if (this.options.closeOnWindowResize) {
+      listen(window, 'resize', this.handler.resizeWindow, false)
+    }
 
     const onEnd = () => {
       listen(target, transEndEvent, onEnd, false)

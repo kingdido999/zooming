@@ -122,5 +122,9 @@ export default {
     } else {
       this.release()
     }
+  },
+
+  resizeWindow() {
+    this.close()
   }
 }

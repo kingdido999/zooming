@@ -132,6 +132,7 @@ function sniffTransition(el) {
  *   defaultZoomable: 'img[data-action="zoom"]',
  *   enableGrab: true,
  *   preloadImage: false,
+ *   closeOnWindowResize: true,
  *   transitionDuration: 0.4,
  *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
  *   bgColor: 'rgb(255, 255, 255)',
@@ -170,6 +171,12 @@ var DEFAULT_OPTIONS = {
   preloadImage: false,
 
   /**
+   * Close the zoomed image when browser window is resized.
+   * @type {boolean}
+   */
+  closeOnWindowResize: true,
+
+  /**
    * Transition duration in seconds.
    * @type {number}
    */
@@ -200,7 +207,7 @@ var DEFAULT_OPTIONS = {
   scaleBase: 1.0,
 
   /**
-   * The extra scale factor when grabbing the image.
+   * The additional scale factor when grabbing the image.
    * @type {number}
    */
   scaleExtra: 0.5,
@@ -394,6 +401,9 @@ var handler = {
     } else {
       this.release();
     }
+  },
+  resizeWindow: function resizeWindow() {
+    this.close();
   }
 };
 
@@ -748,6 +758,10 @@ var Zooming$1 = function () {
       listen(document, 'scroll', this.handler.scroll);
       listen(document, 'keydown', this.handler.keydown);
 
+      if (this.options.closeOnWindowResize) {
+        listen(window, 'resize', this.handler.resizeWindow);
+      }
+
       var onEnd = function onEnd() {
         listen(target$$1, transEndEvent, onEnd, false);
         _this.lock = false;
@@ -795,6 +809,10 @@ var Zooming$1 = function () {
 
       listen(document, 'scroll', this.handler.scroll, false);
       listen(document, 'keydown', this.handler.keydown, false);
+
+      if (this.options.closeOnWindowResize) {
+        listen(window, 'resize', this.handler.resizeWindow, false);
+      }
 
       var onEnd = function onEnd() {
         listen(target$$1, transEndEvent, onEnd, false);
