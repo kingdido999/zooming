@@ -16,7 +16,7 @@ export default {
     })
 
     this.updateStyle(instance.options)
-    listen(this.el, 'click', () => instance.close())
+    listen(this.el, 'click', instance.handler.clickOverlay.bind(instance))
   },
 
   updateStyle(options) {

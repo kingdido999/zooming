@@ -94,11 +94,14 @@ export default {
       temp.style.visibility = 'hidden'
       parentNode.appendChild(temp)
 
-      // Prevent Firefox from flickering
-      setTimeout(() => {
-        this.el.setAttribute('src', this.srcOriginal)
-        parentNode.removeChild(temp)
-      }, 50)
+      // Add delay to prevent Firefox from flickering
+      setTimeout(
+        function updateSrc() {
+          this.el.setAttribute('src', this.srcOriginal)
+          parentNode.removeChild(temp)
+        }.bind(this),
+        50
+      )
     }
   },
 

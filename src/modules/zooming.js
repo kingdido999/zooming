@@ -115,8 +115,8 @@ export default class Zooming {
       listen(window, 'resize', this.handler.resizeWindow)
     }
 
-    const onEnd = () => {
-      listen(target, transEndEvent, onEnd, false)
+    const onOpenEnd = () => {
+      listen(target, transEndEvent, onOpenEnd, false)
       this.lock = false
       this.target.upgradeSource()
 
@@ -127,7 +127,7 @@ export default class Zooming {
       if (cb) cb(target)
     }
 
-    listen(target, transEndEvent, onEnd)
+    listen(target, transEndEvent, onOpenEnd)
 
     return this
   }
@@ -160,8 +160,8 @@ export default class Zooming {
       listen(window, 'resize', this.handler.resizeWindow, false)
     }
 
-    const onEnd = () => {
-      listen(target, transEndEvent, onEnd, false)
+    const onCloseEnd = () => {
+      listen(target, transEndEvent, onCloseEnd, false)
 
       this.shown = false
       this.lock = false
@@ -178,7 +178,7 @@ export default class Zooming {
       if (cb) cb(target)
     }
 
-    listen(target, transEndEvent, onEnd)
+    listen(target, transEndEvent, onCloseEnd)
 
     return this
   }
@@ -205,12 +205,12 @@ export default class Zooming {
     this.released = false
     this.target.grab(x, y, scaleExtra)
 
-    const onEnd = () => {
-      listen(target, transEndEvent, onEnd, false)
+    const onGrabEnd = () => {
+      listen(target, transEndEvent, onGrabEnd, false)
       if (cb) cb(target)
     }
 
-    listen(target, transEndEvent, onEnd)
+    listen(target, transEndEvent, onGrabEnd)
 
     return this
   }
@@ -234,12 +234,12 @@ export default class Zooming {
 
     const target = this.target.el
 
-    const onEnd = () => {
-      listen(target, transEndEvent, onEnd, false)
+    const onMoveEnd = () => {
+      listen(target, transEndEvent, onMoveEnd, false)
       if (cb) cb(target)
     }
 
-    listen(target, transEndEvent, onEnd)
+    listen(target, transEndEvent, onMoveEnd)
 
     return this
   }
@@ -264,15 +264,15 @@ export default class Zooming {
     this.body.style.cursor = cursor.default
     this.target.restoreOpenStyle()
 
-    const onEnd = () => {
-      listen(target, transEndEvent, onEnd, false)
+    const onReleaseEnd = () => {
+      listen(target, transEndEvent, onReleaseEnd, false)
       this.lock = false
       this.released = true
 
       if (cb) cb(target)
     }
 
-    listen(target, transEndEvent, onEnd)
+    listen(target, transEndEvent, onReleaseEnd)
 
     return this
   }
@@ -288,5 +288,7 @@ function toggleGrabListeners(el, handler, add) {
     'touchend'
   ]
 
-  types.forEach(type => listen(el, type, handler[type], add))
+  types.forEach(function toggleListener(type) {
+    listen(el, type, handler[type], add)
+  })
 }

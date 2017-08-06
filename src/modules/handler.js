@@ -2,17 +2,6 @@ import { bindAll } from '../utils'
 
 const PRESS_DELAY = 200
 
-const isLeftButton = e => e.button === 0
-
-const isPressingMetaKey = e => e.metaKey || e.ctrlKey
-
-const isTouching = e => e.targetTouches.length > 0
-
-const isEscape = e => {
-  const code = e.key || e.code
-  return code === 'Escape' || e.keyCode === 27
-}
-
 export default {
   init(instance) {
     bindAll(this, instance)
@@ -75,10 +64,14 @@ export default {
   mousedown(e) {
     if (!isLeftButton(e) || isPressingMetaKey(e)) return
     e.preventDefault()
+    const { clientX, clientY } = e
 
-    this.pressTimer = setTimeout(() => {
-      this.grab(e.clientX, e.clientY)
-    }, PRESS_DELAY)
+    this.pressTimer = setTimeout(
+      function grabOnMouseDown() {
+        this.grab(clientX, clientY)
+      }.bind(this),
+      PRESS_DELAY
+    )
   },
 
   mousemove(e) {
@@ -101,9 +94,12 @@ export default {
     e.preventDefault()
     const { clientX, clientY } = e.touches[0]
 
-    this.pressTimer = setTimeout(() => {
-      this.grab(clientX, clientY)
-    }, PRESS_DELAY)
+    this.pressTimer = setTimeout(
+      function grabOnTouchStart() {
+        this.grab(clientX, clientY)
+      }.bind(this),
+      PRESS_DELAY
+    )
   },
 
   touchmove(e) {
@@ -124,7 +120,28 @@ export default {
     }
   },
 
+  clickOverlay() {
+    this.close()
+  },
+
   resizeWindow() {
     this.close()
   }
+}
+
+function isLeftButton(e) {
+  return e.button === 0
+}
+
+function isPressingMetaKey(e) {
+  return e.metaKey || e.ctrlKey
+}
+
+function isTouching(e) {
+  e.targetTouches.length > 0
+}
+
+function isEscape(e) {
+  const code = e.key || e.code
+  return code === 'Escape' || e.keyCode === 27
 }
