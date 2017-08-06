@@ -13,6 +13,7 @@ describe('API', function() {
     defaultZoomable: 'img[data-action="open"]',
     enableGrab: false,
     preloadImage: false,
+    closeOnWindowResize: false,
     transitionDuration: 0.2,
     transitionTimingFunction: 'ease',
     bgColor: '#000',
