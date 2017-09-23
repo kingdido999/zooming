@@ -474,8 +474,8 @@ var target = {
       cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
       transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
-      maxWidth: '100%',
-      maxHeight: '100%'
+      height: this.rect.height + 'px',
+      width: this.rect.width + 'px'
     };
 
     // Force layout update
