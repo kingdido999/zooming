@@ -57,3 +57,13 @@ zoomingLight.config({
   // ...
 })
 ```
+
+## Open the image in a new tab
+
+Click while holding your meta key (`⌘` or `Ctrl`).
+
+## Working with React
+
+Please see this [example](https://github.com/kingdido999/atogatari/blob/master/client/src/components/ZoomableImage.js).
+
+Notice that it's best to pass in an initialized `zooming` instance as a prop to your component and use that instance to listen to your images within `componentDidMount` method. In this way, we don't create new `zooming` instances everytime the component rerendered.
