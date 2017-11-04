@@ -247,6 +247,18 @@ var DEFAULT_OPTIONS = {
   onClose: null,
 
   /**
+    * Same as above, except fired when grabbed.
+    * @type {Function}
+    */
+  onGrab: null,
+
+  /**
+    * Same as above, except fired when moved.
+    * @type {Function}
+    */
+  onMove: null,
+
+  /**
    * Same as above, except fired when released.
    * @type {Function}
    */
@@ -476,10 +488,9 @@ var target = {
       transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
       height: this.rect.height + 'px',
       width: this.rect.width + 'px'
-    };
 
-    // Force layout update
-    this.el.offsetWidth;
+      // Force layout update
+    };this.el.offsetWidth;
 
     // Trigger transition
     this.styleClose = setStyle(this.el, this.styleOpen, true);
@@ -549,10 +560,9 @@ function calculateTranslate(rect) {
   var targetCenter = {
     x: rect.left + rect.width / 2,
     y: rect.top + rect.height / 2
-  };
 
-  // The vector to translate image to the window center
-  return {
+    // The vector to translate image to the window center
+  };return {
     x: windowCenter.x - targetCenter.x,
     y: windowCenter.y - targetCenter.y
   };
@@ -643,6 +653,10 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
+
+/**
+ * Zooming instance.
+ */
 
 var Zooming$1 = function () {
   /**
@@ -841,7 +855,7 @@ var Zooming$1 = function () {
      * @param  {number}   x The X-axis of where the press happened.
      * @param  {number}   y The Y-axis of where the press happened.
      * @param  {number}   scaleExtra Extra zoom-in to apply.
-     * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+     * @param  {Function} [cb=this.options.onGrab] A callback function that
      * will be called when a target is grabbed and transition has ended. It
      * will get the target element as the argument.
      * @return {this}
@@ -851,7 +865,7 @@ var Zooming$1 = function () {
     key: 'grab',
     value: function grab(x, y) {
       var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
-      var cb = arguments[3];
+      var cb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : this.options.onGrab;
 
       if (!this.shown || this.lock) return;
 
@@ -879,7 +893,7 @@ var Zooming$1 = function () {
      * @param  {number}   x The X-axis of where the press happened.
      * @param  {number}   y The Y-axis of where the press happened.
      * @param  {number}   scaleExtra Extra zoom-in to apply.
-     * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+     * @param  {Function} [cb=this.options.onMove] A callback function that
      * will be called when a target is moved and transition has ended. It will
      * get the target element as the argument.
      * @return {this}
@@ -889,7 +903,7 @@ var Zooming$1 = function () {
     key: 'move',
     value: function move(x, y) {
       var scaleExtra = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : this.options.scaleExtra;
-      var cb = arguments[3];
+      var cb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : this.options.onMove;
 
       if (!this.shown || this.lock) return;
 

@@ -122,6 +122,18 @@ export default {
   onClose: null,
 
   /**
+    * Same as above, except fired when grabbed.
+    * @type {Function}
+    */
+  onGrab: null,
+
+  /**
+    * Same as above, except fired when moved.
+    * @type {Function}
+    */
+  onMove: null,
+
+  /**
    * Same as above, except fired when released.
    * @type {Function}
    */

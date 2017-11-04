@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
   <!-- Basic Page Needs
@@ -26,6 +27,7 @@
   <link rel="stylesheet" href="demo/css/custom.css">
 
 </head>
+
 <body>
 
   <div id="mocha"></div>
@@ -38,10 +40,8 @@
       <h2>Zooming</h2>
 
       <div class="value-img">
-        <img src="demo/img/journey_start_thumbnail.jpg"
-        id="img-default"
-        data-original="demo/img/journey_start.jpg"
-        alt="journey_start_thumbnail" />
+        <img src="demo/img/journey_start_thumbnail.jpg" id="img-default" data-original="demo/img/journey_start.jpg" alt="journey_start_thumbnail"
+        />
       </div>
     </section>
 
@@ -84,7 +84,8 @@
 
       <br>
 
-      <a class="button button-primary" href="https://github.com/kingdido999/zooming">start journey</a>
+      <a class="button" href="https://github.com/kingdido999/zooming">GitHub</a>
+      <a class="button button-primary" href="http://desmonding.me/zooming/docs">Get Started</a>
     </section>
 
     <br>
@@ -103,15 +104,18 @@
   <script src="node_modules/mocha/mocha.js"></script>
   <script src="build/zooming.js"></script>
   <script src="demo/js/custom.js"></script>
-  <script>mocha.setup('bdd')</script>
+  <script>
+    mocha.setup('bdd')
+  </script>
   <script src="test/index.js"></script>
   <script>
-    window.addEventListener("load", function(event) {
+    window.addEventListener("load", function (event) {
       mocha.run();
     })
   </script>
 
-<!-- End Document
+  <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
+
 </html>

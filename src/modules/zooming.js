@@ -188,12 +188,12 @@ export default class Zooming {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * @param  {Function} [cb=this.options.onGrab] A callback function that
    * will be called when a target is grabbed and transition has ended. It
    * will get the target element as the argument.
    * @return {this}
    */
-  grab(x, y, scaleExtra = this.options.scaleExtra, cb) {
+  grab(x, y, scaleExtra = this.options.scaleExtra, cb = this.options.onGrab) {
     if (!this.shown || this.lock) return
 
     const target = this.target.el
@@ -220,12 +220,12 @@ export default class Zooming {
    * @param  {number}   x The X-axis of where the press happened.
    * @param  {number}   y The Y-axis of where the press happened.
    * @param  {number}   scaleExtra Extra zoom-in to apply.
-   * @param  {Function} [cb=this.options.scaleExtra] A callback function that
+   * @param  {Function} [cb=this.options.onMove] A callback function that
    * will be called when a target is moved and transition has ended. It will
    * get the target element as the argument.
    * @return {this}
    */
-  move(x, y, scaleExtra = this.options.scaleExtra, cb) {
+  move(x, y, scaleExtra = this.options.scaleExtra, cb = this.options.onMove) {
     if (!this.shown || this.lock) return
 
     this.released = false
