@@ -40,18 +40,6 @@ zooming.open(img, function onOpen(target) {
 })
 ```
 
-## close
-
-Close (zoomout) the Element currently opened.
-
-```js
-const zooming = new Zooming()
-
-zooming.close(function onClose(target) {
-  // When the target is fully closed...
-})
-```
-
 ## grab
 
 Grab the Element currently opened given a position and apply extra zoom-in.
@@ -89,5 +77,17 @@ const zooming = new Zooming()
 
 zooming.release(function onRlease(target) {
   // When the target is fully released...
+})
+```
+
+## close
+
+Close (zoomout) the Element currently opened.
+
+```js
+const zooming = new Zooming()
+
+zooming.close(function onClose(target) {
+  // When the target is fully closed...
 })
 ```

@@ -15,6 +15,7 @@ We also provide an API to change options:
 
 ```js
 const zooming = new Zooming()
+
 zooming.config({
   // ...
 })
@@ -121,7 +122,7 @@ The z-index that the overlay will be added with.
 
 ## Event Hooks
 
-An event hook takes a callback function, and the callback function will be called upon a specific event occurs.
+An event hook takes a callback function, which will be called upon a specific event occurs.
 
 Every callback function will get the target element as the argument, for example:
 
