@@ -13,12 +13,14 @@ Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide
 
 ## Contributing
 
-Fork and clone it. Under project folder:
+Fork it. Under project folder:
 
 ```bash
-yarn        # or npm install
-yarn watch  # or npm run watch
+npm install
+npm start
 ```
+
+Make your changes and submit a pull request!
 
 ## Test
 
