@@ -106,6 +106,8 @@ How much scrolling it takes before closing out the instance.
 - Type: `Number`
 - Default: `0.4`
 
+Transition duration in seconds.
+
 ### transitionTimingFunction
 
 - Type: `String`

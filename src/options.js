@@ -1,32 +1,3 @@
-/**
- * A list of options.
- *
- * @type {Object}
- * @example
- * // Default options
- * const options = {
- *   defaultZoomable: 'img[data-action="zoom"]',
- *   enableGrab: true,
- *   preloadImage: false,
- *   closeOnWindowResize: true,
- *   transitionDuration: 0.4,
- *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
- *   bgColor: 'rgb(255, 255, 255)',
- *   bgOpacity: 1,
- *   scaleBase: 1.0,
- *   scaleExtra: 0.5,
- *   scrollThreshold: 40,
- *   zIndex: 998,
- *   customSize: null,
- *   onOpen: null,
- *   onClose: null,
- *   onRelease: null,
- *   onBeforeOpen: null,
- *   onBeforeClose: null,
- *   onBeforeGrab: null,
- *   onBeforeRelease: null
- * }
- */
 export default {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
