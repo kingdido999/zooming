@@ -21,8 +21,8 @@ These projects are using Zooming. Pull requests are welcome!
 
 ## Caveats / Limitations
 
-- Avoid working with fixed position images #34.
-- Image won't be visible after zoom-in if any parent element has style `overflow: hidden` #22.
+- Avoid working with fixed position images [#34](https://github.com/kingdido999/zooming/issues/34).
+- Image won't be visible after zoom-in if any parent element has style `overflow: hidden` [#22](https://github.com/kingdido999/zooming/issues/22).
 
 ## Contributing
 
