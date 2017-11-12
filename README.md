@@ -19,6 +19,11 @@ These projects are using Zooming. Pull requests are welcome!
 - [FlowChat](https://flow-chat.com): an open-source, self-hostable, live-updating discussion platform.
 - [pirelli-tires](http://vit.to/diy/pirelli-tires/): DIY luxury crafts.
 
+## Caveats / Limitations
+
+- Avoid working with fixed position images #34.
+- Image won't be visible after zoom-in if any parent element has style `overflow: hidden` #22.
+
 ## Contributing
 
 Fork it. Under project folder:
