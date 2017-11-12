@@ -37,7 +37,7 @@ Make your changes and submit a pull request!
 
 ## Test
 
-`yarn test`
+`npm test`
 
 ## Credit
 
