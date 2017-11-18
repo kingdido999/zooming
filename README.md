@@ -7,6 +7,10 @@ Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 - Zoom into a hi-res image if supplied.
 - Easy to integrate & customizable.
 
+<a target='_blank' rel='nofollow' href='https://app.codesponsor.io/link/Xu2UQrfY2jBM8ZqQPYCop4dt/kingdido999/zooming'>
+  <img alt='Sponsor' width='888' height='68' src='https://app.codesponsor.io/embed/Xu2UQrfY2jBM8ZqQPYCop4dt/kingdido999/zooming.svg' />
+</a>
+
 ## Get Started
 
 Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide.
