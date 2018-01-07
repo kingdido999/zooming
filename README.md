@@ -1,6 +1,6 @@
 # Zooming [![npm](https://img.shields.io/npm/v/zooming.svg?style=flat-square)](https://www.npmjs.com/package/zooming)
 
-Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
+Image zoom that makes sense.
 
 - Pure JavaScript & built with mobile in mind.
 - Smooth animations with intuitive gestures.
@@ -8,6 +8,8 @@ Image zoom that makes sense. [Demo](http://desmonding.me/zooming/)
 - Easy to integrate & customizable.
 
 ## Get Started
+
+Try [Demo](http://desmonding.me/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
 
 Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide.
 
