@@ -1,5 +1,9 @@
 import { cursor, setStyle, getOriginalSource, transformCssProp } from '../utils'
 
+// Translate z-axis to fix CSS grid display issue in Chrome:
+// https://github.com/kingdido999/zooming/issues/42 
+const TRANSLATE_Z = 0
+
 export default {
   init(el, instance) {
     this.el = el
@@ -30,7 +34,7 @@ export default {
       transition: `${transformCssProp}
         ${options.transitionDuration}s
         ${options.transitionTimingFunction}`,
-      transform: `translate(${this.translate.x}px, ${this.translate.y}px)
+      transform: `translate3d(${this.translate.x}px, ${this.translate.y}px, ${TRANSLATE_Z}px)
         scale(${this.scale.x},${this.scale.y})`,
       height: `${this.rect.height}px`,
       width: `${this.rect.width}px`
@@ -56,8 +60,8 @@ export default {
 
     setStyle(this.el, {
       cursor: cursor.move,
-      transform: `translate(
-        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
+      transform: `translate3d(
+        ${this.translate.x + dx}px, ${this.translate.y + dy}px, ${TRANSLATE_Z}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
   },
@@ -68,8 +72,8 @@ export default {
 
     setStyle(this.el, {
       transition: transformCssProp,
-      transform: `translate(
-        ${this.translate.x + dx}px, ${this.translate.y + dy}px)
+      transform: `translate3d(
+        ${this.translate.x + dx}px, ${this.translate.y + dy}px, ${TRANSLATE_Z}px)
         scale(${this.scale.x + scaleExtra},${this.scale.y + scaleExtra})`
     })
   },

@@ -123,35 +123,6 @@ function sniffTransition(el) {
   return res;
 }
 
-/**
- * A list of options.
- *
- * @type {Object}
- * @example
- * // Default options
- * const options = {
- *   defaultZoomable: 'img[data-action="zoom"]',
- *   enableGrab: true,
- *   preloadImage: false,
- *   closeOnWindowResize: true,
- *   transitionDuration: 0.4,
- *   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0, 1)',
- *   bgColor: 'rgb(255, 255, 255)',
- *   bgOpacity: 1,
- *   scaleBase: 1.0,
- *   scaleExtra: 0.5,
- *   scrollThreshold: 40,
- *   zIndex: 998,
- *   customSize: null,
- *   onOpen: null,
- *   onClose: null,
- *   onRelease: null,
- *   onBeforeOpen: null,
- *   onBeforeClose: null,
- *   onBeforeGrab: null,
- *   onBeforeRelease: null
- * }
- */
 var DEFAULT_OPTIONS = {
   /**
    * Zoomable elements by default. It can be a css selector or an element.
@@ -462,6 +433,10 @@ var overlay = {
   }
 };
 
+// Translate z-axis to fix CSS grid display issue in Chrome:
+// https://github.com/kingdido999/zooming/issues/42 
+var TRANSLATE_Z = 0;
+
 var target = {
   init: function init(el, instance) {
     this.el = el;
@@ -485,7 +460,7 @@ var target = {
       zIndex: options.zIndex + 1,
       cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
       transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
-      transform: 'translate(' + this.translate.x + 'px, ' + this.translate.y + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
+      transform: 'translate3d(' + this.translate.x + 'px, ' + this.translate.y + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
       height: this.rect.height + 'px',
       width: this.rect.width + 'px'
 
@@ -509,7 +484,7 @@ var target = {
 
     setStyle(this.el, {
       cursor: cursor.move,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+      transform: 'translate3d(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
     });
   },
   move: function move(x, y, scaleExtra) {
@@ -520,7 +495,7 @@ var target = {
 
     setStyle(this.el, {
       transition: transformCssProp,
-      transform: 'translate(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
+      transform: 'translate3d(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
     });
   },
   restoreCloseStyle: function restoreCloseStyle() {
@@ -653,10 +628,6 @@ var _extends = Object.assign || function (target) {
 
   return target;
 };
-
-/**
- * Zooming instance.
- */
 
 var Zooming$1 = function () {
   /**
