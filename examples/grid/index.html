@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Grid</title>
+
+  <style>
+    .grid {
+      column-count: 4;
+      column-gap: 1rem;
+    }
+
+    figure {
+      display: inline-block;
+      margin: 0 0 0 0;
+      width: 100%;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid">
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/800x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/300x600">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x900">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/300x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+  </div>
+
+  <script src="../../build/zooming.js"></script>
+  <script>
+    const zooming = new Zooming()
+    zooming.listen('img')
+  </script>
+</body>
+
+</html>
