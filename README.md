@@ -9,7 +9,7 @@ Image zoom that makes sense.
 
 ## Get Started
 
-Try [Demo](http://desmonding.me/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
+Try [Demo](https://desmonding.me/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
 
 Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide.
 
