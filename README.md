@@ -20,7 +20,7 @@ These projects are using Zooming. Pull requests are welcome!
 - [atogatari](https://atogatari.com): share and discover your favorite anime characters.
 - [FlowChat](https://flow-chat.com): an open-source, self-hostable, live-updating discussion platform.
 - [pirelli-tires](http://vit.to/diy/pirelli-tires/): DIY luxury crafts.
-- [conference-one](http://noesisplus.com/conferenceone/dist/default/)
+- [conference-one](https://github.com/dspachos/conference-one): Conference One is an one page, Bootstrap 4 template, suitable for academic conferences and events.
 
 ## Caveats / Limitations
 
