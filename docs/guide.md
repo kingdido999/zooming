@@ -53,6 +53,21 @@ const zoomingDark = new Zooming({
 })
 ```
 
+## Specify image width and height
+
+To customize size for all images after zoom-in: see [customSize](/configuration?id=customSize) option.
+
+To set size for a specific image, we can leverage data attributes `data-zooming-width` and `data-zooming-height`. For example:
+
+```html
+<img 
+  src="image.jpg" 
+  data-action="zoom" 
+  data-zooming-width="1920" 
+  data-zooming="1080" 
+/>
+```
+
 ## Open the image in a new tab
 
 Click while holding your meta key (`⌘` or `Ctrl`).

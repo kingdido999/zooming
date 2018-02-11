@@ -39,8 +39,8 @@ function loadImage(src, cb) {
 }
 
 function getOriginalSource(el) {
-  if (el.hasAttribute('data-original')) {
-    return el.getAttribute('data-original');
+  if (el.dataset.original) {
+    return el.dataset.original;
   } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href');
   } else {
@@ -433,8 +433,6 @@ var overlay = {
   }
 };
 
-// Translate z-axis to fix CSS grid display issue in Chrome:
-// https://github.com/kingdido999/zooming/issues/42 
 var TRANSLATE_Z = 0;
 
 var target = {
@@ -443,23 +441,27 @@ var target = {
     this.instance = instance;
     this.srcThumbnail = this.el.getAttribute('src');
     this.srcOriginal = getOriginalSource(this.el);
-    this.rect = el.getBoundingClientRect();
+    this.rect = this.el.getBoundingClientRect();
     this.translate = null;
     this.scale = null;
     this.styleOpen = null;
     this.styleClose = null;
   },
   zoomIn: function zoomIn() {
-    var options = this.instance.options;
+    var _instance$options = this.instance.options,
+        zIndex = _instance$options.zIndex,
+        enableGrab = _instance$options.enableGrab,
+        transitionDuration = _instance$options.transitionDuration,
+        transitionTimingFunction = _instance$options.transitionTimingFunction;
 
-    this.translate = calculateTranslate(this.rect);
-    this.scale = calculateScale(this.rect, options.scaleBase, options.customSize);
+    this.translate = this.calculateTranslate();
+    this.scale = this.calculateScale();
 
     this.styleOpen = {
       position: 'relative',
-      zIndex: options.zIndex + 1,
-      cursor: options.enableGrab ? cursor.grab : cursor.zoomOut,
-      transition: transformCssProp + '\n        ' + options.transitionDuration + 's\n        ' + options.transitionTimingFunction,
+      zIndex: zIndex + 1,
+      cursor: enableGrab ? cursor.grab : cursor.zoomOut,
+      transition: transformCssProp + '\n        ' + transitionDuration + 's\n        ' + transitionTimingFunction,
       transform: 'translate3d(' + this.translate.x + 'px, ' + this.translate.y + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
       height: this.rect.height + 'px',
       width: this.rect.width + 'px'
@@ -527,52 +529,63 @@ var target = {
     if (this.srcOriginal) {
       this.el.setAttribute('src', this.srcThumbnail);
     }
+  },
+  calculateTranslate: function calculateTranslate() {
+    var windowCenter = getWindowCenter();
+    var targetCenter = {
+      x: this.rect.left + this.rect.width / 2,
+      y: this.rect.top + this.rect.height / 2
+
+      // The vector to translate image to the window center
+    };return {
+      x: windowCenter.x - targetCenter.x,
+      y: windowCenter.y - targetCenter.y
+    };
+  },
+  calculateScale: function calculateScale() {
+    var _el$dataset = this.el.dataset,
+        zoomingHeight = _el$dataset.zoomingHeight,
+        zoomingWidth = _el$dataset.zoomingWidth;
+    var _instance$options2 = this.instance.options,
+        customSize = _instance$options2.customSize,
+        scaleBase = _instance$options2.scaleBase;
+
+
+    if (zoomingHeight && zoomingWidth) {
+      return {
+        x: zoomingWidth / this.rect.width,
+        y: zoomingHeight / this.rect.height
+      };
+    } else if (customSize) {
+      return {
+        x: customSize.width / this.rect.width,
+        y: customSize.height / this.rect.height
+      };
+    } else {
+      var targetHalfWidth = this.rect.width / 2;
+      var targetHalfHeight = this.rect.height / 2;
+      var windowCenter = getWindowCenter();
+
+      // The distance between target edge and window edge
+      var targetEdgeToWindowEdge = {
+        x: windowCenter.x - targetHalfWidth,
+        y: windowCenter.y - targetHalfHeight
+      };
+
+      var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
+      var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
+
+      // The additional scale is based on the smaller value of
+      // scaling horizontally and scaling vertically
+      var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
+
+      return {
+        x: scale,
+        y: scale
+      };
+    }
   }
 };
-
-function calculateTranslate(rect) {
-  var windowCenter = getWindowCenter();
-  var targetCenter = {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2
-
-    // The vector to translate image to the window center
-  };return {
-    x: windowCenter.x - targetCenter.x,
-    y: windowCenter.y - targetCenter.y
-  };
-}
-
-function calculateScale(rect, scaleBase, customSize) {
-  if (customSize) {
-    return {
-      x: customSize.width / rect.width,
-      y: customSize.height / rect.height
-    };
-  } else {
-    var targetHalfWidth = rect.width / 2;
-    var targetHalfHeight = rect.height / 2;
-    var windowCenter = getWindowCenter();
-
-    // The distance between target edge and window edge
-    var targetEdgeToWindowEdge = {
-      x: windowCenter.x - targetHalfWidth,
-      y: windowCenter.y - targetHalfHeight
-    };
-
-    var scaleHorizontally = targetEdgeToWindowEdge.x / targetHalfWidth;
-    var scaleVertically = targetEdgeToWindowEdge.y / targetHalfHeight;
-
-    // The additional scale is based on the smaller value of
-    // scaling horizontally and scaling vertically
-    var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
-
-    return {
-      x: scale,
-      y: scale
-    };
-  }
-}
 
 function getWindowCenter() {
   var docEl = document.documentElement;

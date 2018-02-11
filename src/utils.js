@@ -10,7 +10,7 @@ export const cursor = {
   move: 'move'
 }
 
-export function listen(el, event, handler, add = true) {
+export function listen (el, event, handler, add = true) {
   const options = { passive: false }
 
   if (add) {
@@ -20,11 +20,11 @@ export function listen(el, event, handler, add = true) {
   }
 }
 
-export function loadImage(src, cb) {
+export function loadImage (src, cb) {
   if (src) {
     const img = new Image()
 
-    img.onload = function onImageLoad() {
+    img.onload = function onImageLoad () {
       if (cb) cb(img)
     }
 
@@ -32,9 +32,9 @@ export function loadImage(src, cb) {
   }
 }
 
-export function getOriginalSource(el) {
-  if (el.hasAttribute('data-original')) {
-    return el.getAttribute('data-original')
+export function getOriginalSource (el) {
+  if (el.dataset.original) {
+    return el.dataset.original
   } else if (el.parentNode.tagName === 'A') {
     return el.parentNode.getAttribute('href')
   } else {
@@ -42,7 +42,7 @@ export function getOriginalSource(el) {
   }
 }
 
-export function setStyle(el, styles, remember) {
+export function setStyle (el, styles, remember) {
   checkTrans(styles)
 
   let s = el.style
@@ -59,9 +59,9 @@ export function setStyle(el, styles, remember) {
   return original
 }
 
-export function bindAll(_this, that) {
+export function bindAll (_this, that) {
   const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(_this))
-  methods.forEach(function bindOne(method) {
+  methods.forEach(function bindOne (method) {
     _this[method] = _this[method].bind(that)
   })
 }
@@ -70,7 +70,7 @@ const trans = sniffTransition(document.createElement('div'))
 export const transformCssProp = trans.transformCssProp
 export const transEndEvent = trans.transEndEvent
 
-function checkTrans(styles) {
+function checkTrans (styles) {
   const { transitionProp, transformProp } = trans
 
   if (styles.transition) {
@@ -86,7 +86,7 @@ function checkTrans(styles) {
   }
 }
 
-function sniffTransition(el) {
+function sniffTransition (el) {
   let res = {}
   const trans = ['webkitTransition', 'transition', 'mozTransition']
   const tform = ['webkitTransform', 'transform', 'mozTransform']
@@ -96,7 +96,7 @@ function sniffTransition(el) {
     webkitTransition: 'webkitTransitionEnd'
   }
 
-  trans.some(function hasTransition(prop) {
+  trans.some(function hasTransition (prop) {
     if (el.style[prop] !== undefined) {
       res.transitionProp = prop
       res.transEndEvent = end[prop]
@@ -104,7 +104,7 @@ function sniffTransition(el) {
     }
   })
 
-  tform.some(function hasTransform(prop) {
+  tform.some(function hasTransform (prop) {
     if (el.style[prop] !== undefined) {
       res.transformProp = prop
       res.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform')
