@@ -64,7 +64,7 @@ To set size for a specific image, we can leverage data attributes `data-zooming-
   src="image.jpg" 
   data-action="zoom" 
   data-zooming-width="1920" 
-  data-zooming="1080" 
+  data-zooming-height="1080" 
 />
 ```
 
