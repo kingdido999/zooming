@@ -1,3 +1,9 @@
+mocha.setup('bdd')
+
+window.addEventListener("load", function (event) {
+  mocha.run();
+})
+
 var expect = chai.expect
 var prefix = 'WebkitAppearance' in document.documentElement.style
   ? '-webkit-'
