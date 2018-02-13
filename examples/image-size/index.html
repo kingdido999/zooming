@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Image size</title>
+
+  <style>
+    .grid {
+      column-count: 2;
+      column-gap: 1rem;
+    }
+
+    figure {
+      display: inline-block;
+      margin: 0 0 0 0;
+      width: 100%;
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid">
+    <figure>
+      <img src="http://via.placeholder.com/500x500">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500" data-zooming-width="300" data-zooming-height="300" />
+    </figure <figure>
+    <img src="http://via.placeholder.com/500x500" data-zooming-width="600" data-zooming-height="300">
+    </figure>
+    <figure>
+      <img src="http://via.placeholder.com/500x500" data-zooming-width="1000" data-zooming-height="1000" />
+    </figure>
+  </div>
+
+  <script src="../../build/zooming.js"></script>
+  <script>
+    new Zooming().listen('img')
+  </script>
+</body>
+
+</html>
