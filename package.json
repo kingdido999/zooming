@@ -26,17 +26,18 @@
   },
   "homepage": "https://github.com/kingdido999/zooming",
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-es2015-rollup": "^3.0.0",
-    "chai": "^3.5.0",
+    "chai": "^4.1.2",
     "docsify-cli": "^4.1.12",
-    "mocha": "^3.2.0",
+    "mocha": "^5.0.1",
     "open": "^0.0.5",
-    "rollup": "^0.42.0",
-    "rollup-plugin-babel": "^2.6.1",
-    "rollup-plugin-eslint": "^3.0.0",
+    "rollup": "^0.56.1",
+    "rollup-plugin-babel": "^3.0.3",
+    "rollup-plugin-eslint": "^4.0.0",
     "rollup-plugin-filesize": "^1.3.2",
-    "rollup-plugin-uglify": "^1.0.2",
-    "rollup-watch": "^3.2.2"
+    "rollup-plugin-uglify": "^3.0.0",
+    "rollup-watch": "^4.3.1"
   }
 }
