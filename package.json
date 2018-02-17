@@ -3,6 +3,7 @@
   "version": "1.3.0",
   "description": "Image zoom that makes sense.",
   "main": "build/zooming.js",
+  "module": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:kingdido999/zooming.git"
