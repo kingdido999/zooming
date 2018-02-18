@@ -1,13 +1,11 @@
 import babel from 'rollup-plugin-babel'
 import eslint from 'rollup-plugin-eslint'
 import filesize from 'rollup-plugin-filesize'
-
-const info = require('./package.json')
+import { main, module } from './package.json'
 
 const config = {
   input: 'src/index.js',
   plugins: [
-    // resolve(),
     babel(),
     eslint({
       env: {
@@ -28,11 +26,11 @@ const config = {
   ],
   output: [
     {
-      file: info.main,
+      file: main,
       format: 'umd',
       name: 'Zooming'
     }, {
-      file: info.module,
+      file: module,
       format: 'es'
     }
   ]
