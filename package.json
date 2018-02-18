@@ -18,7 +18,7 @@
   "scripts": {
     "start": "npm run dev",
     "test": "node scripts/test.js",
-    "dev": "rollup -c --w -m inline",
+    "dev": "rollup -c -w -m inline",
     "build": "rollup -c && rollup -c rollup.config.min.js",
     "docs": "docsify serve ./docs"
   },
