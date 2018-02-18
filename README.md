@@ -36,6 +36,8 @@ npm install
 npm start
 ```
 
+Open up `index.html` in browser.
+
 Make your changes and submit a pull request!
 
 ## Test
