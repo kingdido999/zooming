@@ -9,6 +9,7 @@ export default {
     this.el = el
     this.instance = instance
     this.srcThumbnail = this.el.getAttribute('src')
+    this.srcset = this.el.getAttribute('srcset')
     this.srcOriginal = getOriginalSource(this.el)
     this.rect = this.el.getBoundingClientRect()
     this.translate = null
@@ -93,6 +94,9 @@ export default {
 
       // Force compute the hi-res image in DOM to prevent
       // image flickering while updating src
+      if (this.srcset) {
+        temp.setAttribute('srcset', '')
+      }
       temp.setAttribute('src', this.srcOriginal)
       temp.style.position = 'fixed'
       temp.style.visibility = 'hidden'
@@ -101,7 +105,11 @@ export default {
       // Add delay to prevent Firefox from flickering
       setTimeout(
         function updateSrc () {
+          if (this.srcset) {
+            this.el.setAttribute('srcset', '')
+          }
           this.el.setAttribute('src', this.srcOriginal)
+          
           parentNode.removeChild(temp)
         }.bind(this),
         50
@@ -111,6 +119,9 @@ export default {
 
   downgradeSource () {
     if (this.srcOriginal) {
+      if (this.srcset) {
+        this.el.setAttribute('srcset', this.srcset)
+      }
       this.el.setAttribute('src', this.srcThumbnail)
     }
   },
