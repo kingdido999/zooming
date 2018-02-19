@@ -17,9 +17,9 @@
   ],
   "scripts": {
     "start": "npm run dev",
-    "test": "node scripts/test.js",
     "dev": "rollup -c -w -m inline",
     "build": "rollup -c && rollup -c rollup.config.min.js",
+    "test": "opn test.html",
     "docs": "docsify serve ./docs"
   },
   "author": "Desmond Ding <kingdido999@gmail.com>",
@@ -34,7 +34,7 @@
     "chai": "^4.1.2",
     "docsify-cli": "^4.1.12",
     "mocha": "^5.0.1",
-    "open": "^0.0.5",
+    "opn-cli": "^3.1.0",
     "rollup": "^0.56.1",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-eslint": "^4.0.0",
