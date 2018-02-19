@@ -618,6 +618,20 @@ var createClass = function () {
   };
 }();
 
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
 /**
  * Zooming instance.
  */
@@ -640,7 +654,7 @@ var Zooming = function () {
     this.lastScrollPosition = null;
     this.pressTimer = null;
 
-    this.options = Object.assign({}, DEFAULT_OPTIONS, options);
+    this.options = _extends({}, DEFAULT_OPTIONS, options);
     this.overlay.init(this);
     this.handler.init(this);
     this.listen(this.options.defaultZoomable);
@@ -685,7 +699,7 @@ var Zooming = function () {
     key: 'config',
     value: function config(options) {
       if (options) {
-        Object.assign(this.options, options);
+        _extends(this.options, options);
         this.overlay.updateStyle(this.options);
         return this;
       } else {
