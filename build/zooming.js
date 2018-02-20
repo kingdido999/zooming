@@ -517,7 +517,7 @@ var target = {
       // Force compute the hi-res image in DOM to prevent
       // image flickering while updating src
       if (this.srcset) {
-        temp.setAttribute('srcset', '');
+        temp.removeAttribute('srcset');
       }
       temp.setAttribute('src', this.srcOriginal);
       temp.style.position = 'fixed';
@@ -527,7 +527,7 @@ var target = {
       // Add delay to prevent Firefox from flickering
       setTimeout(function updateSrc() {
         if (this.srcset) {
-          this.el.setAttribute('srcset', '');
+          this.el.removeAttribute('srcset');
         }
         this.el.setAttribute('src', this.srcOriginal);
 
