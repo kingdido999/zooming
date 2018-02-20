@@ -9,6 +9,7 @@ export default {
     this.el = el
     this.instance = instance
     this.srcThumbnail = this.el.getAttribute('src')
+    this.srcset = this.el.getAttribute('srcset')
     this.srcOriginal = getOriginalSource(this.el)
     this.rect = this.el.getBoundingClientRect()
     this.translate = null
@@ -89,6 +90,11 @@ export default {
   upgradeSource () {
     if (this.srcOriginal) {
       const parentNode = this.el.parentNode
+      
+      if (this.srcset) {
+        this.el.removeAttribute('srcset')
+      }
+      
       const temp = this.el.cloneNode(false)
 
       // Force compute the hi-res image in DOM to prevent
@@ -111,6 +117,9 @@ export default {
 
   downgradeSource () {
     if (this.srcOriginal) {
+      if (this.srcset) {
+        this.el.setAttribute('srcset', this.srcset)
+      }
       this.el.setAttribute('src', this.srcThumbnail)
     }
   },
