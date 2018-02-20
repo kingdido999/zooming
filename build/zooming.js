@@ -512,13 +512,15 @@ var target = {
   upgradeSource: function upgradeSource() {
     if (this.srcOriginal) {
       var parentNode = this.el.parentNode;
+
+      if (this.srcset) {
+        this.el.removeAttribute('srcset');
+      }
+
       var temp = this.el.cloneNode(false);
 
       // Force compute the hi-res image in DOM to prevent
       // image flickering while updating src
-      if (this.srcset) {
-        temp.removeAttribute('srcset');
-      }
       temp.setAttribute('src', this.srcOriginal);
       temp.style.position = 'fixed';
       temp.style.visibility = 'hidden';
@@ -526,11 +528,7 @@ var target = {
 
       // Add delay to prevent Firefox from flickering
       setTimeout(function updateSrc() {
-        if (this.srcset) {
-          this.el.removeAttribute('srcset');
-        }
         this.el.setAttribute('src', this.srcOriginal);
-
         parentNode.removeChild(temp);
       }.bind(this), 50);
     }
