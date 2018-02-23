@@ -47,3 +47,9 @@ Make your changes and submit a pull request!
 ## Credit
 
 Inspired by [zoom.js](https://github.com/fat/zoom.js) and [zoomerang](https://github.com/yyx990803/zoomerang). First demo image from [Journey](http://thatgamecompany.com/games/journey/). Second demo image [journey](http://www.pixiv.net/member_illust.php?mode=medium&illust_id=36017129) by [飴村](http://www.pixiv.net/member.php?id=47488).
+
+## Projects Using Zooming
+
+### Open Source
+
+- [OctoberCMS Zooming Images plugin](http://octobercms.com/plugin/alexlit-zoomingimages) ([source](https://github.com/alex-lit/OctoberCMS-Zooming-Images-Plugin))
