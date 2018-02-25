@@ -21,6 +21,7 @@ These projects are using Zooming. Pull requests are welcome!
 - [FlowChat](https://flow-chat.com): an open-source, self-hostable, live-updating discussion platform.
 - [pirelli-tires](http://vit.to/diy/pirelli-tires/): DIY luxury crafts.
 - [conference-one](https://github.com/dspachos/conference-one): an one page, Bootstrap 4 template, suitable for academic conferences and events.
+- [OctoberCMS Zooming Images plugin](http://octobercms.com/plugin/alexlit-zoomingimages): open source plugin for October CMS.
 
 ## Caveats / Limitations
 
