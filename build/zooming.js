@@ -433,6 +433,50 @@ var overlay = {
   }
 };
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
 // Translate z-axis to fix CSS grid display issue in Chrome:
 // https://github.com/kingdido999/zooming/issues/42
 var TRANSLATE_Z = 0;
@@ -567,7 +611,7 @@ var target = {
         x: zoomingWidth / this.rect.width,
         y: zoomingHeight / this.rect.height
       };
-    } else if (customSize) {
+    } else if (customSize && (typeof customSize === 'undefined' ? 'undefined' : _typeof(customSize)) === 'object') {
       return {
         x: customSize.width / this.rect.width,
         y: customSize.height / this.rect.height
@@ -590,6 +634,19 @@ var target = {
       // scaling horizontally and scaling vertically
       var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
 
+      if (customSize && typeof customSize === 'string') {
+        // Only scale image up to the specified customSize percentage
+        var maxZoomingWidth = parseFloat(customSize) * this.el.naturalWidth / (100 * this.rect.width);
+        var maxZoomingHeight = parseFloat(customSize) * this.el.naturalHeight / (100 * this.rect.height);
+
+        if (scale > maxZoomingWidth || scale > maxZoomingHeight) {
+          return {
+            x: maxZoomingWidth,
+            y: maxZoomingHeight
+          };
+        }
+      }
+
       return {
         x: scale,
         y: scale
@@ -608,44 +665,6 @@ function getWindowCenter() {
     y: windowHeight / 2
   };
 }
-
-var classCallCheck = function (instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-};
-
-var createClass = function () {
-  function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  return function (Constructor, protoProps, staticProps) {
-    if (protoProps) defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) defineProperties(Constructor, staticProps);
-    return Constructor;
-  };
-}();
-
-var _extends = Object.assign || function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-
-    for (var key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
-      }
-    }
-  }
-
-  return target;
-};
 
 /**
  * Zooming instance.
