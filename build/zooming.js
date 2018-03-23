@@ -606,7 +606,7 @@ var target = {
         scaleBase = _instance$options2.scaleBase;
 
 
-    if (zoomingHeight && zoomingWidth) {
+    if (!customSize && zoomingHeight && zoomingWidth) {
       return {
         x: zoomingWidth / this.rect.width,
         y: zoomingHeight / this.rect.height
@@ -635,10 +635,14 @@ var target = {
       var scale = scaleBase + Math.min(scaleHorizontally, scaleVertically);
 
       if (customSize && typeof customSize === 'string') {
-        // Only scale image up to the specified customSize percentage
-        var maxZoomingWidth = parseFloat(customSize) * this.el.naturalWidth / (100 * this.rect.width);
-        var maxZoomingHeight = parseFloat(customSize) * this.el.naturalHeight / (100 * this.rect.height);
+        // Use zoomingWidth and zoomingHeight if the other provided them
+        var naturalWidth = zoomingWidth || this.el.naturalWidth;
+        var naturalHeight = zoomingHeight || this.el.naturalHeight;
 
+        var maxZoomingWidth = parseFloat(customSize) * naturalWidth / (100 * this.rect.width);
+        var maxZoomingHeight = parseFloat(customSize) * naturalHeight / (100 * this.rect.height);
+
+        // Only scale image up to the specified customSize percentage
         if (scale > maxZoomingWidth || scale > maxZoomingHeight) {
           return {
             x: maxZoomingWidth,

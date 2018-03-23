@@ -146,7 +146,7 @@ export default {
     const { zoomingHeight, zoomingWidth } = this.el.dataset
     const { customSize, scaleBase } = this.instance.options
 
-    if (zoomingHeight && zoomingWidth) {
+    if (!customSize && zoomingHeight && zoomingWidth) {
       return {
         x: zoomingWidth / this.rect.width,
         y: zoomingHeight / this.rect.height
@@ -175,16 +175,15 @@ export default {
       const scale = scaleBase + Math.min(scaleHorizontally, scaleVertically)
 
       if (customSize && typeof customSize === 'string') {
-        // Only scale image up to the specified customSize percentage
+        // Use zoomingWidth and zoomingHeight if available
+        const naturalWidth = zoomingWidth || this.el.naturalWidth
+        const naturalHeight = zoomingHeight || this.el.naturalHeight
         const maxZoomingWidth =
-          parseFloat(customSize) *
-          this.el.naturalWidth /
-          (100 * this.rect.width)
+          parseFloat(customSize) * naturalWidth / (100 * this.rect.width)
         const maxZoomingHeight =
-          parseFloat(customSize) *
-          this.el.naturalHeight /
-          (100 * this.rect.height)
+          parseFloat(customSize) * naturalHeight / (100 * this.rect.height)
 
+        // Only scale image up to the specified customSize percentage
         if (scale > maxZoomingWidth || scale > maxZoomingHeight) {
           return {
             x: maxZoomingWidth,
