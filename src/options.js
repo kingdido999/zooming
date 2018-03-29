@@ -73,9 +73,11 @@ export default {
 
   /**
    * Scale (zoom in) to given width and height. Ignore scaleBase if set.
-   * @type {Object}
+   * Alternatively, provide a percentage value relative to the original image size.
+   * @type {Object|String}
    * @example
    * customSize: { width: 800, height: 400 }
+   * customSize: 100%
    */
   customSize: null,
 
