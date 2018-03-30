@@ -48,16 +48,35 @@ Close the zoomed image when browser window is resized.
 
 ### customSize
 
-- Type: `Object`
+- Type: `Object|String`
 - Default: `null`
 
-Scale to given width and height. Ignore [scaleBase](configuration?id=scaleBase) if set.
+It defines the absolute image size after we zoom in the image. 
+Note this option will ignore [scaleBase](configuration?id=scaleBase) if set.
+
+We could provide an object with `width` and `height` to specify size in pixel:
 
 ```js
 new Zooming({
   customSize: { width: 800, height: 400 }
 })
 ```
+
+Alternatively, provide a percentage value relative to the original image size:
+
+```js
+// Zoom at most to the original image size
+new Zooming({
+  customSize: '100%'
+})
+
+// Zoom at most to the half of the orignal image size
+new Zooming({
+  customSize: '50%'
+})
+```
+
+The **original image size** refers to `naturalWidth` and `naturalHeight` obtained from the image `src` attribute (not image source from `data-original`). However, we could override the **original image size** by specifying `data-zooming-width` and `data-zooming-height` on the image.
 
 ### defaultZoomable
 
