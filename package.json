@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "Image zoom that makes sense.",
   "main": "build/zooming.js",
   "module": "build/zooming.module.js",
