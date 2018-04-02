@@ -34,6 +34,7 @@
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "chai": "^4.1.2",
+    "cypress": "^2.1.0",
     "docsify-cli": "^4.1.12",
     "husky": "^0.14.3",
     "lint-staged": "^6.1.1",
