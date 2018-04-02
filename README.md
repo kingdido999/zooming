@@ -33,8 +33,8 @@ These projects are using Zooming. Pull requests are welcome!
 Fork it. Under project folder:
 
 ```bash
-npm install
-npm start
+yarn
+yarn start
 ```
 
 Open up `index.html` in browser.
@@ -43,7 +43,7 @@ Make your changes and submit a pull request!
 
 ## Test
 
-`npm test`
+`yarn test`
 
 ## Credit
 
