@@ -1,4 +1,4 @@
-describe('My First Test', function () {
+describe('Demo Page Test', function () {
   beforeEach(function () {
     cy.visit('/index.html')
   })

@@ -19,7 +19,7 @@
     "start": "npm run dev",
     "dev": "rollup -c -w -m inline",
     "build": "rollup -c && rollup -c rollup.config.min.js",
-    "test": "opn test.html",
+    "test": "cypress run",
     "docs": "docsify serve ./docs",
     "precommit": "lint-staged"
   },
