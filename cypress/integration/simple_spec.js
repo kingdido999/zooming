@@ -9,4 +9,11 @@ describe('My First Test', function () {
       .wait(1000)
       .click()
   })
+
+  it('Opens and closes the second image', function () {
+    cy.get('#img-custom')
+      .click()
+      .wait(1000)
+      .click()
+  })
 })
