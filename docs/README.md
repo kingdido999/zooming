@@ -3,6 +3,9 @@
 ## Installation
 
 ```
+yarn add zooming
+
+# or
 npm install zooming --save
 ```
 
@@ -14,26 +17,34 @@ Alternatively:
 
 ## Usage
 
-#### Option 1: Simply include a script
+Assuming we have the following images on our page:
+
+```html
+<img src='foo-image.jpg' class='.img-zoomable' />
+<img src='bar-image.jpg' class='.img-zoomable' />
+```
+
+There are two ways to make them zoomable:
+
+### Option 1: script tag
 
 ```html
 <script src="build/zooming.min.js"></script>
+<script>
+  new Zooming({
+    defaultZoomable: '.img-zoomable'
+  })
+</script>
 ```
 
-#### Option 2: Module loader
+### Option 2: module loader
 
 ```javascript
-// via Browserify
-const Zooming = require('zooming')
-
-// via import statement
 import Zooming from 'zooming'
-```
 
-At this point, any image with attribute `data-action="zoom"` is zoomable by default, for example:
-
-```html
-<img src="img/journey.jpg" data-action="zoom" />
+new Zooming({
+  defaultZoomable: '.img-zoomable'
+})
 ```
 
 ## What's Next?
