@@ -30,20 +30,21 @@ There are two ways to make them zoomable:
 
 ```html
 <script src="build/zooming.min.js"></script>
-<script>
-  new Zooming({
-    defaultZoomable: '.img-zoomable'
-  })
-</script>
 ```
 
 ### Option 2: module loader
 
 ```javascript
 import Zooming from 'zooming'
+```
 
-new Zooming({
-  defaultZoomable: '.img-zoomable'
+Then, initialize Zooming instance after DOM content is fully loaded:
+
+```js
+document.addEventListener('DOMContentLoaded', function () {
+  new Zooming({
+    defaultZoomable: '.img-zoomable'
+  })
 })
 ```
 

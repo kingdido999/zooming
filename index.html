@@ -99,8 +99,10 @@
   <script src="build/zooming.js"></script>
   <script src="demo/js/custom.js"></script>
   <script>
-    new Zooming({
-      defaultZoomable: '#img-default'
+    document.addEventListener('DOMContentLoaded', function () {
+      new Zooming({
+        defaultZoomable: '#img-default'
+      })
     })
   </script>
   <!-- End Document
