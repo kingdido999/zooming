@@ -27,5 +27,8 @@
       "error",
       "never"
     ]
+  },
+  "globals": {
+    "cy": false
   }
 }
