@@ -17,22 +17,20 @@ Alternatively:
 
 ## Usage
 
-Assuming we have the following images on our page:
+Assuming we have the following images on our page and we want to make them zoomable:
 
 ```html
 <img src='foo-image.jpg' class='.img-zoomable' />
 <img src='bar-image.jpg' class='.img-zoomable' />
 ```
 
-There are two ways to make them zoomable:
-
-### Option 1: script tag
+We can load the library via script tag:
 
 ```html
 <script src="build/zooming.min.js"></script>
 ```
 
-### Option 2: module loader
+Or module loader:
 
 ```javascript
 import Zooming from 'zooming'
@@ -42,9 +40,7 @@ Then, initialize Zooming instance after DOM content is fully loaded:
 
 ```js
 document.addEventListener('DOMContentLoaded', function () {
-  new Zooming({
-    defaultZoomable: '.img-zoomable'
-  })
+  new Zooming().listen('.img-zoomable')
 })
 ```
 

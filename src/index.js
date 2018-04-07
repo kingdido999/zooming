@@ -33,7 +33,6 @@ export default class Zooming {
     this.options = Object.assign({}, DEFAULT_OPTIONS, options)
     this.overlay.init(this)
     this.handler.init(this)
-    this.listen(this.options.defaultZoomable)
   }
 
   /**

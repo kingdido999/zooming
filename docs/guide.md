@@ -1,20 +1,5 @@
 # Guide
 
-## Define zoomable images
-
-Apart from specify [defaultZoomable](/configuration?id=defaultZoomable) option at initialization, we could define zoomable images programmatically using [listen()](/api-reference?id=listen):
-
-```js
-const zooming = new Zooming()
-
-// By a css selector
-zooming.listen('.img-zoomable')
-
-// By an Element
-const img = document.getElementById('img-zoomable')
-zooming.listen(img)
-```
-
 ## Zoom into a high resolution image
 
 ### Option 1: data attribute

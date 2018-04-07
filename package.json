@@ -16,10 +16,10 @@
     "javascript"
   ],
   "scripts": {
-    "start": "npm run dev",
-    "dev": "rollup -c -w -m inline",
+    "start": "rollup -c -w -m inline",
     "build": "rollup -c && rollup -c rollup.config.min.js",
     "test": "cypress run",
+    "test:open": "cypress open",
     "docs": "docsify serve ./docs",
     "precommit": "lint-staged"
   },
