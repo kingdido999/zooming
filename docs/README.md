@@ -15,34 +15,42 @@ Alternatively:
 - [unpkg](https://unpkg.com/zooming)
 - [Download source](https://github.com/kingdido999/zooming/releases)
 
-## Usage
+## Example usage
 
-Assuming we have the following images on our page and we want to make them zoomable:
+To make the following images zoomable:
 
 ```html
 <img src='foo-image.jpg' class='.img-zoomable' />
 <img src='bar-image.jpg' class='.img-zoomable' />
 ```
 
-We can load the library via script tag:
+First, we need to load the library:
+
+### Option 1: Script tag
 
 ```html
 <script src="build/zooming.min.js"></script>
 ```
 
-Or module loader:
+### Option 2: Module loader
 
 ```javascript
 import Zooming from 'zooming'
 ```
 
-Then, initialize Zooming instance after DOM content is fully loaded:
+Next, initialize Zooming instance after DOM content is fully loaded:
 
 ```js
 document.addEventListener('DOMContentLoaded', function () {
-  new Zooming().listen('.img-zoomable')
+  const zooming = new Zooming({
+    // options...
+  })
+
+  zooming.listen('.img-zoomable')
 })
 ```
+
+!> Starting from Zooming **2.0**, we no longer listen to images with data attribute `data-action="zoom"` by default. Please make sure to call `.listen()` on target images after Zooming instance is created.
 
 ## What's Next?
 
