@@ -107,11 +107,10 @@
       </p>
 
       <div class="row">
-        <a class="button" id="btn-fast" onclick="fast()">faster</a>
-        <a class="button" id="btn-slow" onclick="slow()">slower</a>
-        <a class="button" id="btn-dark" onclick="dark()">dark</a>
-        <a class="button" id="btn-scale-small" onclick="scaleSmall()">smaller</a>
-        <a class="button" id="btn-no-grab" onclick="noGrab()">no grab</a>
+        <a class="button" id="btn-fast">faster</a>
+        <a class="button" id="btn-dark">dark</a>
+        <a class="button" id="btn-scale-small">smaller</a>
+        <a class="button" id="btn-no-grab">no grab</a>
       </div>
 
       <br>
@@ -144,108 +143,80 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <script src="build/zooming.js"></script>
   <script>
+    const defaultZooming = new Zooming()
+    const customZooming = new Zooming()
+    const config = customZooming.config()
+    const TRANSITION_DURATION_DEFAULT = config.transitionDuration
+    const BG_COLOR_DEFAULT = config.bgColor
+    const ENABLE_GRAB_DEFAULT = config.enableGrab
+    const SCALE_BASE_DEFAULT = config.scaleBase
+    const ACTIVE_CLASS = 'button-primary'
+
+    const btnFast = document.getElementById('btn-fast')
+    const btnDark = document.getElementById('btn-dark')
+    const btnScaleSmall = document.getElementById('btn-scale-small')
+    const btnNoGrab = document.getElementById('btn-no-grab')
+
     document.addEventListener('DOMContentLoaded', function () {
-      new Zooming().listen('#img-default')
-      var customZooming = new Zooming().listen('#img-custom')
-
-      var config = customZooming.config(),
-        TRANSITION_DURATION_DEFAULT = config.transitionDuration,
-        TRANSITION_DURATION_SLOW = 1.0,
-        TRANSITION_DURATION_FAST = 0.2,
-        BG_COLOR_DEFAULT = config.bgColor,
-        BG_COLOR_DARK = '#000',
-        ENABLE_GRAB_DEFAULT = config.enableGrab,
-        SCALE_BASE_DEFAULT = config.scaleBase,
-        SCALE_BASE_SMALL = 0.8,
-        ACTIVE_CLASS = 'button-primary',
-        btnFast = document.getElementById('btn-fast'),
-        btnSlow = document.getElementById('btn-slow'),
-        btnDark = document.getElementById('btn-dark'),
-        btnNoGrab = document.getElementById('btn-no-grab'),
-        btnScaleSmall = document.getElementById('btn-scale-small')
-
-      function isActive(el) {
-        return el.classList.contains(ACTIVE_CLASS)
-      }
-
-      function activate(el) {
-        el.classList.add(ACTIVE_CLASS)
-      }
-
-      function deactivate(el) {
-        el.classList.remove(ACTIVE_CLASS)
-      }
-
-      function fast() {
-        var t
-        if (isActive(btnFast)) {
-          t = TRANSITION_DURATION_DEFAULT
-          deactivate(btnFast)
-        } else {
-          t = TRANSITION_DURATION_FAST
-          activate(btnFast)
-          deactivate(btnSlow)
-        }
-
-        customZooming.config({ transitionDuration: t })
-      }
-
-      function slow() {
-        var t
-        if (isActive(btnSlow)) {
-          t = TRANSITION_DURATION_DEFAULT
-          deactivate(btnSlow)
-        } else {
-          t = TRANSITION_DURATION_SLOW
-          activate(btnSlow)
-          deactivate(btnFast)
-        }
-
-        customZooming.config({ transitionDuration: t })
-      }
-
-      function dark() {
-        var c
-        if (isActive(btnDark)) {
-          c = BG_COLOR_DEFAULT
-          deactivate(btnDark)
-        } else {
-          c = BG_COLOR_DARK
-          activate(btnDark)
-        }
-
-        customZooming.config({ bgColor: c })
-      }
-
-      function noGrab() {
-        var enable
-        if (isActive(btnNoGrab)) {
-          enable = ENABLE_GRAB_DEFAULT
-          deactivate(btnNoGrab)
-        } else {
-          enable = !ENABLE_GRAB_DEFAULT
-          activate(btnNoGrab)
-        }
-
-        customZooming.config({ enableGrab: enable })
-      }
-
-      function scaleSmall() {
-        var scaleBase
-        if (isActive(btnScaleSmall)) {
-          scaleBase = SCALE_BASE_DEFAULT
-          deactivate(btnScaleSmall)
-        } else {
-          scaleBase = SCALE_BASE_SMALL
-          activate(btnScaleSmall)
-        }
-
-        customZooming.config({ scaleBase: scaleBase })
-      }
-
+      defaultZooming.listen('#img-default')
+      customZooming.listen('#img-custom')
     })
 
-    var copyright = 'Copyright © ' +
+    btnFast.addEventListener('click', function (event) {
+      const transitionDuration = toggleActive(btnFast)
+        ? 0.2
+        : TRANSITION_DURATION_DEFAULT
+
+      customZooming.config({ transitionDuration })
+    })
+
+    btnDark.addEventListener('click', function (event) {
+      const bgColor = toggleActive(btnDark)
+        ? 'black'
+        : BG_COLOR_DEFAULT
+
+      customZooming.config({ bgColor })
+    })
+
+    btnScaleSmall.addEventListener('click', function (event) {
+      const scaleBase = toggleActive(btnScaleSmall)
+        ? 0.7
+        : SCALE_BASE_DEFAULT
+
+      customZooming.config({ scaleBase })
+    })
+
+    btnNoGrab.addEventListener('click', function (event) {
+      const enableGrab = toggleActive(btnNoGrab)
+        ? false
+        : true
+
+      customZooming.config({ enableGrab })
+    })
+
+    function isActive(el) {
+      return el.classList.contains(ACTIVE_CLASS)
+    }
+
+    function activate(el) {
+      el.classList.add(ACTIVE_CLASS)
+    }
+
+    function deactivate(el) {
+      el.classList.remove(ACTIVE_CLASS)
+    }
+
+    function toggleActive(el) {
+      if (isActive(el)) {
+        deactivate(el)
+        return false
+      } else {
+        activate(el)
+        return true
+      }
+    }
+
+    const copyright = 'Copyright © ' +
       new Date().getFullYear() +
       ' <a href="https://github.com/kingdido999">Desmond Ding</a>' +
       ' and other <a href="https://github.com/kingdido999/zooming/graphs/contributors">contributors</a>'
