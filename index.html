@@ -23,7 +23,51 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
-  <link rel="stylesheet" href="demo/css/custom.css">
+
+  <style>
+    .container {
+      max-width: 600px;
+    }
+
+    section.header {
+      margin-top: 4rem;
+      text-align: center;
+    }
+
+    section.content {
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+    }
+
+    .value-img {
+      display: block;
+      text-align: center;
+      margin: 2em 0;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    @media (min-width: 550px) {
+      .header {
+        margin-top: 10rem;
+      }
+    }
+
+    .button.button-primary {
+      background-color: #f9c04d !important;
+      border-color: #f9c04d !important;
+    }
+
+    .button.button-secondary {
+      background-color: #eee !important;
+      border-color: #eee !important;
+    }
+  </style>
 
 </head>
 
@@ -37,12 +81,8 @@
       <h2>Zooming</h2>
 
       <div class="value-img">
-        <img 
-          src="demo/img/journey_start_thumbnail.jpg" 
-          data-action="zoom" 
-          data-original="demo/img/journey_start.jpg" 
-          alt="journey_start_thumbnail"
-        />
+        <img id="img-default" src="assets/img/journey_start_thumbnail.jpg" data-action="zoom" data-original="assets/img/journey_start.jpg"
+          alt="journey_start_thumbnail" />
       </div>
     </section>
 
@@ -57,30 +97,28 @@
       </ul>
 
       <div class="value-img">
-        <a href="demo/img/journey.jpg">
-          <img src="demo/img/journey_thumbnail.jpg"
-          id="img-custom"
-          alt="journey_thumbnail" />
+        <a href="assets/img/journey.jpg">
+          <img id="img-custom" src="assets/img/journey_thumbnail.jpg" alt="journey_thumbnail" />
         </a>
       </div>
 
-      <p><small>Options below were designed to affect the second image only.</small></p>
+      <p>
+        <small>Options below were designed to affect the second image only.</small>
+      </p>
 
       <div class="row">
-        <a class="button" id="btn-fast" onclick="fast()">faster</a>
-        <a class="button" id="btn-slow" onclick="slow()">slower</a>
-        <a class="button" id="btn-dark" onclick="dark()">dark</a>
-        <a class="button" id="btn-scale-small" onclick="scaleSmall()">smaller</a>
-        <a class="button" id="btn-no-grab" onclick="noGrab()">no grab</a>
+        <a class="button" id="btn-fast">faster</a>
+        <a class="button" id="btn-dark">dark</a>
+        <a class="button" id="btn-scale-small">smaller</a>
+        <a class="button" id="btn-no-grab">no grab</a>
       </div>
 
       <br>
 
       <p>
-        <em>Faced with rolling sand dunes, age-old ruins, caves and howling winds,
-          your passage will not be an easy one. The goal is to get to the mountaintop,
-          but the experience is discovering who you are, what this place is,
-          and what is your purpose.</em>
+        <em>Faced with rolling sand dunes, age-old ruins, caves and howling winds, your passage will not be an easy one. The
+          goal is to get to the mountaintop, but the experience is discovering who you are, what this place is, and what
+          is your purpose.</em>
       </p>
 
       <br>
@@ -96,13 +134,96 @@
 
   <footer>
     <p id="copyright"></p>
-    <p id="license"></p>
+    <p id="license">
+      <a href="https://opensource.org/licenses/MIT">The MIT License</a>
+    </p>
   </footer>
 
   <!-- Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <script src="build/zooming.js"></script>
-  <script src="demo/js/custom.js"></script>
+  <script>
+    const defaultZooming = new Zooming()
+    const customZooming = new Zooming()
+    const config = customZooming.config()
+    const TRANSITION_DURATION_DEFAULT = config.transitionDuration
+    const BG_COLOR_DEFAULT = config.bgColor
+    const ENABLE_GRAB_DEFAULT = config.enableGrab
+    const SCALE_BASE_DEFAULT = config.scaleBase
+    const ACTIVE_CLASS = 'button-primary'
+
+    const btnFast = document.getElementById('btn-fast')
+    const btnDark = document.getElementById('btn-dark')
+    const btnScaleSmall = document.getElementById('btn-scale-small')
+    const btnNoGrab = document.getElementById('btn-no-grab')
+
+    document.addEventListener('DOMContentLoaded', function () {
+      defaultZooming.listen('#img-default')
+      customZooming.listen('#img-custom')
+    })
+
+    btnFast.addEventListener('click', function (event) {
+      const transitionDuration = toggleActive(btnFast)
+        ? 0.2
+        : TRANSITION_DURATION_DEFAULT
+
+      customZooming.config({ transitionDuration })
+    })
+
+    btnDark.addEventListener('click', function (event) {
+      const bgColor = toggleActive(btnDark)
+        ? 'black'
+        : BG_COLOR_DEFAULT
+
+      customZooming.config({ bgColor })
+    })
+
+    btnScaleSmall.addEventListener('click', function (event) {
+      const scaleBase = toggleActive(btnScaleSmall)
+        ? 0.7
+        : SCALE_BASE_DEFAULT
+
+      customZooming.config({ scaleBase })
+    })
+
+    btnNoGrab.addEventListener('click', function (event) {
+      const enableGrab = toggleActive(btnNoGrab)
+        ? false
+        : true
+
+      customZooming.config({ enableGrab })
+    })
+
+    function isActive(el) {
+      return el.classList.contains(ACTIVE_CLASS)
+    }
+
+    function activate(el) {
+      el.classList.add(ACTIVE_CLASS)
+    }
+
+    function deactivate(el) {
+      el.classList.remove(ACTIVE_CLASS)
+    }
+
+    function toggleActive(el) {
+      if (isActive(el)) {
+        deactivate(el)
+        return false
+      } else {
+        activate(el)
+        return true
+      }
+    }
+
+    const copyright = 'Copyright © ' +
+      new Date().getFullYear() +
+      ' <a href="https://github.com/kingdido999">Desmond Ding</a>' +
+      ' and other <a href="https://github.com/kingdido999/zooming/graphs/contributors">contributors</a>'
+
+    document.getElementById('copyright').innerHTML = copyright
+
+  </script>
   <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>

@@ -1,4 +1,4 @@
-import { listen, setStyle } from '../utils'
+import { listen, setStyle } from './utils'
 
 export default {
   init(instance) {

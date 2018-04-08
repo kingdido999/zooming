@@ -1,4 +1,4 @@
-import { bindAll } from '../utils'
+import { bindAll } from './utils'
 
 const PRESS_DELAY = 200
 

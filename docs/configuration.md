@@ -6,7 +6,6 @@ Zooming instance takes an configuration object in the constructor function:
 
 ```js
 const zooming = new Zooming({
-  defaultZoomable: '.foo',
   // ...
 })
 ```
@@ -77,13 +76,6 @@ new Zooming({
 ```
 
 The **original image size** refers to `naturalWidth` and `naturalHeight` obtained from the image `src` attribute (not image source from `data-original`). However, we could override the **original image size** by specifying `data-zooming-width` and `data-zooming-height` on the image.
-
-### defaultZoomable
-
-- Type: `String|Element`
-- Default: `'img[data-action="zoom"]'`
-
-Zoomable elements by default. It can be a css selector or an element.
 
 ### enableGrab
 

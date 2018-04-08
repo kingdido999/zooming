@@ -1,37 +1,22 @@
 # Guide
 
-## Define zoomable images
-
-We can make images zoomable programmatically using [listen()](/api-reference?id=listen):
-
-```js
-const zooming = new Zooming()
-
-// By a css selector
-zooming.listen('.img-zoomable')
-
-// By an Element
-const img = document.getElementById('img-zoomable')
-zooming.listen(img)
-```
-
 ## Zoom into a high resolution image
 
-#### Option 1: data attribute
+### Option 1: data attribute
 
 Add `data-original` attribute to the image:
 
 ```html
-<img src="img/journey_thumbnail.jpg" data-action="zoom" data-original="img/journey.jpg" />
+<img src="img/journey_thumbnail.jpg" data-original="img/journey.jpg" />
 ```
 
-#### Option 2: anchor link
+### Option 2: anchor link
 
 Provide an original image link that wraps around the image:
 
 ```html
 <a href="demo/img/journey.jpg">
-  <img src="demo/img/journey_thumbnail.jpg" data-action="zoom" />
+  <img src="demo/img/journey_thumbnail.jpg" />
 </a>
 ```
 
@@ -61,8 +46,7 @@ To set size for a specific image, we can leverage data attributes `data-zooming-
 
 ```html
 <img 
-  src="image.jpg" 
-  data-action="zoom" 
+  src="image.jpg"
   data-zooming-width="1920" 
   data-zooming-height="1080" 
 />

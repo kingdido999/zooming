@@ -1,6 +1,6 @@
 {
   "name": "zooming",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Image zoom that makes sense.",
   "main": "build/zooming.js",
   "module": "build/zooming.module.js",
@@ -16,10 +16,10 @@
     "javascript"
   ],
   "scripts": {
-    "start": "npm run dev",
-    "dev": "rollup -c -w -m inline",
+    "start": "rollup -c -w -m inline",
     "build": "rollup -c && rollup -c rollup.config.min.js",
-    "test": "opn test.html",
+    "test": "cypress run",
+    "test:open": "cypress open",
     "docs": "docsify serve ./docs",
     "precommit": "lint-staged"
   },
@@ -34,6 +34,7 @@
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-es2015-rollup": "^3.0.0",
     "chai": "^4.1.2",
+    "cypress": "^2.1.0",
     "docsify-cli": "^4.1.12",
     "husky": "^0.14.3",
     "lint-staged": "^6.1.1",

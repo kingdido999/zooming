@@ -2,3 +2,4 @@
 npm-debug.log
 node_modules/
 yarn-error.log
+cypress/videos/

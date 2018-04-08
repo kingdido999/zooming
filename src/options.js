@@ -1,11 +1,5 @@
 export default {
   /**
-   * Zoomable elements by default. It can be a css selector or an element.
-   * @type {string|Element}
-   */
-  defaultZoomable: 'img[data-action="zoom"]',
-
-  /**
    * To be able to grab and drag the image for extra zoom-in.
    * @type {boolean}
    */
@@ -95,15 +89,15 @@ export default {
   onClose: null,
 
   /**
-    * Same as above, except fired when grabbed.
-    * @type {Function}
-    */
+   * Same as above, except fired when grabbed.
+   * @type {Function}
+   */
   onGrab: null,
 
   /**
-    * Same as above, except fired when moved.
-    * @type {Function}
-    */
+   * Same as above, except fired when moved.
+   * @type {Function}
+   */
   onMove: null,
 
   /**

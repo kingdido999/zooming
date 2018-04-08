@@ -3,6 +3,9 @@
 ## Installation
 
 ```
+yarn add zooming
+
+# or
 npm install zooming --save
 ```
 
@@ -12,29 +15,42 @@ Alternatively:
 - [unpkg](https://unpkg.com/zooming)
 - [Download source](https://github.com/kingdido999/zooming/releases)
 
-## Usage
+## Example usage
 
-#### Option 1: Simply include a script
+To make the following images zoomable:
+
+```html
+<img src='foo-image.jpg' class='.img-zoomable' />
+<img src='bar-image.jpg' class='.img-zoomable' />
+```
+
+First, we need to load the library:
+
+### Option 1: Script tag
 
 ```html
 <script src="build/zooming.min.js"></script>
 ```
 
-#### Option 2: Module loader
+### Option 2: Module loader
 
 ```javascript
-// via Browserify
-const Zooming = require('zooming')
-
-// via import statement
 import Zooming from 'zooming'
 ```
 
-At this point, any image with attribute `data-action="zoom"` is zoomable by default, for example:
+Next, initialize Zooming instance after DOM content is fully loaded:
 
-```html
-<img src="img/journey.jpg" data-action="zoom" />
+```js
+document.addEventListener('DOMContentLoaded', function () {
+  const zooming = new Zooming({
+    // options...
+  })
+
+  zooming.listen('.img-zoomable')
+})
 ```
+
+!> Starting from Zooming **2.0**, we no longer listen to images with data attribute `data-action="zoom"` by default. Please make sure to call `.listen()` on target images after Zooming instance is created.
 
 ## What's Next?
 
