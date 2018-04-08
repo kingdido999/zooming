@@ -3,6 +3,7 @@
     "browser": true,
     "node": true,
     "es6": true,
+    "mocha": true,
     "jasmine": true
   },
   "extends": "eslint:recommended",
