@@ -110,7 +110,6 @@
         <a class="button" id="btn-fast">faster</a>
         <a class="button" id="btn-dark">dark</a>
         <a class="button" id="btn-scale-small">smaller</a>
-        <a class="button" id="btn-no-grab">no grab</a>
       </div>
 
       <br>
@@ -148,14 +147,12 @@
     const config = customZooming.config()
     const TRANSITION_DURATION_DEFAULT = config.transitionDuration
     const BG_COLOR_DEFAULT = config.bgColor
-    const ENABLE_GRAB_DEFAULT = config.enableGrab
     const SCALE_BASE_DEFAULT = config.scaleBase
     const ACTIVE_CLASS = 'button-primary'
 
     const btnFast = document.getElementById('btn-fast')
     const btnDark = document.getElementById('btn-dark')
     const btnScaleSmall = document.getElementById('btn-scale-small')
-    const btnNoGrab = document.getElementById('btn-no-grab')
 
     document.addEventListener('DOMContentLoaded', function () {
       defaultZooming.listen('#img-default')
@@ -184,14 +181,6 @@
         : SCALE_BASE_DEFAULT
 
       customZooming.config({ scaleBase })
-    })
-
-    btnNoGrab.addEventListener('click', function (event) {
-      const enableGrab = toggleActive(btnNoGrab)
-        ? false
-        : true
-
-      customZooming.config({ enableGrab })
     })
 
     function isActive(el) {
