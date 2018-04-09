@@ -39,7 +39,6 @@
     "husky": "^0.14.3",
     "lint-staged": "^6.1.1",
     "mocha": "^5.0.1",
-    "opn-cli": "^3.1.0",
     "prettier-standard": "^8.0.0",
     "rollup": "^0.56.1",
     "rollup-plugin-babel": "^3.0.3",
@@ -47,7 +46,6 @@
     "rollup-plugin-filesize": "^1.3.2",
     "rollup-plugin-uglify": "^3.0.0"
   },
-  "dependencies": {},
   "lint-staged": {
     "linters": {
       "src/**/*.js": [
