@@ -23,12 +23,12 @@
     "docs": "docsify serve ./docs",
     "precommit": "lint-staged"
   },
-  "author": "Desmond Ding <kingdido999@gmail.com>",
+  "author": "Desmond Ding <info@desmonding.me>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kingdido999/zooming/issues"
   },
-  "homepage": "https://github.com/kingdido999/zooming",
+  "homepage": "https://desmonding.me/zooming",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-plugin-transform-object-assign": "^6.22.0",
