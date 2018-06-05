@@ -90,14 +90,17 @@ export default class Zooming {
 
     if (target.tagName !== 'IMG') return
 
-    if (this.options.onBeforeOpen) {
-      this.options.onBeforeOpen(target)
-    }
+    this.options.onBeforeOpen(target)
 
     this.target.init(target, this)
 
     if (!this.options.preloadImage) {
-      loadImage(this.target.srcOriginal)
+      const { srcOriginal } = this.target
+
+      if (srcOriginal != null) {
+        this.options.onLoading()
+        loadImage(this.target.srcOriginal, this.options.onLoaded)
+      }
     }
 
     this.shown = true
@@ -123,7 +126,7 @@ export default class Zooming {
         toggleGrabListeners(document, this.handler, true)
       }
 
-      if (cb) cb(target)
+      cb(target)
     }
 
     listen(target, transEndEvent, onOpenEnd)
@@ -143,9 +146,7 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeClose) {
-      this.options.onBeforeClose(target)
-    }
+    this.options.onBeforeClose(target)
 
     this.lock = true
     this.body.style.cursor = cursor.default
@@ -174,7 +175,7 @@ export default class Zooming {
       this.target.restoreCloseStyle()
       this.overlay.remove()
 
-      if (cb) cb(target)
+      cb(target)
     }
 
     listen(target, transEndEvent, onCloseEnd)
@@ -197,16 +198,14 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeGrab) {
-      this.options.onBeforeGrab(target)
-    }
+    this.options.onBeforeGrab(target)
 
     this.released = false
     this.target.grab(x, y, scaleExtra)
 
     const onGrabEnd = () => {
       listen(target, transEndEvent, onGrabEnd, false)
-      if (cb) cb(target)
+      cb(target)
     }
 
     listen(target, transEndEvent, onGrabEnd)
@@ -235,7 +234,7 @@ export default class Zooming {
 
     const onMoveEnd = () => {
       listen(target, transEndEvent, onMoveEnd, false)
-      if (cb) cb(target)
+      cb(target)
     }
 
     listen(target, transEndEvent, onMoveEnd)
@@ -255,9 +254,7 @@ export default class Zooming {
 
     const target = this.target.el
 
-    if (this.options.onBeforeRelease) {
-      this.options.onBeforeRelease(target)
-    }
+    this.options.onBeforeRelease(target)
 
     this.lock = true
     this.body.style.cursor = cursor.default
@@ -267,8 +264,7 @@ export default class Zooming {
       listen(target, transEndEvent, onReleaseEnd, false)
       this.lock = false
       this.released = true
-
-      if (cb) cb(target)
+      cb(target)
     }
 
     listen(target, transEndEvent, onReleaseEnd)

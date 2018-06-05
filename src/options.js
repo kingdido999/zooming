@@ -1,3 +1,5 @@
+const noop = () => {}
+
 export default {
   /**
    * To be able to grab and drag the image for extra zoom-in.
@@ -80,53 +82,65 @@ export default {
    * transition has ended. It will get the target element as the argument.
    * @type {Function}
    */
-  onOpen: null,
+  onOpen: noop,
 
   /**
    * Same as above, except fired when closed.
    * @type {Function}
    */
-  onClose: null,
+  onClose: noop,
 
   /**
    * Same as above, except fired when grabbed.
    * @type {Function}
    */
-  onGrab: null,
+  onGrab: noop,
 
   /**
    * Same as above, except fired when moved.
    * @type {Function}
    */
-  onMove: null,
+  onMove: noop,
 
   /**
    * Same as above, except fired when released.
    * @type {Function}
    */
-  onRelease: null,
+  onRelease: noop,
 
   /**
    * A callback function that will be called before open.
    * @type {Function}
    */
-  onBeforeOpen: null,
+  onBeforeOpen: noop,
 
   /**
    * A callback function that will be called before close.
    * @type {Function}
    */
-  onBeforeClose: null,
+  onBeforeClose: noop,
 
   /**
    * A callback function that will be called before grab.
    * @type {Function}
    */
-  onBeforeGrab: null,
+  onBeforeGrab: noop,
 
   /**
    * A callback function that will be called before release.
    * @type {Function}
    */
-  onBeforeRelease: null
+  onBeforeRelease: noop,
+
+  /**
+   * A callback function that will be called when the hi-res image is loading.
+   * @type {Function}
+   */
+  onLoading: noop,
+
+  /**
+   * A callback function that will be called when the hi-res image is loaded.
+   * @type {Function}
+   */
+  onLoaded: noop
 }
