@@ -136,11 +136,11 @@ export default {
    * A callback function that will be called when the hi-res image is loading.
    * @type {Function}
    */
-  onLoading: noop,
+  onImageLoading: noop,
 
   /**
    * A callback function that will be called when the hi-res image is loaded.
    * @type {Function}
    */
-  onLoaded: noop
+  onImageLoaded: noop
 }

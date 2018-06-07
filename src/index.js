@@ -98,8 +98,8 @@ export default class Zooming {
       const { srcOriginal } = this.target
 
       if (srcOriginal != null) {
-        this.options.onLoading()
-        loadImage(this.target.srcOriginal, this.options.onLoaded)
+        this.options.onImageLoading(target)
+        loadImage(srcOriginal, this.options.onImageLoaded)
       }
     }
 
