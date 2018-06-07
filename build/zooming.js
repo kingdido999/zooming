@@ -261,13 +261,13 @@ var DEFAULT_OPTIONS = {
    * A callback function that will be called when the hi-res image is loading.
    * @type {Function}
    */
-  onLoading: noop,
+  onImageLoading: noop,
 
   /**
    * A callback function that will be called when the hi-res image is loaded.
    * @type {Function}
    */
-  onLoaded: noop
+  onImageLoaded: noop
 };
 
 var PRESS_DELAY = 200;
@@ -784,8 +784,8 @@ var Zooming = function () {
 
 
         if (srcOriginal != null) {
-          this.options.onLoading();
-          loadImage(this.target.srcOriginal, this.options.onLoaded);
+          this.options.onImageLoading(target$$1);
+          loadImage(srcOriginal, this.options.onImageLoaded);
         }
       }
 
