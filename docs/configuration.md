@@ -151,36 +151,81 @@ Events are associated with following actions: `open`, `grab`, `move`, `release` 
 
 ### onBeforeOpen
 
+- Type: `Function`
+- Default: `function () {}`
+
 Occurs before opening the target.
 
 ### onOpen
+
+- Type: `Function`
+- Default: `function () {}`
 
 Occurs after the target is fully opened.
 
 ### onBeforeGrab
 
+- Type: `Function`
+- Default: `function () {}`
+
 Occurs before grabbing the target.
 
 ### onGrab
+
+- Type: `Function`
+- Default: `function () {}`
 
 Occurs after the target is fully grabbed.
 
 ### onMove
 
+- Type: `Function`
+- Default: `function () {}`
+
 Occurs after the target is fully moved.
 
-### onBeforeRealse
+### onBeforeRelease
+
+- Type: `Function`
+- Default: `function () {}`
 
 Occurs before releasing the target.
 
 ### onRelease
 
+- Type: `Function`
+- Default: `function () {}`
+
 Occurs after the target is fully released.
 
 ### onBeforeClose
+
+- Type: `Function`
+- Default: `function () {}`
 
 Occurs before closing the target.
 
 ### onClose
 
+- Type: `Function`
+- Default: `function () {}`
+
 Occurs after the target is fully closed.
+
+### onImageLoading
+
+- Type: `Function`
+- Default: `function () {}`
+
+Occurs when the target hi-res image starts loading. This step happens right after `onBeforeOpen`.
+
+!> Triggers only if hi-res image source is supplied and option `preloadImage` is set to `false`.
+
+### onImageLoaded
+
+- Type: `Function`
+- Default: `function () {}`
+
+Occurs when the target hi-res image has been loaded.
+
+!> Triggers only if hi-res image source is supplied and option `preloadImage` is set to `false`.
