@@ -33,7 +33,7 @@
     "babel-core": "6.26.3",
     "babel-plugin-transform-object-assign": "6.22.0",
     "babel-preset-es2015-rollup": "3.0.0",
-    "chai": "4.1.2",
+    "chai": "4.2.0",
     "cypress": "2.1.0",
     "docsify-cli": "4.2.1",
     "husky": "0.14.3",
