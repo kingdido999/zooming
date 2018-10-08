@@ -4,3 +4,8 @@ node_js:
 cache:
   directories:
     - "node_modules"
+before_script:
+  yarn
+  yarn run build
+script:
+  yarn test
