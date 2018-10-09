@@ -20,8 +20,7 @@
     "build": "rollup -c && rollup -c rollup.config.min.js",
     "test": "cypress run",
     "test:open": "cypress open",
-    "docs": "docsify serve ./docs",
-    "precommit": "lint-staged"
+    "docs": "docsify serve ./docs"
   },
   "author": "Desmond Ding <info@desmonding.me>",
   "license": "MIT",
@@ -52,6 +51,11 @@
         "prettier-standard",
         "git add"
       ]
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
   }
 }
