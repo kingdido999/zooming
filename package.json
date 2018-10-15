@@ -42,7 +42,7 @@
     "rollup": "0.56.5",
     "rollup-plugin-babel": "3.0.3",
     "rollup-plugin-eslint": "4.0.0",
-    "rollup-plugin-filesize": "1.5.0",
+    "rollup-plugin-filesize": "5.0.1",
     "rollup-plugin-uglify": "3.0.0"
   },
   "lint-staged": {
