@@ -1,10 +1,8 @@
-var webkitPrefix = 'WebkitAppearance' in document.documentElement.style ? '-webkit-' : '';
-
 var cursor = {
   default: 'auto',
-  zoomIn: webkitPrefix + 'zoom-in',
-  zoomOut: webkitPrefix + 'zoom-out',
-  grab: webkitPrefix + 'grab',
+  zoomIn: 'zoom-in',
+  zoomOut: 'zoom-out',
+  grab: 'grab',
   move: 'move'
 };
 
@@ -66,9 +64,15 @@ function bindAll(_this, that) {
   });
 }
 
-var trans = sniffTransition(document.createElement('div'));
-var transformCssProp = trans.transformCssProp;
-var transEndEvent = trans.transEndEvent;
+var trans = {
+  transitionProp: 'transition',
+  transEndEvent: 'transitionend',
+  transformProp: 'transform',
+  transformCssProp: 'transform'
+};
+var transformCssProp = trans.transformCssProp,
+    transEndEvent = trans.transEndEvent;
+
 
 function checkTrans(styles) {
   var transitionProp = trans.transitionProp,
@@ -86,35 +90,6 @@ function checkTrans(styles) {
     delete styles.transform;
     styles[transformProp] = _value;
   }
-}
-
-function sniffTransition(el) {
-  var res = {};
-  var trans = ['webkitTransition', 'transition', 'mozTransition'];
-  var tform = ['webkitTransform', 'transform', 'mozTransform'];
-  var end = {
-    transition: 'transitionend',
-    mozTransition: 'transitionend',
-    webkitTransition: 'webkitTransitionEnd'
-  };
-
-  trans.some(function hasTransition(prop) {
-    if (el.style[prop] !== undefined) {
-      res.transitionProp = prop;
-      res.transEndEvent = end[prop];
-      return true;
-    }
-  });
-
-  tform.some(function hasTransform(prop) {
-    if (el.style[prop] !== undefined) {
-      res.transformProp = prop;
-      res.transformCssProp = prop.replace(/(.*)Transform/, '-$1-transform');
-      return true;
-    }
-  });
-
-  return res;
 }
 
 var noop = function noop() {};
