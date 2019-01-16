@@ -8,3 +8,5 @@ before_script:
   yarn run build
 script:
   yarn test
+addons:
+  chrome: stable
