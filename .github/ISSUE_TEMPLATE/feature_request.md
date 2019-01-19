@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+Before you submit a feature request, please make sure to read through [Documentation](http://desmonding.me/zooming/docs/index.html).
+
 **Is your feature request related to a problem? Please describe.**
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
