@@ -47,7 +47,17 @@
   }
 
   function setStyle(el, styles, remember) {
-    checkTrans(styles);
+    if (styles.transition) {
+      var value = styles.transition;
+      delete styles.transition;
+      styles.transition = value;
+    }
+
+    if (styles.transform) {
+      var _value = styles.transform;
+      delete styles.transform;
+      styles.transform = _value;
+    }
 
     var s = el.style;
     var original = {};
@@ -68,34 +78,6 @@
     methods.forEach(function bindOne(method) {
       _this[method] = _this[method].bind(that);
     });
-  }
-
-  var trans = {
-    transitionProp: 'transition',
-    transEndEvent: 'transitionend',
-    transformProp: 'transform',
-    transformCssProp: 'transform'
-  };
-  var transformCssProp = trans.transformCssProp,
-      transEndEvent = trans.transEndEvent;
-
-
-  function checkTrans(styles) {
-    var transitionProp = trans.transitionProp,
-        transformProp = trans.transformProp;
-
-
-    if (styles.transition) {
-      var value = styles.transition;
-      delete styles.transition;
-      styles[transitionProp] = value;
-    }
-
-    if (styles.transform) {
-      var _value = styles.transform;
-      delete styles.transform;
-      styles[transformProp] = _value;
-    }
   }
 
   var noop = function noop() {};
@@ -493,7 +475,7 @@
         position: 'relative',
         zIndex: zIndex + 1,
         cursor: enableGrab ? cursor.grab : cursor.zoomOut,
-        transition: transformCssProp + '\n        ' + transitionDuration + 's\n        ' + transitionTimingFunction,
+        transition: 'transform\n        ' + transitionDuration + 's\n        ' + transitionTimingFunction,
         transform: 'translate3d(' + this.translate.x + 'px, ' + this.translate.y + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + this.scale.x + ',' + this.scale.y + ')',
         height: this.rect.height + 'px',
         width: this.rect.width + 'px'
@@ -528,7 +510,7 @@
 
 
       setStyle(this.el, {
-        transition: transformCssProp,
+        transition: 'transform',
         transform: 'translate3d(\n        ' + (this.translate.x + dx) + 'px, ' + (this.translate.y + dy) + 'px, ' + TRANSLATE_Z + 'px)\n        scale(' + (this.scale.x + scaleExtra) + ',' + (this.scale.y + scaleExtra) + ')'
       });
     },
@@ -653,6 +635,8 @@
       y: windowHeight / 2
     };
   }
+
+  var transEndEvent = 'transitionend';
 
   /**
    * Zooming instance.

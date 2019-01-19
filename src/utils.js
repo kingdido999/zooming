@@ -39,7 +39,17 @@ export function getOriginalSource(el) {
 }
 
 export function setStyle(el, styles, remember) {
-  checkTrans(styles)
+  if (styles.transition) {
+    const value = styles.transition
+    delete styles.transition
+    styles.transition = value
+  }
+
+  if (styles.transform) {
+    const value = styles.transform
+    delete styles.transform
+    styles.transform = value
+  }
 
   let s = el.style
   let original = {}
@@ -60,28 +70,4 @@ export function bindAll(_this, that) {
   methods.forEach(function bindOne(method) {
     _this[method] = _this[method].bind(that)
   })
-}
-
-const trans = {
-  transitionProp: 'transition',
-  transEndEvent: 'transitionend',
-  transformProp: 'transform',
-  transformCssProp: 'transform'
-}
-export const { transformCssProp, transEndEvent } = trans
-
-function checkTrans(styles) {
-  const { transitionProp, transformProp } = trans
-
-  if (styles.transition) {
-    const value = styles.transition
-    delete styles.transition
-    styles[transitionProp] = value
-  }
-
-  if (styles.transform) {
-    const value = styles.transform
-    delete styles.transform
-    styles[transformProp] = value
-  }
 }

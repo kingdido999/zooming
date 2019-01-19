@@ -1,4 +1,4 @@
-import { cursor, setStyle, getOriginalSource, transformCssProp } from './utils'
+import { cursor, setStyle, getOriginalSource } from './utils'
 
 // Translate z-axis to fix CSS grid display issue in Chrome:
 // https://github.com/kingdido999/zooming/issues/42
@@ -32,12 +32,12 @@ export default {
       position: 'relative',
       zIndex: zIndex + 1,
       cursor: enableGrab ? cursor.grab : cursor.zoomOut,
-      transition: `${transformCssProp}
+      transition: `transform
         ${transitionDuration}s
         ${transitionTimingFunction}`,
       transform: `translate3d(${this.translate.x}px, ${
         this.translate.y
-        }px, ${TRANSLATE_Z}px)
+      }px, ${TRANSLATE_Z}px)
         scale(${this.scale.x},${this.scale.y})`,
       height: `${this.rect.height}px`,
       width: `${this.rect.width}px`
@@ -75,7 +75,7 @@ export default {
     const [dx, dy] = [windowCenter.x - x, windowCenter.y - y]
 
     setStyle(this.el, {
-      transition: transformCssProp,
+      transition: 'transform',
       transform: `translate3d(
         ${this.translate.x + dx}px, ${this.translate.y +
         dy}px, ${TRANSLATE_Z}px)

@@ -1,15 +1,11 @@
-import {
-  cursor,
-  listen,
-  loadImage,
-  transEndEvent,
-  getOriginalSource
-} from './utils'
+import { cursor, listen, loadImage, getOriginalSource } from './utils'
 import DEFAULT_OPTIONS from './options'
 
 import handler from './handler'
 import overlay from './overlay'
 import target from './target'
+
+const transEndEvent = 'transitionend'
 
 /**
  * Zooming instance.
