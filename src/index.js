@@ -5,8 +5,6 @@ import handler from './handler'
 import overlay from './overlay'
 import target from './target'
 
-const transEndEvent = 'transitionend'
-
 /**
  * Zooming instance.
  */
@@ -114,7 +112,7 @@ export default class Zooming {
     }
 
     const onOpenEnd = () => {
-      listen(target, transEndEvent, onOpenEnd, false)
+      listen(target, 'transitionend', onOpenEnd, false)
       this.lock = false
       this.target.upgradeSource()
 
@@ -125,7 +123,7 @@ export default class Zooming {
       cb(target)
     }
 
-    listen(target, transEndEvent, onOpenEnd)
+    listen(target, 'transitionend', onOpenEnd)
 
     return this
   }
@@ -157,7 +155,7 @@ export default class Zooming {
     }
 
     const onCloseEnd = () => {
-      listen(target, transEndEvent, onCloseEnd, false)
+      listen(target, 'transitionend', onCloseEnd, false)
 
       this.shown = false
       this.lock = false
@@ -174,7 +172,7 @@ export default class Zooming {
       cb(target)
     }
 
-    listen(target, transEndEvent, onCloseEnd)
+    listen(target, 'transitionend', onCloseEnd)
 
     return this
   }
@@ -200,11 +198,11 @@ export default class Zooming {
     this.target.grab(x, y, scaleExtra)
 
     const onGrabEnd = () => {
-      listen(target, transEndEvent, onGrabEnd, false)
+      listen(target, 'transitionend', onGrabEnd, false)
       cb(target)
     }
 
-    listen(target, transEndEvent, onGrabEnd)
+    listen(target, 'transitionend', onGrabEnd)
 
     return this
   }
@@ -229,11 +227,11 @@ export default class Zooming {
     const target = this.target.el
 
     const onMoveEnd = () => {
-      listen(target, transEndEvent, onMoveEnd, false)
+      listen(target, 'transitionend', onMoveEnd, false)
       cb(target)
     }
 
-    listen(target, transEndEvent, onMoveEnd)
+    listen(target, 'transitionend', onMoveEnd)
 
     return this
   }
@@ -257,13 +255,13 @@ export default class Zooming {
     this.target.restoreOpenStyle()
 
     const onReleaseEnd = () => {
-      listen(target, transEndEvent, onReleaseEnd, false)
+      listen(target, 'transitionend', onReleaseEnd, false)
       this.lock = false
       this.released = true
       cb(target)
     }
 
-    listen(target, transEndEvent, onReleaseEnd)
+    listen(target, 'transitionend', onReleaseEnd)
 
     return this
   }

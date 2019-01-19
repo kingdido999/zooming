@@ -636,8 +636,6 @@
     };
   }
 
-  var transEndEvent = 'transitionend';
-
   /**
    * Zooming instance.
    */
@@ -763,7 +761,7 @@
         }
 
         var onOpenEnd = function onOpenEnd() {
-          listen(target$$1, transEndEvent, onOpenEnd, false);
+          listen(target$$1, 'transitionend', onOpenEnd, false);
           _this.lock = false;
           _this.target.upgradeSource();
 
@@ -774,7 +772,7 @@
           cb(target$$1);
         };
 
-        listen(target$$1, transEndEvent, onOpenEnd);
+        listen(target$$1, 'transitionend', onOpenEnd);
 
         return this;
       }
@@ -813,7 +811,7 @@
         }
 
         var onCloseEnd = function onCloseEnd() {
-          listen(target$$1, transEndEvent, onCloseEnd, false);
+          listen(target$$1, 'transitionend', onCloseEnd, false);
 
           _this2.shown = false;
           _this2.lock = false;
@@ -830,7 +828,7 @@
           cb(target$$1);
         };
 
-        listen(target$$1, transEndEvent, onCloseEnd);
+        listen(target$$1, 'transitionend', onCloseEnd);
 
         return this;
       }
@@ -862,11 +860,11 @@
         this.target.grab(x, y, scaleExtra);
 
         var onGrabEnd = function onGrabEnd() {
-          listen(target$$1, transEndEvent, onGrabEnd, false);
+          listen(target$$1, 'transitionend', onGrabEnd, false);
           cb(target$$1);
         };
 
-        listen(target$$1, transEndEvent, onGrabEnd);
+        listen(target$$1, 'transitionend', onGrabEnd);
 
         return this;
       }
@@ -897,11 +895,11 @@
         var target$$1 = this.target.el;
 
         var onMoveEnd = function onMoveEnd() {
-          listen(target$$1, transEndEvent, onMoveEnd, false);
+          listen(target$$1, 'transitionend', onMoveEnd, false);
           cb(target$$1);
         };
 
-        listen(target$$1, transEndEvent, onMoveEnd);
+        listen(target$$1, 'transitionend', onMoveEnd);
 
         return this;
       }
@@ -932,13 +930,13 @@
         this.target.restoreOpenStyle();
 
         var onReleaseEnd = function onReleaseEnd() {
-          listen(target$$1, transEndEvent, onReleaseEnd, false);
+          listen(target$$1, 'transitionend', onReleaseEnd, false);
           _this3.lock = false;
           _this3.released = true;
           cb(target$$1);
         };
 
-        listen(target$$1, transEndEvent, onReleaseEnd);
+        listen(target$$1, 'transitionend', onReleaseEnd);
 
         return this;
       }
