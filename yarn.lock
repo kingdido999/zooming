@@ -3250,10 +3250,10 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
-lint-staged@8.1.1:
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-8.1.1.tgz#4a9837c75ea23d1ea81f2c5b5f334153cc7f7932"
-  integrity sha512-6C9tmmCedjDYQMzHydT5mXRtmEgpGUQDoIl+Ser8cfI/n9grsRUsuG2jd1BWqGf62OV+BV+6n/Drt82uYTCgJg==
+lint-staged@8.1.2:
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-8.1.2.tgz#3f486d438bec9fb61bedf4b49559b66c72ee94ab"
+  integrity sha512-n0693jPSCv3K5TbQu1NCXGQ3oRRw/gZbL1yLBmEgitNCYBGhDYUZBXPzljh2vopckGrZ8pVWbuIHfJCRR31O4A==
   dependencies:
     "@iamstarkov/listr-update-renderer" "0.4.1"
     chalk "^2.3.1"
