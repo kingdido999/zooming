@@ -7,6 +7,8 @@ Image zoom that makes sense.
 - Zoom into a hi-res image if supplied.
 - Easy to integrate & customizable.
 
+If you're interested in maintaining this project, feel free to say hi [here](https://github.com/kingdido999/zooming/issues/144)!
+
 ## Get Started
 
 Try [Demo](https://desmonding.me/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
