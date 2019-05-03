@@ -17,9 +17,14 @@ Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide
 
 These projects are using Zooming. Pull requests are welcome!
 
-- [conference-one](https://github.com/dspachos/conference-one): an one page, Bootstrap 4 template, suitable for academic conferences and events.
-- [OctoberCMS Zooming Images plugin](http://octobercms.com/plugin/alexlit-zoomingimages): open source plugin for October CMS.
+- [beta](https://github.com/sunya9/beta): pnut.io web client.
+- [bluedoc](https://github.com/thebluedoc/bluedoc): an open-source document management tool for enterprise self host.
 - [Chalk](https://github.com/nielsenramon/chalk): a high quality, completely customizable, performant and 100% free Jekyll blog theme.
+- [Drupal Zooming](https://www.drupal.org/project/zooming): integrate Zooming to Drupal.
+- [imagediff](https://github.com/Showmax/imagediff): tool for automated UI testing and catching visual regressions.
+- [OctoberCMS Zooming Images plugin](https://github.com/alex-lit/OctoberCMS-Zooming-Images-Plugin): open source plugin for October CMS.
+- [pubdomordie.club](https://github.com/jckfa/pubdomordie.club): curated public domain images.
+- [vuepress-plugin-zooming](https://github.com/vuepress/vuepress-plugin-zooming): make images zoomable in VuePress. 
 
 ## Caveats / Limitations
 
