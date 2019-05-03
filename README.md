@@ -17,8 +17,6 @@ Please see [Documentation](http://desmonding.me/zooming/docs) for detailed guide
 
 These projects are using Zooming. Pull requests are welcome!
 
-- [atogatari](https://atogatari.com): share and discover your favorite anime characters.
-- [FlowChat](https://flow-chat.com): an open-source, self-hostable, live-updating discussion platform.
 - [conference-one](https://github.com/dspachos/conference-one): an one page, Bootstrap 4 template, suitable for academic conferences and events.
 - [OctoberCMS Zooming Images plugin](http://octobercms.com/plugin/alexlit-zoomingimages): open source plugin for October CMS.
 - [Chalk](https://github.com/nielsenramon/chalk): a high quality, completely customizable, performant and 100% free Jekyll blog theme.
