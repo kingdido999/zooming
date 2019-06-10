@@ -39,7 +39,7 @@
     "lint-staged": "8.2.0",
     "mocha": "6.1.4",
     "prettier-standard": "9.1.1",
-    "rollup": "1.14.5",
+    "rollup": "1.14.6",
     "rollup-plugin-babel": "3.0.3",
     "rollup-plugin-eslint": "4.0.0",
     "rollup-plugin-filesize": "6.1.0",
