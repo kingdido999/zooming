@@ -4037,10 +4037,10 @@ linguist-languages@7.6.0:
   resolved "https://registry.yarnpkg.com/linguist-languages/-/linguist-languages-7.6.0.tgz#6e3d9aa7a98ddf5299f8115788dce8deb8a97c9d"
   integrity sha512-DBZPIWjrQmb/52UlSEN8MTiwwugrAh4NBX9/DyIG8IuO8rDLYDRM+KVPbuiPVKd3ResxYtZB5AiSuc8dTzOSog==
 
-lint-staged@10.0.1:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-10.0.1.tgz#2b9b34372881dedb029e76ef2d21b1caf79745b8"
-  integrity sha512-Qk48GmcMX8zFzhuJsf0ZquILxnnDkY56Y+/y1TGxEe4S5P+RetnisiF0Z15t+Gwa5PMNAG4dPxqGHabW7L4zwg==
+lint-staged@10.0.2:
+  version "10.0.2"
+  resolved "https://registry.yarnpkg.com/lint-staged/-/lint-staged-10.0.2.tgz#cfdd9fa5080b05fc6e29536897da1795bc67c7f9"
+  integrity sha512-ZldhtIfT7bynVa7nmU/1jbK05r9hYQXbIQqZSotqdBCAcGJDEUqaUB7kG3ZCdoe9Qkj6HUM3x2yjCGJRxPUQLA==
   dependencies:
     chalk "^3.0.0"
     commander "^4.0.1"
@@ -4053,6 +4053,7 @@ lint-staged@10.0.1:
     micromatch "^4.0.2"
     normalize-path "^3.0.0"
     please-upgrade-node "^3.2.0"
+    string-argv "0.3.1"
     stringify-object "^3.3.0"
 
 lint-staged@9.4.3:
@@ -6271,7 +6272,7 @@ stream-to-observable@^0.1.0:
   resolved "https://registry.yarnpkg.com/stream-to-observable/-/stream-to-observable-0.1.0.tgz#45bf1d9f2d7dc09bed81f1c307c430e68b84cffe"
   integrity sha1-Rb8dny19wJvtgfHDB8Qw5ouEz/4=
 
-string-argv@^0.3.0:
+string-argv@0.3.1, string-argv@^0.3.0:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/string-argv/-/string-argv-0.3.1.tgz#95e2fbec0427ae19184935f816d74aaa4c5c19da"
   integrity sha512-a1uQGz7IyVy9YwhqjZIZu1c8JO8dNIe20xBmSS6qu9kv++k3JGzCVmprbNN5Kn+BgzD5E7YYwg1CcjuJMRNsvg==
