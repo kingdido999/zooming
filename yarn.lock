@@ -5204,10 +5204,10 @@ preserve@^0.2.0:
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
   integrity sha1-gV7R9uvGWSb4ZbMQwHE7yzMVzks=
 
-prettier-standard@16.1.0:
-  version "16.1.0"
-  resolved "https://registry.yarnpkg.com/prettier-standard/-/prettier-standard-16.1.0.tgz#d0b7e52fc50ac17d3618d5316300f34016539433"
-  integrity sha512-pwS2H/0EKrlvVDY4EhQ1n2cgbmA4nt9/LIO3NTxuIfhRwn2QsWiXAcjnketmMzP15miRv44BHHXWt+m/epkiDw==
+prettier-standard@16.2.1:
+  version "16.2.1"
+  resolved "https://registry.yarnpkg.com/prettier-standard/-/prettier-standard-16.2.1.tgz#751a45e16df18bd94ae2da617641c98aec9c8a06"
+  integrity sha512-7momYIJ5dqEVT7inRhcTVBdmI7UqhNVv/ZdPnkpOKzs8nAEXYBNqVwyMH/6305rWpxglkdX8/IkGpqcQy1Pocw==
   dependencies:
     chalk "^2.4.2"
     diff "^4.0.1"
