@@ -36,7 +36,7 @@
     "cypress": "4.2.0",
     "docsify-cli": "4.4.0",
     "husky": "4.2.3",
-    "lint-staged": "10.0.8",
+    "lint-staged": "10.0.9",
     "mocha": "7.1.1",
     "prettier-standard": "16.2.1",
     "rollup": "1.32.1",
