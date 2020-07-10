@@ -38,7 +38,7 @@
     "husky": "4.2.3",
     "lint-staged": "10.2.2",
     "mocha": "7.1.1",
-    "prettier-standard": "16.2.1",
+    "prettier-standard": "16.4.1",
     "rollup": "1.32.1",
     "rollup-plugin-babel": "3.0.3",
     "rollup-plugin-eslint": "4.0.0",
