@@ -9,9 +9,9 @@ Image zoom that makes sense.
 
 ## Get Started
 
-Try [Demo](https://desmonding.me/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
+Try [Demo](https://kingdido999.github.io/zooming/) or play with [codepen](https://codepen.io/kingdido999/pen/rpYrKV).
 
-Please see [Documentation](https://desmonding.me/zooming/docs) for detailed guide.
+Please see [Documentation](https://kingdido999.github.io/zooming/docs) for detailed guide.
 
 ## Showcase
 
