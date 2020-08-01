@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-Make sure the bug can be reproduced in either [demo](http://desmonding.me/zooming/) page or a forked [codepen](https://codepen.io/kingdido999/pen/rpYrKV) page.
+Make sure the bug can be reproduced in either [demo](https://kingdido999.github.io/zooming/) page or a forked [codepen](https://codepen.io/kingdido999/pen/rpYrKV) page.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
