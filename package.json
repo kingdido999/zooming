@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/kingdido999/zooming/issues"
   },
-  "homepage": "https://desmonding.me/zooming",
+  "homepage": "https://kingdido999.github.io/zooming",
   "devDependencies": {
     "babel-core": "6.26.3",
     "babel-plugin-transform-object-assign": "6.22.0",
