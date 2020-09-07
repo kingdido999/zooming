@@ -35,7 +35,7 @@
     "chai": "4.1.2",
     "cypress": "4.3.0",
     "docsify-cli": "4.4.0",
-    "husky": "4.2.3",
+    "husky": "4.3.0",
     "lint-staged": "10.2.2",
     "mocha": "7.1.1",
     "prettier-standard": "16.2.1",
