@@ -17,7 +17,6 @@ Please see [Documentation](https://kingdido999.github.io/zooming/docs) for detai
 
 These projects are using Zooming. Pull requests are welcome!
 
-- [Atogatari](https://atogatari.desmonding.me): Share and discover your favorite anime characters.
 - [beta](https://github.com/sunya9/beta): pnut.io web client.
 - [bluedoc](https://github.com/thebluedoc/bluedoc): an open-source document management tool for enterprise self host.
 - [Chalk](https://github.com/nielsenramon/chalk): a high quality, completely customizable, performant and 100% free Jekyll blog theme.
