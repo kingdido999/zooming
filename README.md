@@ -23,7 +23,8 @@ These projects are using Zooming. Pull requests are welcome!
 - [Drupal Zooming](https://www.drupal.org/project/zooming): integrate Zooming to Drupal.
 - [imagediff](https://github.com/Showmax/imagediff): tool for automated UI testing and catching visual regressions.
 - [OctoberCMS Zooming Images plugin](https://github.com/alex-lit/OctoberCMS-Zooming-Images-Plugin): open source plugin for October CMS.
-- [vuepress-plugin-zooming](https://github.com/vuepress/vuepress-plugin-zooming): make images zoomable in VuePress. 
+- [vuepress-plugin-zooming](https://github.com/vuepress/vuepress-plugin-zooming): make images zoomable in VuePress.
+- [docusaurus-plugin-zooming](https://github.com/inovector/docusaurus-plugin-zooming): make images zoomable in Docusaurus.
 
 ## Caveats / Limitations
 
